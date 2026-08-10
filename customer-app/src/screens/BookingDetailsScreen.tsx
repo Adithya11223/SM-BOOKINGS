@@ -1,0 +1,313 @@
+import React from 'react';
+import { useBookings } from '../hooks/';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+import { theme } from '../theme';
+import { formatDate } from '../utils/formatters';
+import { TopAppBar } from '../components/navigation/TopAppBar';
+import { StatusBadge } from '../components/badges/StatusBadge';
+import { SectionHeader } from '../components/typography/SectionHeader';
+import { MaterialIcons } from '@expo/vector-icons';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetails'>;
+
+export default function BookingDetailsScreen({ route, navigation }: Props) {
+  const { bookingId } = route.params;
+  const { bookings } = useBookings();
+  
+  const booking = bookings.find(b => b.id === bookingId);
+
+  if (!booking) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TopAppBar title="Booking Details" onBackPress={() => navigation.goBack()} />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Booking not found.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const TimelineItem = ({ title, active, isLast = false }: { title: string, active: boolean, isLast?: boolean }) => (
+    <View style={styles.timelineRow}>
+      <View style={styles.timelineLeft}>
+        <View style={[styles.timelineNode, active && styles.timelineNodeActive]}>
+          {active && <View style={styles.timelineNodeInner} />}
+        </View>
+        {!isLast && <View style={[styles.timelineLine, active && styles.timelineLineActive]} />}
+      </View>
+      <View style={styles.timelineContent}>
+        <Text style={[styles.timelineText, active && styles.timelineTextActive]}>{title}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <TopAppBar title={`Booking #${(booking as any).bookingNumber || booking.id.substring(0, 8)}`} onBackPress={() => navigation.goBack()} />
+      
+      <ScrollView contentContainerStyle={styles.content}>
+        
+        <View style={styles.headerCard}>
+          <View style={styles.headerTop}>
+            <Text style={styles.serviceType}>{booking.type === 'salon' ? 'Visiting Shop' : 'Home Service'}</Text>
+            <StatusBadge status={booking.status} />
+          </View>
+          <View style={styles.dateTimeRow}>
+            <MaterialIcons name="event" size={20} color={theme.colors.primary} />
+            <Text style={styles.dateTimeText}>{formatDate(booking.date)}</Text>
+            <View style={styles.dot} />
+            <MaterialIcons name="schedule" size={20} color={theme.colors.primary} />
+            <Text style={styles.dateTimeText}>{booking.time}</Text>
+          </View>
+        </View>
+
+        <SectionHeader title="Status Timeline" style={styles.sectionHeader} />
+        <View style={styles.card}>
+          {booking.status === 'cancelled' ? (
+            <TimelineItem title="Cancelled" active={true} isLast />
+          ) : (
+            <>
+              <TimelineItem title="Pending" active={true} />
+              <TimelineItem 
+                title="Confirmed" 
+                active={booking.status === 'confirmed' || booking.status === 'completed'} 
+              />
+              <TimelineItem 
+                title="Completed" 
+                active={booking.status === 'completed'} 
+                isLast 
+              />
+            </>
+          )}
+        </View>
+
+        <SectionHeader title="Customer Information" style={styles.sectionHeader} />
+        <View style={styles.card}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Name</Text>
+            <Text style={styles.infoValue}>{booking.customerName}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Phone</Text>
+            <Text style={styles.infoValue}>{booking.customerPhone}</Text>
+          </View>
+          
+          {booking.type !== 'salon' && booking.address ? (
+            <View style={[styles.infoRow, { marginTop: theme.spacing.sm }]}>
+              <Text style={styles.infoLabel}>Address</Text>
+              <Text style={styles.infoValue}>{booking.address}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        <SectionHeader title="Booked Services" style={styles.sectionHeader} />
+        <View style={styles.card}>
+          {booking.items.map((item, index) => (
+            <View key={item.service.id} style={[styles.serviceRow, index > 0 && styles.borderTop]}>
+              <View style={styles.serviceInfo}>
+                <Text style={styles.serviceName}>{item.service.name}</Text>
+                <Text style={styles.serviceQty}>Qty: {item.quantity}</Text>
+              </View>
+              <Text style={styles.servicePrice}>₹{(item.service.price * item.quantity).toFixed(2)}</Text>
+            </View>
+          ))}
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalValue}>₹{booking.totalPrice.toFixed(2)}</Text>
+          </View>
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontSize: theme.typography.h3.fontSize,
+    color: theme.colors.error,
+  },
+  content: {
+    padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxxl,
+  },
+  headerCard: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.xl,
+    marginBottom: theme.spacing.md,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.lg,
+  },
+  serviceType: {
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: '700',
+    color: theme.colors.background,
+  },
+  dateTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    alignSelf: 'flex-start',
+  },
+  dateTimeText: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginLeft: 6,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: theme.colors.border,
+    marginHorizontal: theme.spacing.sm,
+  },
+  sectionHeader: {
+    paddingHorizontal: 0,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+  },
+  card: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  
+  // Timeline
+  timelineRow: {
+    flexDirection: 'row',
+  },
+  timelineLeft: {
+    width: 30,
+    alignItems: 'center',
+  },
+  timelineNode: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  timelineNodeActive: {
+    backgroundColor: `${theme.colors.primary}30`,
+  },
+  timelineNodeInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.colors.primary,
+  },
+  timelineLine: {
+    width: 2,
+    height: 30,
+    backgroundColor: theme.colors.border,
+    marginVertical: -2,
+    zIndex: 1,
+  },
+  timelineLineActive: {
+    backgroundColor: theme.colors.primary,
+  },
+  timelineContent: {
+    flex: 1,
+    paddingBottom: 24,
+    paddingLeft: theme.spacing.sm,
+  },
+  timelineText: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.textSecondary,
+    marginTop: -2,
+  },
+  timelineTextActive: {
+    color: theme.colors.text,
+    fontWeight: '600',
+  },
+
+  // Info Row
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: theme.spacing.sm,
+  },
+  infoLabel: {
+    width: 100,
+    fontSize: theme.typography.bodySmall.fontSize,
+    color: theme.colors.textSecondary,
+  },
+  infoValue: {
+    flex: 1,
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text,
+    fontWeight: '500',
+  },
+
+  // Services Row
+  serviceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.sm,
+  },
+  borderTop: {
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  serviceInfo: {
+    flex: 1,
+    paddingRight: theme.spacing.sm,
+  },
+  serviceName: {
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text,
+    marginBottom: 2,
+  },
+  serviceQty: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.textSecondary,
+  },
+  servicePrice: {
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  totalLabel: {
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  totalValue: {
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: '700',
+    color: theme.colors.primary,
+  },
+});

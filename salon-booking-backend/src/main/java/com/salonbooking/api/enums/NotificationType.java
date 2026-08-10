@@ -1,0 +1,13 @@
+package com.salonbooking.api.enums;
+
+public enum NotificationType {
+    BOOKING_CREATED,
+    BOOKING_UPDATED,
+    BOOKING_CANCELLED,
+    PROMOTIONAL,
+    SERVICE_ADDED,
+    SERVICE_UPDATED,
+    BUSINESS_UPDATED,
+    PRICE_UPDATED,
+    SALON_CLOSED
+}
