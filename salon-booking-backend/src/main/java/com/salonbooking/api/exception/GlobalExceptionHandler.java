@@ -40,11 +40,11 @@ public class GlobalExceptionHandler {
         return ApiResponse.error("Validation failed: " + errorMessage);
     }
 
-    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    @ExceptionHandler({org.springframework.security.authentication.BadCredentialsException.class, org.springframework.security.authentication.InternalAuthenticationServiceException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ApiResponse<Void> handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex) {
-        log.warn("Bad Credentials: {}", ex.getMessage());
-        return ApiResponse.error("Invalid email or password.");
+    public ApiResponse<Void> handleBadCredentials(Exception ex) {
+        log.warn("Authentication Failed: {}", ex.getMessage());
+        return ApiResponse.error("Invalid phone number, email, or password.");
     }
 
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
@@ -66,6 +66,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleAllExceptions(Exception ex) {
         log.error("Internal Server Error: ", ex);
-        return ApiResponse.error("An unexpected error occurred. Please try again later.");
+        return ApiResponse.error("Error: " + ex.getMessage());
     }
 }
