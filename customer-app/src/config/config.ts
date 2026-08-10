@@ -6,7 +6,9 @@ const ENV = {
     API_URL: 'http://10.0.2.2:8080/api/v1',
   },
   prod: {
-    API_URL: 'https://api.mysalon.com/api/v1',
+    // You can set this variable before running eas build:
+    // EXPO_PUBLIC_API_URL=https://api.mysalon.com/api/v1 eas build
+    API_URL: process.env.EXPO_PUBLIC_API_URL || 'https://api.mysalon.com/api/v1',
   },
 };
 
