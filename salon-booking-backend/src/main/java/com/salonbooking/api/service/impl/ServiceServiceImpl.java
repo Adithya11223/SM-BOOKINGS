@@ -72,7 +72,7 @@ public class ServiceServiceImpl implements ServiceService {
         try {
             com.salonbooking.api.entity.Notification notification = com.salonbooking.api.entity.Notification.builder()
                     .title("New Service Available!")
-                    .message(String.format("Now in shree matha beauty parlor \"%s\" is available in %s services", saved.getName(), saved.getType().equals(com.salonbooking.api.enums.ServiceType.HOME) ? "Home" : (saved.getType().equals(com.salonbooking.api.enums.ServiceType.EVENT) ? "Event" : "Salon")))
+                    .message(String.format("Now in shree matha beauty parlor \"%s\" is available in %s services", saved.getName(), saved.getType().equals(com.salonbooking.api.enums.ServiceType.HOME_SERVICE) ? "Home" : "Salon"))
                     .type(com.salonbooking.api.enums.NotificationType.SERVICE_ADDED)
                     .receiverType("CUSTOMER")
                     .serviceId(saved.getId())
