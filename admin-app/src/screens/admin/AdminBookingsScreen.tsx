@@ -26,7 +26,9 @@ export default function AdminBookingsScreen({ navigation }: Props) {
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
       const matchesTab = booking.status === activeTab;
-      const matchesSearch = booking.bookingNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
+      const matchesSearch = searchQuery.length > 0 
+        ? (booking.bookingNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
+        : true;
       return matchesTab && matchesSearch;
     });
   }, [bookings, activeTab, searchQuery]);

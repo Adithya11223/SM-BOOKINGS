@@ -11,8 +11,10 @@ if (Platform.OS !== 'web') {
   });
 }
 
-// Adjust this to your backend IP if running on device
-const SOCKET_URL = 'http://10.0.2.2:8080/ws'; 
+import { API_URL } from './axios';
+
+// Dynamically derive the WebSocket URL from the API_URL (works for both dev and prod)
+const SOCKET_URL = API_URL.replace('/api/v1', '/ws');
 
 export type TopicHandler = (message: any) => void;
 

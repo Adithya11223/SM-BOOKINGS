@@ -7,7 +7,10 @@ import { RootProvider } from './src/context/RootProvider';
 import { ErrorBoundary } from './src/components/layout/ErrorBoundary';
 import { navigationRef } from './src/navigation/navigationRef';
 
+import { usePushNotifications } from './src/hooks/usePushNotifications';
+
 const AppContent = () => {
+  
   return (
     <NavigationContainer ref={navigationRef}>
       <AdminRootNavigator />

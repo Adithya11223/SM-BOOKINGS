@@ -26,7 +26,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (!user) return; // Do not fetch if not authenticated
     try {
       setIsLoading(true);
-      const fetchedBookings = await BookingService.getBookings();
+      const fetchedBookings = await BookingService.getBookings({ size: 1000, sort: 'createdAt' });
       setBookings(fetchedBookings);
     } catch (error) {
       console.error('Failed to fetch bookings:', error);
@@ -59,9 +59,19 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     webSocketService.subscribe('/topic/bookings', handleBookingUpdate);
+    
+    // Add AppState listener to refetch bookings when coming to foreground
+    const appStateSubscription = import('react-native').then(({ AppState }) => {
+       return AppState.addEventListener('change', nextAppState => {
+         if (nextAppState === 'active') {
+           fetchBookings();
+         }
+       });
+    });
 
     return () => {
       webSocketService.unsubscribe('/topic/bookings', handleBookingUpdate);
+      appStateSubscription.then(sub => sub.remove());
     };
   }, [fetchBookings, user]);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAppConfig, useBookings, useNotifications } from '../../hooks/';
+import { useAppConfig, useBookings } from '../../hooks/';
 import { useAuth } from '../../hooks/useAuth';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +17,6 @@ type Props = {
 export default function AdminDashboardScreen({ navigation }: Props) {
   const { businessSettings, isLoading: appConfigLoading, refreshSettings } = useAppConfig();
   const { bookings, isLoading: bookingsLoading, refreshBookings } = useBookings();
-  const { unreadCount, fetchNotifications } = useNotifications();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -25,7 +24,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refreshSettings(), refreshBookings(), fetchNotifications()]);
+    await Promise.all([refreshSettings(), refreshBookings()]);
     setRefreshing(false);
   };
 
@@ -108,18 +107,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
             </View>
           </View>
         </View>
-        <TouchableOpacity 
-          style={styles.notificationIcon}
-          onPress={() => navigation.navigate('Notifications')}
-        >
-          <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
-          {unreadCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </MotiView>
+        </MotiView>
 
       <ScrollView 
         contentContainerStyle={styles.content}
@@ -288,29 +276,6 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.subtitle.fontSize,
     fontWeight: '800',
     color: theme.colors.text,
-  },
-  notificationIcon: {
-    position: 'relative',
-    padding: 4,
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: theme.colors.error,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 2,
-    borderColor: theme.colors.background,
-  },
-  badgeText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: 'bold',
   },
   content: {
     padding: theme.spacing.lg,

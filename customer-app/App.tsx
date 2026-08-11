@@ -21,7 +21,6 @@ const AppContent = () => {
 };
 
 export default function App() {
-  usePushNotifications();
 
   return (
     <AuthProvider>

@@ -17,6 +17,7 @@
     },
     "android": {
       "package": "com.smsaloon.admin",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -27,6 +28,12 @@
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "7dce05f6-9290-4440-b2e8-054e5ac5a5d8"
+      }
+    },
+    "owner": "adithya_sm"
   }
 }

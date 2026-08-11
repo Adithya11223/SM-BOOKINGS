@@ -173,7 +173,7 @@ export default function BusinessSettingsScreen({ navigation }: Props) {
         <SectionHeader title="Advertisement Popup" style={styles.sectionHeader} />
         <View style={{ marginBottom: theme.spacing.lg }}>
           <Text style={{ color: theme.colors.textSecondary, marginBottom: theme.spacing.md }}>
-            Upload an image to show as a popup to customers. It will automatically expire after 7 days, and won't be shown to the same customer more than once every 24 hours.
+            Upload an image to show as a popup to customers. It will automatically expire after 7 days, and won't be shown to the same customer more than once every 10 minutes.
           </Text>
           <ImageUploadButton label="Ad Image" field="adImageUrl" url={settings.adImageUrl as string} />
           {settings.adImageUrl ? (

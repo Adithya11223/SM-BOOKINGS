@@ -7,6 +7,7 @@ export class BookingService {
   static mapToFrontend(b: any): Booking {
     return {
       ...b,
+      bookingNumber: b.bookingNumber || b.reference || b.id || '',
       customerName: b.customer?.name || b.customerName,
       customerPhone: b.customer?.phoneNumber || b.customerPhone,
       type: b.bookingType === 'SALON_VISIT' ? 'salon' : 'home',
