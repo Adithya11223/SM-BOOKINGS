@@ -1,16 +1,21 @@
 package com.salonbooking.api.service.impl;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
 import com.salonbooking.api.entity.FcmToken;
 import com.salonbooking.api.entity.Notification;
 import com.salonbooking.api.repository.FcmTokenRepository;
 import com.salonbooking.api.service.PushNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -18,6 +23,7 @@ import java.util.List;
 public class PushNotificationServiceImpl implements PushNotificationService {
 
     private final FcmTokenRepository fcmTokenRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public void sendPushNotification(Notification notification) {
@@ -29,7 +35,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             if (notification.getReceiverId() != null) {
                 tokens = fcmTokenRepository.findByCustomerId(notification.getReceiverId());
             } else {
-                tokens = fcmTokenRepository.findByCustomerIdIsNotNull();
+                tokens = fcmTokenRepository.findByAdminIdIsNull();
             }
         }
 
@@ -38,43 +44,51 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             return;
         }
 
+        List<Map<String, Object>> messages = new ArrayList<>();
         for (FcmToken fcmToken : tokens) {
-            try {
-                com.google.firebase.messaging.Notification fcmNotification = com.google.firebase.messaging.Notification.builder()
-                        .setTitle(notification.getTitle())
-                        .setBody(notification.getMessage())
-                        .build();
+            String token = fcmToken.getToken();
+            if (token == null || !token.startsWith("ExponentPushToken[")) {
+                log.warn("Invalid Expo push token format: {}", token);
+                continue;
+            }
 
-                com.google.firebase.messaging.AndroidConfig androidConfig = com.google.firebase.messaging.AndroidConfig.builder()
-                        .setNotification(com.google.firebase.messaging.AndroidNotification.builder()
-                                .setChannelId("default")
-                                .setSound("default")
-                                .setColor("#FF231F7C")
-                                .build())
-                        .build();
+            Map<String, Object> message = new HashMap<>();
+            message.put("to", token);
+            message.put("sound", "default");
+            message.put("title", notification.getTitle());
+            message.put("body", notification.getMessage());
 
-                com.google.firebase.messaging.ApnsConfig apnsConfig = com.google.firebase.messaging.ApnsConfig.builder()
-                        .setAps(com.google.firebase.messaging.Aps.builder()
-                                .setSound("default")
-                                .build())
-                        .build();
+            Map<String, String> data = new HashMap<>();
+            data.put("notificationType", notification.getType().name());
+            data.put("bookingId", notification.getBooking() != null ? notification.getBooking().getId().toString() : "");
+            data.put("screen", notification.getBooking() != null ? (notification.getReceiverType().equals("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications");
+            message.put("data", data);
 
-                Message message = Message.builder()
-                        .setNotification(fcmNotification)
-                        .setAndroidConfig(androidConfig)
-                        .setApnsConfig(apnsConfig)
-                        .putData("title", notification.getTitle())
-                        .putData("body", notification.getMessage())
-                        .putData("notificationType", notification.getType().name())
-                        .putData("bookingId", notification.getBooking() != null ? notification.getBooking().getId().toString() : "")
-                        .putData("screen", notification.getBooking() != null ? (notification.getReceiverType().equals("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications")
-                        .setToken(fcmToken.getToken())
-                        .build();
+            messages.add(message);
+        }
 
-                String response = FirebaseMessaging.getInstance().send(message);
-                log.info("Successfully sent message to token {}: {}", fcmToken.getToken(), response);
-            } catch (Exception e) {
-                log.error("Failed to send push notification via FCM to token {}", fcmToken.getToken(), e);
+        if (messages.isEmpty()) {
+            return;
+        }
+
+        try {
+            // Read optional FCM server key from environment (used by some back‑ends). Not required by Expo Push but kept for future use.
+            String fcmServerKey = System.getenv("FCM_SERVER_KEY");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Accept", "application/json");
+            if (fcmServerKey != null && !fcmServerKey.isBlank()) {
+                headers.set("Authorization", "key=" + fcmServerKey);
+            }
+
+            HttpEntity<List<Map<String, Object>>> request = new HttpEntity<>(messages, headers);
+            String response = restTemplate.postForObject("https://exp.host/--/api/v2/push/send", request, String.class);
+            log.info("Sent Expo Push notifications. Response: {}", response);
+        } catch (Exception e) {
+            log.error("Failed to send Expo push notifications", e);
+            // If the exception contains a response body, log it for debugging
+            if (e.getCause() != null) {
+                log.error("Underlying cause: {}", e.getCause().getMessage());
             }
         }
     }

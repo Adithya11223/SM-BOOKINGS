@@ -41,6 +41,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final BookingItemRepository bookingItemRepository;
     private final NotificationRepository notificationRepository;
+    private final com.salonbooking.api.repository.FcmTokenRepository fcmTokenRepository;
     
     private final BookingMapper bookingMapper;
     
@@ -142,6 +143,13 @@ public class BookingServiceImpl implements BookingService {
         booking.setTotalDuration(priceCalculator.calculateTotalDuration(items));
 
         Booking savedBooking = bookingRepository.save(booking);
+
+        if (request.getDeviceId() != null) {
+            fcmTokenRepository.findByDeviceId(request.getDeviceId()).ifPresent(token -> {
+                token.setCustomerId(customer.getId());
+                fcmTokenRepository.save(token);
+            });
+        }
         
         Notification notification = notificationGenerator.generateBookingCreatedNotification(savedBooking);
         notification = notificationRepository.save(notification);

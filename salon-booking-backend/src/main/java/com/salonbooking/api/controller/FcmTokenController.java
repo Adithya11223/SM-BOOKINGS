@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.salonbooking.api.security.UserDetailsImpl;
 
 @Slf4j
 @RestController
@@ -40,6 +43,16 @@ public class FcmTokenController {
     @Operation(summary = "Register FCM Token", description = "Registers or updates a device FCM token")
     public ResponseEntity<ApiResponse<Void>> registerToken(@RequestBody FcmTokenRequest request) {
         log.info("Received FCM token registration for device: {}", request.getDeviceId());
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+            if ("CUSTOMER".equalsIgnoreCase(request.getReceiverType())) {
+                request.setCustomerId(userDetails.getId());
+            } else if ("ADMIN".equalsIgnoreCase(request.getReceiverType())) {
+                request.setAdminId(userDetails.getId());
+            }
+        }
 
         Optional<FcmToken> existingToken = fcmTokenRepository.findByDeviceId(request.getDeviceId());
 

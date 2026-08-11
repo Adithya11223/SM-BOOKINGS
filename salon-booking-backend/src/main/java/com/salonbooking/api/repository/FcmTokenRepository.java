@@ -15,5 +15,5 @@ public interface FcmTokenRepository extends JpaRepository<FcmToken, UUID> {
     
     List<FcmToken> findByAdminIdIsNotNull();
     List<FcmToken> findByCustomerId(UUID customerId);
-    List<FcmToken> findByCustomerIdIsNotNull(); // All customers
+    List<FcmToken> findByAdminIdIsNull(); // All customers (even if not linked to a specific customer ID yet)
 }

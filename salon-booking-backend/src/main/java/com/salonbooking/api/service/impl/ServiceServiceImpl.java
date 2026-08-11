@@ -26,6 +26,8 @@ public class ServiceServiceImpl implements ServiceService {
     private final ServiceRepository repository;
     private final ServiceMapper mapper;
     private final BusinessSettingsService businessSettingsService;
+    private final com.salonbooking.api.repository.NotificationRepository notificationRepository;
+    private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -66,6 +68,21 @@ public class ServiceServiceImpl implements ServiceService {
         
         Service saved = repository.save(service);
         log.info("Created new service: {}", saved.getName());
+
+        try {
+            com.salonbooking.api.entity.Notification notification = com.salonbooking.api.entity.Notification.builder()
+                    .title("New Service Available!")
+                    .message(String.format("Now in shree matha beauty parlor \"%s\" is available in %s services", saved.getName(), saved.getType().equals(com.salonbooking.api.enums.ServiceType.HOME) ? "Home" : (saved.getType().equals(com.salonbooking.api.enums.ServiceType.EVENT) ? "Event" : "Salon")))
+                    .type(com.salonbooking.api.enums.NotificationType.SERVICE_ADDED)
+                    .receiverType("CUSTOMER")
+                    .serviceId(saved.getId())
+                    .build();
+            notificationRepository.save(notification);
+            pushNotificationService.sendPushNotification(notification);
+        } catch (Exception e) {
+            log.error("Failed to send push notification for new service", e);
+        }
+
         return mapper.toResponse(saved);
     }
 

@@ -47,6 +47,8 @@ public class CreateBookingRequest {
 
     private Integer peopleCount;
 
+    private String deviceId;
+
     @NotEmpty(message = "At least one service must be selected")
     @Valid
     private List<BookingItemRequest> items;
