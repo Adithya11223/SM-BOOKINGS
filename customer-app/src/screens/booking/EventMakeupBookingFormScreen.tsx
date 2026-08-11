@@ -34,7 +34,6 @@ export default function EventMakeupBookingFormScreen({ navigation }: Props) {
     setIsLoading(true);
 
     setTimeout(async () => {
-      setIsLoading(false);
       const bookingId = await addBooking({
         type: 'home',
         items: cart,
@@ -47,6 +46,7 @@ export default function EventMakeupBookingFormScreen({ navigation }: Props) {
         address,
         notes,
       });
+      setIsLoading(false);
 
       if (bookingId) {
         clearCart();

@@ -34,7 +34,6 @@ export default function SalonBookingFormScreen({ navigation }: Props) {
     
     // Simulate network latency for polish
     setTimeout(async () => {
-      setIsLoading(false);
       const bookingId = await addBooking({
         type: 'salon',
         items: cart,
@@ -46,6 +45,7 @@ export default function SalonBookingFormScreen({ navigation }: Props) {
         customerPhone: phone,
         notes,
       });
+      setIsLoading(false);
 
       if (bookingId) {
         clearCart();

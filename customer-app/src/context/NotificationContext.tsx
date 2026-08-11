@@ -92,9 +92,11 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     fetchNotifications();
 
     const receiverId = user?.id || deviceId;
-    if (user?.id) {
-      webSocketService.connect();
-      
+    
+    // Always connect to WebSockets so that Bookings, Services, and Business Config can get real-time updates
+    webSocketService.connect();
+    
+    if (receiverId) {
       const handleWsNotification = (parsed: any) => {
         setNotifications(prev => {
           const exists = prev.find(n => n.id === parsed.id);

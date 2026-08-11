@@ -57,28 +57,44 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     const handleBookingUpdate = (payload: any) => {
       const { action, data } = payload;
       if (action === 'UPDATED') {
-        setBookings(prev => prev.map(b => b.id === data.id ? BookingService.mapToFrontend(data) : b));
-      } else if (action === 'CREATED') {
-        const mappedData = BookingService.mapToFrontend(data);
         setBookings(prev => {
-          if (!prev.find(b => b.id === mappedData.id)) {
-            return [mappedData, ...prev];
+          if (prev.some(b => b.id === data.id)) {
+            return prev.map(b => b.id === data.id ? BookingService.mapToFrontend(data) : b);
           }
           return prev;
         });
       }
+      // We intentionally ignore 'CREATED' actions here.
+      // Since there is no user login, a device only owns bookings created locally on it.
+      // Local creations are already added to state and AsyncStorage by addBooking.
+      // Processing generic CREATED events would cause other users' bookings to show up.
     };
 
     webSocketService.subscribe('/topic/bookings', handleBookingUpdate);
+    
+    // Add AppState listener to refetch bookings when coming to foreground
+    // This is crucial because WebSockets drop messages while the app is backgrounded
+    const appStateSubscription = import('react-native').then(({ AppState }) => {
+       return AppState.addEventListener('change', nextAppState => {
+         if (nextAppState === 'active') {
+           fetchBookings();
+         }
+       });
+    });
 
     return () => {
       webSocketService.unsubscribe('/topic/bookings', handleBookingUpdate);
+      appStateSubscription.then(sub => sub.remove());
     };
   }, [fetchBookings]);
 
   const addBooking = useCallback(async (bookingData: Partial<Booking>) => {
     try {
       setIsLoading(true);
+      const deviceIdStr = await AsyncStorage.getItem('deviceId');
+      if (deviceIdStr) {
+        (bookingData as any).deviceId = deviceIdStr;
+      }
       const newBooking = await BookingService.createBooking(bookingData);
       
       // Save reference to AsyncStorage

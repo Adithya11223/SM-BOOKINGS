@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBookings } from '../hooks/';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { Booking } from '../types';
+import { BookingService } from '../api/BookingService';
 import { theme } from '../theme';
 import { formatDate } from '../utils/formatters';
 import { TopAppBar } from '../components/navigation/TopAppBar';
@@ -17,7 +19,35 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
   const { bookings } = useBookings();
   
-  const booking = bookings.find(b => b.id === bookingId);
+  const initialBooking = bookings.find(b => b.id === bookingId);
+  const [booking, setBooking] = useState<Booking | undefined>(initialBooking);
+  const [isLoading, setIsLoading] = useState(!initialBooking);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        setIsLoading(true);
+        const fullBooking = await BookingService.getBookingById(bookingId);
+        setBooking(fullBooking);
+      } catch (error) {
+        console.error('Failed to fetch full booking details:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [bookingId]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TopAppBar title="Booking Details" onBackPress={() => navigation.goBack()} />
+        <View style={styles.errorContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!booking) {
     return (

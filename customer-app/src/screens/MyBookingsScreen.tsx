@@ -65,7 +65,9 @@ export default function MyBookingsScreen({ navigation }: Props) {
         }
         renderItem={({ item }) => (
           <BookingCard
-            serviceName={item.items[0]?.service.name + (item.items.length > 1 ? ` +${item.items.length - 1} more` : '')}
+            serviceName={item.items && item.items.length > 0
+              ? item.items[0]?.service?.name + (item.items.length > 1 ? ` +${item.items.length - 1} more` : '')
+              : (item.type === 'salon' ? 'Visiting Shop' : 'Home Service')}
             date={formatDate(item.date)}
             time={item.time}
             status={item.status}

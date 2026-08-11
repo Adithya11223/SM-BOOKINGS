@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppConfig, useNotifications } from '../hooks/';
+import { useAppConfig } from '../hooks/';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, RefreshControl, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,7 +16,6 @@ type HomeScreenProps = {
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const { businessSettings, refreshSettings } = useAppConfig();
-  const { unreadCount } = useNotifications();
   const { user } = useAuth();
   
   const [search, setSearch] = useState('');
@@ -87,17 +86,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.greeting} numberOfLines={1}>{getGreeting()} <Text style={styles.userName}>{user?.name || 'Guest'}</Text></Text>
             </View>
           </View>
-          <TouchableOpacity 
-            style={styles.notificationBtn}
-            onPress={() => navigation.navigate('Notifications')}
-          >
-            <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
-            {unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
         </MotiView>
         
         {businessSettings && (
@@ -235,29 +223,6 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.bodySmall.fontSize,
     fontWeight: '700',
     color: theme.colors.text,
-  },
-  notificationBtn: {
-    position: 'relative',
-    padding: 4,
-  },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: theme.colors.error,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 2,
-    borderColor: theme.colors.background,
-  },
-  badgeText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: 'bold',
   },
   operatingHoursCard: {
     flexDirection: 'row',

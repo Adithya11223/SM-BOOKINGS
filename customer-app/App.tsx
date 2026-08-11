@@ -7,6 +7,7 @@ import { RootProvider } from './src/context/RootProvider';
 import { ErrorBoundary } from './src/components/layout/ErrorBoundary';
 import { navigationRef } from './src/navigation/navigationRef';
 import { AuthProvider } from './src/context/AuthContext';
+import { usePushNotifications } from './src/hooks/usePushNotifications';
 
 import { AdManager } from './src/components/overlays/AdManager';
 
@@ -20,6 +21,8 @@ const AppContent = () => {
 };
 
 export default function App() {
+  usePushNotifications();
+
   return (
     <AuthProvider>
       <SafeAreaProvider>

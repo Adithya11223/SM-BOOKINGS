@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppConfig } from '../../hooks/useAppConfig';
 import { AdvertisementModal } from './AdvertisementModal';
 
-const AD_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+const AD_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 
 export const AdManager: React.FC = () => {
   const { businessSettings } = useAppConfig();
