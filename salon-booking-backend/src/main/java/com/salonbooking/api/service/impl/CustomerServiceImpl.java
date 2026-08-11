@@ -52,6 +52,21 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public Customer getOrCreateCustomer(String name, String phoneNumber, String email) {
         return repository.findByPhoneNumber(phoneNumber)
+                .map(existing -> {
+                    boolean updated = false;
+                    if (name != null && !name.trim().isEmpty() && !name.equals(existing.getName())) {
+                        existing.setName(name);
+                        updated = true;
+                    }
+                    if (email != null && !email.trim().isEmpty() && !email.equals(existing.getEmail())) {
+                        existing.setEmail(email);
+                        updated = true;
+                    }
+                    if (updated) {
+                        return repository.save(existing);
+                    }
+                    return existing;
+                })
                 .orElseGet(() -> {
                     Customer newCustomer = Customer.builder()
                             .name(name)
