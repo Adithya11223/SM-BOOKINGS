@@ -81,7 +81,7 @@ export const BookingCard = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.card,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.md,
     ...shadows.medium,

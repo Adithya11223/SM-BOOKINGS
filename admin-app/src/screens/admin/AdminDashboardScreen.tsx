@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   statCard: {
     width: '48%',
     backgroundColor: theme.colors.card,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     ...shadows.medium,
   },
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   },
   chartCard: {
     backgroundColor: theme.colors.card,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     height: 200,
     ...shadows.medium,

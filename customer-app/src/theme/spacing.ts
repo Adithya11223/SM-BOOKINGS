@@ -1,20 +1,20 @@
 export const spacing = {
   xs: 4,
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
+  md: 16, // increased from 12
+  lg: 20, // increased from 16
+  xl: 32, // increased from 24
+  xxl: 40,
+  xxxl: 56,
 };
 
 export type Spacing = typeof spacing;
 
 export const borderRadius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20, // Requested 20px
-  xxl: 24,
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 24, // increased from 20
+  xxl: 32,
   round: 9999,
 };

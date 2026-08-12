@@ -14,23 +14,23 @@ export type Theme = typeof theme;
 // Common reusable shadow style for cards
 export const shadows = {
   soft: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  medium: {
-    shadowColor: '#000',
+    shadowColor: '#B87C7C', // tinted shadow!
     shadowOffset: {
       width: 0,
       height: 4,
     },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 5,
+    elevation: 3,
+  },
+  medium: {
+    shadowColor: '#B87C7C',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 6,
   }
 };

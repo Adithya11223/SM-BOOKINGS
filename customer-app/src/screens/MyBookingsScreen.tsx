@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   sortChip: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
     borderColor: theme.colors.border,

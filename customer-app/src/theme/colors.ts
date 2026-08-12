@@ -1,13 +1,13 @@
 export const colors = {
-  primary: '#E91E63',
-  secondary: '#F8BBD0',
+  primary: '#B87C7C',
+  secondary: '#F2E4E6',
   background: '#FFFFFF',
   card: '#FAFAFA',
-  text: '#1A1A1A',
-  textSecondary: '#757575',
-  success: '#4CAF50',
-  error: '#F44336',
-  border: '#EEEEEE',
+  text: '#2A2A2A',
+  textSecondary: '#7A7A7A',
+  success: '#5B8C5A', // softer elegant green
+  error: '#D26B6B', // softer red that matches primary
+  border: '#F0F0F0',
   transparent: 'transparent',
 };
 
