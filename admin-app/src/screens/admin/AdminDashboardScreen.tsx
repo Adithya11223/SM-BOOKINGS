@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAppConfig, useBookings } from '../../hooks/';
+import { useAppConfig, useBookings, useNotifications } from '../../hooks/';
 import { useAuth } from '../../hooks/useAuth';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,6 +21,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [announcementVisible, setAnnouncementVisible] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const initialLoading = appConfigLoading || bookingsLoading;
 
@@ -37,7 +38,11 @@ export default function AdminDashboardScreen({ navigation }: Props) {
     return 'Good Evening,';
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const getLocalFormattedDate = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  const todayStr = getLocalFormattedDate(new Date());
   const todaysBookings = bookings.filter(b => b.date.startsWith(todayStr));
   const revenueToday = todaysBookings
     .filter(b => b.status === 'completed' || b.status === 'confirmed')
@@ -60,7 +65,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
   const last7Days = Array.from({length: 7}, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split('T')[0];
+    return getLocalFormattedDate(d);
   });
 
   const revenueData = last7Days.map(dateStr => {
@@ -75,18 +80,24 @@ export default function AdminDashboardScreen({ navigation }: Props) {
     return ['S','M','T','W','T','F','S'][date.getDay()];
   });
 
-  const StatCard = ({ title, value, icon, color, delay = 0 }: any) => (
+  const StatCard = ({ title, value, icon, color, delay = 0, onPress }: any) => (
     <MotiView 
       from={{ opacity: 0, scale: 0.9, translateY: 10 }}
       animate={{ opacity: 1, scale: 1, translateY: 0 }}
       transition={{ type: 'spring', delay }}
-      style={styles.statCard}
+      style={[styles.statCard, { padding: 0, overflow: 'hidden' }]}
     >
-      <View style={[styles.statIconBox, { backgroundColor: `${color}15` }]}>
-        <MaterialIcons name={icon} size={24} color={color} />
-      </View>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statTitle}>{title}</Text>
+      <TouchableOpacity 
+        onPress={onPress} 
+        activeOpacity={0.7} 
+        style={{ padding: theme.spacing.lg, flex: 1 }}
+      >
+        <View style={[styles.statIconBox, { backgroundColor: `${color}15` }]}>
+          <MaterialIcons name={icon} size={24} color={color} />
+        </View>
+        <Text style={styles.statValue}>{value}</Text>
+        <Text style={styles.statTitle}>{title}</Text>
+      </TouchableOpacity>
     </MotiView>
   );
 
@@ -106,6 +117,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
                   source={{ uri: businessSettings.logoUrl }}
                   style={styles.logoImage}
                   resizeMode="cover"
+                  key={businessSettings.logoUrl}
                 />
               ) : (
                 <Image 
@@ -130,11 +142,29 @@ export default function AdminDashboardScreen({ navigation }: Props) {
             <MaterialIcons name="campaign" size={28} color={theme.colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.notificationBtn}
+            style={[styles.notificationBtn, { position: 'relative' }]}
             onPress={() => navigation.navigate('Notifications' as any)}
           >
             <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
-            {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
+            {unreadCount > 0 && (
+              <View style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                backgroundColor: theme.colors.error,
+                borderRadius: 10,
+                minWidth: 18,
+                height: 18,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 1.5,
+                borderColor: theme.colors.background,
+              }}>
+                <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
         </MotiView>
@@ -162,6 +192,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="attach-money" 
               color={theme.colors.success} 
               delay={0}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: todayStr, initialToDate: todayStr })}
             />
             <StatCard 
               title="Today's Bookings" 
@@ -169,6 +200,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="event" 
               color={theme.colors.primary} 
               delay={100}
+              onPress={() => navigation.navigate('BookingHistory', { initialFromDate: todayStr, initialToDate: todayStr })}
             />
             <StatCard 
               title="Pending Requests" 
@@ -176,6 +208,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="pending-actions" 
               color="#FF9800" 
               delay={200}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'pending' })}
             />
             <StatCard 
               title="Completed Today" 
@@ -183,6 +216,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="check-circle" 
               color={theme.colors.success} 
               delay={300}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: todayStr, initialToDate: todayStr })}
             />
           </View>
         )}
@@ -208,6 +242,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="account-balance-wallet" 
               color={theme.colors.success} 
               delay={0}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: `${currentMonthStr}-01` })}
             />
             <StatCard 
               title="Total Bookings" 
@@ -215,6 +250,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="library-books" 
               color={theme.colors.primary} 
               delay={100}
+              onPress={() => navigation.navigate('BookingHistory', { initialFromDate: `${currentMonthStr}-01` })}
             />
             <StatCard 
               title="Cancellation Rate" 
@@ -222,6 +258,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="cancel" 
               color={theme.colors.error} 
               delay={200}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'cancelled', initialFromDate: `${currentMonthStr}-01` })}
             />
             <StatCard 
               title="Active Workload" 
@@ -229,6 +266,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               icon="work" 
               color="#FF9800" 
               delay={300}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'active' })}
             />
           </View>
         )}
@@ -289,7 +327,12 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           >
             <View style={styles.dummyChart}>
               {chartHeights.map((h, i) => (
-                <View key={i} style={styles.barContainer}>
+                <TouchableOpacity 
+                  key={i} 
+                  style={styles.barContainer}
+                  activeOpacity={0.6}
+                  onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: last7Days[i], initialToDate: last7Days[i] })}
+                >
                   {h > 0 && (
                     <MotiView 
                       from={{ height: 0 }}
@@ -299,7 +342,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
                     />
                   )}
                   <Text style={styles.barLabel}>{dayLabels[i]}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </MotiView>

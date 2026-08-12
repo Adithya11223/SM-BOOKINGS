@@ -59,12 +59,16 @@ export default function BusinessSettingsScreen({ navigation }: Props) {
     setSettings(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    setIsLoading(true);
-    setTimeout(() => {
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      await updateBusinessSettings(settings);
+      Alert.alert('Success', 'Business settings updated successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update business settings. Please try again.');
+    } finally {
       setIsLoading(false);
-      updateBusinessSettings(settings);
-    }, 800);
+    }
   };
 
   const handleUpdateCredentials = async () => {

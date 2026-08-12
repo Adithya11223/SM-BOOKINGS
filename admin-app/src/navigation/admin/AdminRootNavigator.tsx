@@ -1,5 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, ActivityIndicator } from 'react-native';
+import { theme } from '../../theme';
 import { AdminRootStackParamList } from './AdminTypes';
 
 import { AdminTabNavigator } from './AdminTabNavigator';
@@ -14,7 +16,7 @@ import * as Notifications from 'expo-notifications';
 const Stack = createNativeStackNavigator<AdminRootStackParamList & { AdminLogin: undefined }>();
 
 export const AdminRootNavigator = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const response = Notifications.useLastNotificationResponse();
   const [navigatedFromNotif, setNavigatedFromNotif] = React.useState('');
 
@@ -30,6 +32,14 @@ export const AdminRootNavigator = () => {
       }
     }
   }, [user, response, navigatedFromNotif]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <Stack.Navigator

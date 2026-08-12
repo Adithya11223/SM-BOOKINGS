@@ -13,23 +13,31 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'BookingHistory'>;
 
-export default function BookingHistoryScreen({ navigation }: Props) {
+export default function BookingHistoryScreen({ navigation, route }: Props) {
+  const { initialStatus, initialFromDate, initialToDate } = route.params || {};
   const { bookings, deleteBooking } = useBookings();
   const [search, setSearch] = useState('');
   
   // Date filter state
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  const [fromDate, setFromDate] = useState<Date | undefined>(initialFromDate ? new Date(initialFromDate) : undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(initialToDate ? new Date(initialToDate) : undefined);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
   type SortType = 'date-desc' | 'date-asc' | 'price-desc' | 'price-asc';
   const [sortBy, setSortBy] = useState<SortType>('date-desc');
 
-  // Show only completed and cancelled for history
   const historyBookings = bookings.filter(b => {
     // 1. Status filter
-    if (b.status !== 'completed' && b.status !== 'cancelled') return false;
+    if (initialStatus === 'active') {
+      if (b.status !== 'pending' && b.status !== 'confirmed') return false;
+    } else if (initialStatus === 'all') {
+      // allow all
+    } else if (initialStatus) {
+      if (b.status !== initialStatus) return false;
+    } else {
+      if (b.status !== 'completed' && b.status !== 'cancelled') return false;
+    }
 
     // 2. Search filter (Name or Booking Code)
     const searchLower = search.toLowerCase();
@@ -126,9 +134,19 @@ export default function BookingHistoryScreen({ navigation }: Props) {
     );
   };
 
+  const getTitle = () => {
+    if (initialStatus === 'active') return 'Active Workload';
+    if (initialStatus === 'pending') return 'Pending Requests';
+    if (initialStatus === 'completed') return 'Completed Bookings';
+    if (initialStatus === 'confirmed') return 'Confirmed Bookings';
+    if (initialStatus === 'cancelled') return 'Cancelled Bookings';
+    if (initialStatus === 'all') return 'All Bookings';
+    return 'Booking History';
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <TopAppBar title="Booking History" onBackPress={() => navigation.goBack()} />
+      <TopAppBar title={getTitle()} onBackPress={() => navigation.goBack()} />
       
       <View style={styles.searchContainer}>
         <SearchBar 

@@ -148,6 +148,12 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>© {new Date().getFullYear()} All Rights Reserved</Text>
+          <Text style={styles.developerText}>Developed by ANKUNCHE ADITHYA</Text>
+          <Text style={styles.groupText}>from SYNERGi group</Text>
+        </View>
+
         <Text style={styles.version}>App Version 1.0.0</Text>
 
       </ScrollView>
@@ -274,9 +280,36 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.xl,
   },
   logoutText: {
+    marginLeft: 8,
+    fontSize: 16,
     color: theme.colors.error,
-    fontWeight: '600',
-    fontSize: theme.typography.body.fontSize,
-    marginLeft: theme.spacing.sm,
+    fontFamily: theme.typography.fonts?.bold || 'System',
+  },
+  footer: {
+    marginTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginBottom: 2,
+    fontFamily: theme.typography.fonts?.medium || 'System',
+    textAlign: 'center',
+  },
+  developerText: {
+    fontSize: 13,
+    color: theme.colors.text,
+    fontFamily: theme.typography.fonts?.bold || 'System',
+    marginTop: 6,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  groupText: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fonts?.regular || 'System',
+    textAlign: 'center',
   }
 });

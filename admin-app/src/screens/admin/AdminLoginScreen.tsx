@@ -26,13 +26,7 @@ export default function AdminLoginScreen() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.backButton}
-        onPress={() => setAppMode('customer')}
-      >
-        <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
-        <Text style={styles.backText}>Back to Customer</Text>
-      </TouchableOpacity>
+
 
       <View style={styles.formContainer}>
         <View style={styles.headerContainer}>
@@ -63,6 +57,12 @@ export default function AdminLoginScreen() {
           onPress={handleLogin} 
           isLoading={isLoading}
         />
+      </View>
+      
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© {new Date().getFullYear()} All Rights Reserved</Text>
+        <Text style={styles.developerText}>Developed by ANKUNCHE ADITHYA</Text>
+        <Text style={styles.groupText}>from SYNERGi group</Text>
       </View>
     </View>
   );
@@ -123,4 +123,30 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: 'center',
   },
+  footer: {
+    paddingBottom: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginBottom: 2,
+    fontFamily: theme.typography.fonts?.medium || 'System',
+    textAlign: 'center',
+  },
+  developerText: {
+    fontSize: 13,
+    color: theme.colors.text,
+    fontFamily: theme.typography.fonts?.bold || 'System',
+    marginTop: 6,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  groupText: {
+    fontSize: 11,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fonts?.regular || 'System',
+    textAlign: 'center',
+  }
 });

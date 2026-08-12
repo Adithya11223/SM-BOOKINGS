@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useBookings, useNotifications } from '../../hooks/';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { AdminTabParamList } from '../../navigation/admin/AdminTypes';
@@ -17,7 +17,7 @@ type Props = BottomTabScreenProps<AdminTabParamList, 'AdminBookings'>;
 type TabType = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export default function AdminBookingsScreen({ navigation }: Props) {
-  const { bookings, updateBookingStatus } = useBookings();
+  const { bookings, updateBookingStatus, deleteBooking } = useBookings();
   const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [isLoading, setIsLoading] = useState(false);
@@ -135,6 +135,24 @@ export default function AdminBookingsScreen({ navigation }: Props) {
               onPress={() => updateBookingStatus(booking.id, 'completed')}
             >
               <Text style={styles.actionBtnText}>Complete</Text>
+            </TouchableOpacity>
+          )}
+
+          {booking.status === 'cancelled' && (
+            <TouchableOpacity 
+              style={[styles.iconButton, { marginLeft: 8 }]}
+              onPress={() => {
+                Alert.alert(
+                  'Delete Booking',
+                  'Are you sure you want to permanently delete this cancelled booking?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: () => deleteBooking(booking.id) }
+                  ]
+                );
+              }}
+            >
+              <MaterialIcons name="delete-outline" size={20} color={theme.colors.error} />
             </TouchableOpacity>
           )}
         </View>

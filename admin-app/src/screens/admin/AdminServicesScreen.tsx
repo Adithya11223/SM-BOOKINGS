@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useServices } from '../../hooks/';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AdminRootStackParamList } from '../../navigation/admin/AdminTypes';
@@ -67,7 +67,16 @@ export default function AdminServicesScreen({ navigation }: Props) {
         
         <TouchableOpacity 
           style={styles.iconBtn}
-          onPress={() => deleteService(service.id)}
+          onPress={() => {
+            Alert.alert(
+              'Delete Service',
+              `Are you sure you want to delete "${service.name}"?`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Delete', style: 'destructive', onPress: () => deleteService(service.id) }
+              ]
+            );
+          }}
         >
           <MaterialIcons name="delete-outline" size={22} color={theme.colors.error} />
         </TouchableOpacity>

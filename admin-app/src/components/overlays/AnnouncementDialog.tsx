@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { theme } from '../../theme/theme';
-import api from '../../api/config';
+import { theme } from '../../theme';
+import api from '../../api/axios';
 
 interface AnnouncementDialogProps {
   visible: boolean;
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.roundness.lg,
+    borderRadius: theme.borderRadius.lg,
     overflow: 'hidden',
     elevation: 5,
     shadowColor: '#000',
@@ -149,10 +149,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
+    flex: 1,
   },
   headerTitle: {
     ...theme.typography.h3,
     color: theme.colors.text,
+    flexShrink: 1,
   },
   closeBtn: {
     padding: theme.spacing.xs,
@@ -161,13 +163,13 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
   },
   description: {
-    ...theme.typography.body2,
+    ...theme.typography.body,
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.lg,
     lineHeight: 20,
   },
   label: {
-    ...theme.typography.subtitle2,
+    ...theme.typography.subtitle,
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
   },
@@ -175,9 +177,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.roundness.md,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    ...theme.typography.body1,
+    ...theme.typography.body,
     color: theme.colors.text,
     marginBottom: theme.spacing.md,
   },
@@ -187,16 +189,17 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: theme.spacing.md,
-    marginTop: theme.spacing.sm,
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.roundness.md,
+    paddingVertical: 12,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
     gap: theme.spacing.sm,
   },
   cancelBtn: {

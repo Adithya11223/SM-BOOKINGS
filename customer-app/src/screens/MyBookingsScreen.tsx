@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useBookings } from '../hooks/';
+import { MaterialIcons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

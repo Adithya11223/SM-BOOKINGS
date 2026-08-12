@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.error,
   },
   message: {
     fontSize: theme.typography.bodySmall.fontSize,
