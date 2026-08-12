@@ -110,7 +110,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
         
         <TouchableOpacity 
           style={styles.notificationBtn}
-          onPress={() => navigation.getParent()?.navigate('AdminNotifications' as never)}
+          onPress={() => navigation.getParent()?.navigate('Notifications' as never)}
         >
           <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
           {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
