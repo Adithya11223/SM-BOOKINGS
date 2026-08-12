@@ -15,8 +15,8 @@ public class NotificationGenerator {
                 .collect(Collectors.joining(", "));
                 
         return Notification.builder()
-                .title("New Booking Received")
-                .message(String.format("New order received! You got an order from %s for %s.", booking.getCustomer().getName(), services))
+                .title("New Booking Received 🔔")
+                .message(String.format("New order received! You got an order from %s for %s. 📅", booking.getCustomer().getName(), services))
                 .type(NotificationType.BOOKING_CREATED)
                 .receiverType("ADMIN")
                 .receiverId(null)
@@ -31,18 +31,22 @@ public class NotificationGenerator {
                 .collect(Collectors.joining(", "));
 
         String message;
+        String title = "Booking Status Updated 📋";
         if (booking.getBookingStatus() == com.salonbooking.api.enums.BookingStatus.CONFIRMED) {
-            message = String.format("Dear %s, your booking for %s has been accepted!", booking.getCustomer().getName(), services);
+            title = "Booking Confirmed ✅";
+            message = String.format("Great news %s! Your booking for %s has been accepted. We look forward to seeing you. 🎉", booking.getCustomer().getName(), services);
         } else if (booking.getBookingStatus() == com.salonbooking.api.enums.BookingStatus.COMPLETED) {
-            message = String.format("Dear %s, your booking is completed. Please visit again!", booking.getCustomer().getName());
+            title = "Service Completed 🌟";
+            message = String.format("Thank you %s! Your booking is now completed. We hope to see you again soon! ✨", booking.getCustomer().getName());
         } else if (booking.getBookingStatus() == com.salonbooking.api.enums.BookingStatus.CANCELLED) {
-            message = String.format("Dear %s, unfortunately your booking for %s has been cancelled.", booking.getCustomer().getName(), services);
+            title = "Booking Cancelled ❌";
+            message = String.format("Dear %s, unfortunately your booking for %s has been cancelled. Please contact us for details. 😔", booking.getCustomer().getName(), services);
         } else {
             message = String.format("Booking %s status changed to %s.", booking.getBookingNumber(), booking.getBookingStatus());
         }
 
         return Notification.builder()
-                .title("Booking Status Updated")
+                .title(title)
                 .message(message)
                 .type(NotificationType.BOOKING_UPDATED)
                 .receiverType("CUSTOMER")
