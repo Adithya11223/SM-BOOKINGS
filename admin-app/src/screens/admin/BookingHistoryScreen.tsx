@@ -23,6 +23,9 @@ export default function BookingHistoryScreen({ navigation }: Props) {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
+  type SortType = 'date-desc' | 'date-asc' | 'price-desc' | 'price-asc';
+  const [sortBy, setSortBy] = useState<SortType>('date-desc');
+
   // Show only completed and cancelled for history
   const historyBookings = bookings.filter(b => {
     // 1. Status filter
@@ -54,6 +57,17 @@ export default function BookingHistoryScreen({ navigation }: Props) {
     }
 
     return true;
+  }).sort((a, b) => {
+    if (sortBy === 'date-desc') {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    } else if (sortBy === 'date-asc') {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    } else if (sortBy === 'price-desc') {
+      return b.totalPrice - a.totalPrice;
+    } else if (sortBy === 'price-asc') {
+      return a.totalPrice - b.totalPrice;
+    }
+    return 0;
   });
 
   const onFromDateChange = (event: any, selectedDate?: Date) => {
@@ -143,6 +157,34 @@ export default function BookingHistoryScreen({ navigation }: Props) {
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ fontSize: 12, color: theme.colors.textSecondary, marginBottom: 5 }}>Sort By:</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {[
+              { label: 'Date: Newest', value: 'date-desc' },
+              { label: 'Date: Oldest', value: 'date-asc' },
+              { label: 'Price: High', value: 'price-desc' },
+              { label: 'Price: Low', value: 'price-asc' },
+            ].map(option => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.sortChip,
+                  sortBy === option.value && styles.sortChipActive
+                ]}
+                onPress={() => setSortBy(option.value as SortType)}
+              >
+                <Text style={[
+                  styles.sortChipText,
+                  sortBy === option.value && styles.sortChipTextActive
+                ]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
 
@@ -256,7 +298,27 @@ const styles = StyleSheet.create({
   date: {
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.sm,
+    marginBottom: 8,
+  },
+  sortChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  sortChipActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  sortChipText: {
+    fontSize: 12,
+    color: theme.colors.text,
+  },
+  sortChipTextActive: {
+    color: '#FFF',
+    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',

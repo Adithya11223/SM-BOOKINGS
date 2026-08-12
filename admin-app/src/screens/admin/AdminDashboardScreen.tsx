@@ -43,6 +43,18 @@ export default function AdminDashboardScreen({ navigation }: Props) {
   const pendingRequests = bookings.filter(b => b.status === 'pending').length;
   const completedToday = todaysBookings.filter(b => b.status === 'completed').length;
 
+  const currentMonthStr = todayStr.substring(0, 7); // e.g., '2023-10'
+  const monthlyBookings = bookings.filter(b => b.date.startsWith(currentMonthStr));
+  const monthlyRevenue = monthlyBookings
+    .filter(b => b.status === 'completed' || b.status === 'confirmed')
+    .reduce((sum, b) => sum + b.totalPrice, 0);
+  
+  const monthlyTotalCount = monthlyBookings.length;
+  const monthlyCancelledCount = monthlyBookings.filter(b => b.status === 'cancelled').length;
+  const cancellationRate = monthlyTotalCount === 0 ? 0 : Math.round((monthlyCancelledCount / monthlyTotalCount) * 100);
+  
+  const activeWorkload = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length;
+
   const last7Days = Array.from({length: 7}, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -159,6 +171,52 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               value={completedToday.toString()} 
               icon="check-circle" 
               color={theme.colors.success} 
+              delay={300}
+            />
+          </View>
+        )}
+
+        <Text style={styles.sectionTitle}>This Month's Performance</Text>
+        {initialLoading ? (
+          <View style={styles.statsGrid}>
+            {[1, 2, 3, 4].map(i => (
+              <View key={i} style={styles.statCard}>
+                <SkeletonLoader width={40} height={40} borderRadius={20} />
+                <View style={{height: 10}} />
+                <SkeletonLoader width={60} height={20} />
+                <View style={{height: 5}} />
+                <SkeletonLoader width={80} height={14} />
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.statsGrid}>
+            <StatCard 
+              title="Monthly Revenue" 
+              value={`₹${monthlyRevenue.toFixed(2)}`} 
+              icon="account-balance-wallet" 
+              color={theme.colors.success} 
+              delay={0}
+            />
+            <StatCard 
+              title="Total Bookings" 
+              value={monthlyTotalCount.toString()} 
+              icon="library-books" 
+              color={theme.colors.primary} 
+              delay={100}
+            />
+            <StatCard 
+              title="Cancellation Rate" 
+              value={`${cancellationRate}%`} 
+              icon="cancel" 
+              color={theme.colors.error} 
+              delay={200}
+            />
+            <StatCard 
+              title="Active Workload" 
+              value={activeWorkload.toString()} 
+              icon="work" 
+              color="#FF9800" 
               delay={300}
             />
           </View>
