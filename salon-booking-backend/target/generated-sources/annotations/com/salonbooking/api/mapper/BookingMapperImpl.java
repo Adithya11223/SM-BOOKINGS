@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T10:56:56-0700",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
+    date = "2026-08-12T11:23:16-0700",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
 )
 @Component
 public class BookingMapperImpl implements BookingMapper {
@@ -42,8 +42,8 @@ public class BookingMapperImpl implements BookingMapper {
         bookingResponse.setBookingTime( entity.getBookingTime() );
         bookingResponse.setTotalAmount( entity.getTotalAmount() );
         bookingResponse.setTotalDuration( entity.getTotalDuration() );
-        bookingResponse.setAdminViewed( entity.getAdminViewed() );
-        bookingResponse.setCustomerViewed( entity.getCustomerViewed() );
+        bookingResponse.setHasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
+        bookingResponse.setHasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
 
         return bookingResponse;
     }
@@ -65,15 +65,15 @@ public class BookingMapperImpl implements BookingMapper {
         bookingDetailResponse.setBookingTime( entity.getBookingTime() );
         bookingDetailResponse.setTotalAmount( entity.getTotalAmount() );
         bookingDetailResponse.setTotalDuration( entity.getTotalDuration() );
-        bookingDetailResponse.setAdminViewed( entity.getAdminViewed() );
-        bookingDetailResponse.setCustomerViewed( entity.getCustomerViewed() );
-        bookingDetailResponse.setAddress( entity.getAddress() );
-        bookingDetailResponse.setCustomer( customerMapper.toResponse( entity.getCustomer() ) );
-        bookingDetailResponse.setEventType( entity.getEventType() );
-        bookingDetailResponse.setGoogleMapsLink( entity.getGoogleMapsLink() );
-        bookingDetailResponse.setItems( bookingItemListToBookingItemResponseList( entity.getItems() ) );
+        bookingDetailResponse.setHasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
+        bookingDetailResponse.setHasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
         bookingDetailResponse.setNotes( entity.getNotes() );
+        bookingDetailResponse.setAddress( entity.getAddress() );
+        bookingDetailResponse.setGoogleMapsLink( entity.getGoogleMapsLink() );
+        bookingDetailResponse.setEventType( entity.getEventType() );
         bookingDetailResponse.setPeopleCount( entity.getPeopleCount() );
+        bookingDetailResponse.setCustomer( customerMapper.toResponse( entity.getCustomer() ) );
+        bookingDetailResponse.setItems( bookingItemListToBookingItemResponseList( entity.getItems() ) );
 
         return bookingDetailResponse;
     }

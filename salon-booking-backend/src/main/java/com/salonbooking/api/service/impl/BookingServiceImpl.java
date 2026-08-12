@@ -6,8 +6,11 @@ import com.salonbooking.api.dto.response.BookingDetailResponse;
 import com.salonbooking.api.dto.response.BookingResponse;
 import com.salonbooking.api.entity.Booking;
 import com.salonbooking.api.entity.BookingItem;
+import com.salonbooking.api.entity.BookingUpdate;
 import com.salonbooking.api.entity.Customer;
 import com.salonbooking.api.entity.Notification;
+import com.salonbooking.api.entity.enums.TargetRole;
+import com.salonbooking.api.entity.enums.UpdateType;
 import com.salonbooking.api.enums.BookingStatus;
 import com.salonbooking.api.exception.BusinessException;
 import com.salonbooking.api.exception.ResourceNotFoundException;
@@ -40,6 +43,7 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingItemRepository bookingItemRepository;
+    private final com.salonbooking.api.repository.BookingUpdateRepository bookingUpdateRepository;
     private final NotificationRepository notificationRepository;
     private final com.salonbooking.api.repository.FcmTokenRepository fcmTokenRepository;
     
@@ -112,8 +116,6 @@ public class BookingServiceImpl implements BookingService {
                 .googleMapsLink(request.getGoogleMapsLink())
                 .eventType(request.getEventType())
                 .peopleCount(request.getPeopleCount())
-                .adminViewed(false)
-                .customerViewed(true)
                 // Placeholders that will be calculated
                 .totalAmount(BigDecimal.ZERO)
                 .totalDuration(0)
@@ -145,6 +147,13 @@ public class BookingServiceImpl implements BookingService {
         booking.setTotalDuration(priceCalculator.calculateTotalDuration(items));
 
         Booking savedBooking = bookingRepository.save(booking);
+
+        BookingUpdate adminUpdate = BookingUpdate.builder()
+                .booking(savedBooking)
+                .updateType(UpdateType.CREATED)
+                .targetRole(TargetRole.ADMIN)
+                .build();
+        bookingUpdateRepository.save(adminUpdate);
 
         if (request.getDeviceId() != null) {
             fcmTokenRepository.findByDeviceId(request.getDeviceId()).ifPresent(token -> {
@@ -183,8 +192,18 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setBookingStatus(newStatus);
-        booking.setCustomerViewed(false); // Admin changed it, so customer hasn't seen the new status
         Booking updatedBooking = bookingRepository.save(booking);
+
+        UpdateType type = newStatus == BookingStatus.CONFIRMED ? UpdateType.CONFIRMED :
+                          newStatus == BookingStatus.COMPLETED ? UpdateType.COMPLETED : 
+                          UpdateType.CANCELLED;
+
+        BookingUpdate customerUpdate = BookingUpdate.builder()
+                .booking(updatedBooking)
+                .updateType(type)
+                .targetRole(TargetRole.CUSTOMER)
+                .build();
+        bookingUpdateRepository.save(customerUpdate);
 
         if (newStatus == BookingStatus.COMPLETED) {
             customerService.updateCustomerBookingStats(booking.getCustomer());
@@ -244,8 +263,14 @@ public class BookingServiceImpl implements BookingService {
         booking.setTotalAmount(priceCalculator.calculateTotalAmount(acceptedItems));
         booking.setTotalDuration(priceCalculator.calculateTotalDuration(acceptedItems));
         booking.setBookingStatus(BookingStatus.CONFIRMED);
-        booking.setCustomerViewed(false); // Flag for customer red dot
         Booking updatedOriginal = bookingRepository.save(booking);
+
+        BookingUpdate confirmUpdate = BookingUpdate.builder()
+                .booking(updatedOriginal)
+                .updateType(UpdateType.CONFIRMED)
+                .targetRole(TargetRole.CUSTOMER)
+                .build();
+        bookingUpdateRepository.save(confirmUpdate);
 
         // 2. Create new booking for rejected items.
         Booking rejectedBooking = Booking.builder()
@@ -260,8 +285,6 @@ public class BookingServiceImpl implements BookingService {
                 .googleMapsLink(booking.getGoogleMapsLink())
                 .eventType(booking.getEventType())
                 .peopleCount(booking.getPeopleCount())
-                .adminViewed(true) // Admin just created it
-                .customerViewed(false) // Customer hasn't seen it
                 .build();
         
         List<BookingItem> newRejectedItems = new ArrayList<>();
@@ -282,6 +305,13 @@ public class BookingServiceImpl implements BookingService {
         rejectedBooking.setTotalDuration(priceCalculator.calculateTotalDuration(newRejectedItems));
         
         Booking savedRejected = bookingRepository.save(rejectedBooking);
+
+        BookingUpdate cancelUpdate = BookingUpdate.builder()
+                .booking(savedRejected)
+                .updateType(UpdateType.CANCELLED)
+                .targetRole(TargetRole.CUSTOMER)
+                .build();
+        bookingUpdateRepository.save(cancelUpdate);
 
         // Notifications
         Notification acceptNotif = notificationGenerator.generateBookingStatusUpdatedNotification(updatedOriginal);
@@ -318,23 +348,30 @@ public class BookingServiceImpl implements BookingService {
         log.info("Deleted cancelled booking: {}", id);
     }
 
+    @Override
     @Transactional
     public void markAdminViewed(UUID id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
-        booking.setAdminViewed(true);
-        Booking updated = bookingRepository.save(booking);
-        webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(updated));
+        List<BookingUpdate> updates = bookingUpdateRepository.findByBookingIdAndTargetRoleAndIsReadFalse(id, TargetRole.ADMIN);
+        if (!updates.isEmpty()) {
+            updates.forEach(u -> u.setRead(true));
+            bookingUpdateRepository.saveAll(updates);
+            
+            Booking booking = bookingRepository.findById(id).orElseThrow();
+            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
+        }
     }
 
     @Override
     @Transactional
     public void markCustomerViewed(UUID id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
-        booking.setCustomerViewed(true);
-        Booking updated = bookingRepository.save(booking);
-        webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(updated));
+        List<BookingUpdate> updates = bookingUpdateRepository.findByBookingIdAndTargetRoleAndIsReadFalse(id, TargetRole.CUSTOMER);
+        if (!updates.isEmpty()) {
+            updates.forEach(u -> u.setRead(true));
+            bookingUpdateRepository.saveAll(updates);
+            
+            Booking booking = bookingRepository.findById(id).orElseThrow();
+            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
+        }
     }
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ?")

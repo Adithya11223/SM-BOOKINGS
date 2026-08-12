@@ -13,6 +13,7 @@ com/salonbooking/api/entity/BookingItem$BookingItemBuilder.class
 com/salonbooking/api/mapper/BookingMapper.class
 com/salonbooking/api/repository/BookingRepository.class
 com/salonbooking/api/security/AuthEntryPointJwt.class
+com/salonbooking/api/repository/BookingUpdateRepository.class
 com/salonbooking/api/mapper/NotificationMapper.class
 com/salonbooking/api/controller/FcmTokenController$FcmTokenRequest.class
 com/salonbooking/api/service/impl/CloudinaryStorageServiceImpl.class
@@ -44,6 +45,7 @@ com/salonbooking/api/service/impl/NotificationServiceImpl.class
 com/salonbooking/api/controller/FileUploadController.class
 com/salonbooking/api/service/BookingService.class
 com/salonbooking/api/dto/response/BookingDetailResponse.class
+com/salonbooking/api/dto/request/AnnouncementRequest.class
 com/salonbooking/api/entity/FcmToken.class
 com/salonbooking/api/dto/response/PageResponse.class
 com/salonbooking/api/entity/FcmToken$FcmTokenBuilder.class
@@ -86,6 +88,7 @@ com/salonbooking/api/util/DateValidator.class
 com/salonbooking/api/dto/request/LoginRequest.class
 com/salonbooking/api/dto/request/CreateServiceRequest.class
 com/salonbooking/api/dto/request/UpdateCredentialsRequest.class
+com/salonbooking/api/entity/BookingUpdate.class
 com/salonbooking/api/dto/response/NotificationResponse.class
 com/salonbooking/api/enums/ServiceCategory.class
 com/salonbooking/api/dto/response/ServiceResponse.class
@@ -102,13 +105,16 @@ com/salonbooking/api/validation/PhoneValidator.class
 com/salonbooking/api/entity/Notification$NotificationBuilder.class
 com/salonbooking/api/mapper/BusinessSettingsMapper.class
 com/salonbooking/api/dto/response/PageResponse$PageResponseBuilder.class
+com/salonbooking/api/entity/enums/UpdateType.class
 com/salonbooking/api/exception/ResourceNotFoundException.class
 com/salonbooking/api/dto/request/UpdateServiceRequest.class
 com/salonbooking/api/entity/Service$ServiceBuilder.class
 com/salonbooking/api/exception/GlobalExceptionHandler.class
+com/salonbooking/api/entity/BookingUpdate$BookingUpdateBuilder.class
 com/salonbooking/api/entity/Customer$CustomerBuilder.class
 com/salonbooking/api/repository/BookingItemRepository.class
 com/salonbooking/api/validation/ValidPhone.class
+com/salonbooking/api/entity/enums/TargetRole.class
 com/salonbooking/api/dto/response/BusinessSettingsResponse.class
 com/salonbooking/api/dto/request/CustomerRequest.class
 com/salonbooking/api/enums/BookingType.class

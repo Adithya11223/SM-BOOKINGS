@@ -36,7 +36,7 @@ export const TabNavigator = () => {
         };
 
         const { bookings } = useBookings();
-        const unviewedCount = bookings.filter(b => (b.status === 'confirmed' || b.status === 'completed') && !b.customerViewed).length;
+        const unviewedCount = bookings.filter(b => b.hasUnreadCustomerUpdates).length;
 
         return (
           <BottomNavigation

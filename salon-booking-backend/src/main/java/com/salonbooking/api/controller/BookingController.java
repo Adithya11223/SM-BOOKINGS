@@ -145,19 +145,19 @@ public class BookingController {
         return ResponseEntity.ok(ApiResponse.success(null, "Booking deleted successfully"));
     }
 
-    @PatchMapping("/{id}/admin-view")
-    @Operation(summary = "Mark Booking as Admin Viewed", description = "Sets adminViewed flag to true")
+    @PatchMapping("/{id}/mark-admin-read")
+    @Operation(summary = "Mark Booking Updates as Admin Read", description = "Sets unread booking updates for Admin to read")
     public ResponseEntity<ApiResponse<Void>> markAdminViewed(@PathVariable UUID id) {
-        log.info("REST Request to mark booking as admin viewed: {}", id);
+        log.info("REST Request to mark booking updates as admin read: {}", id);
         bookingService.markAdminViewed(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Booking marked as admin viewed"));
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking updates marked as admin read"));
     }
 
-    @PatchMapping("/{id}/customer-view")
-    @Operation(summary = "Mark Booking as Customer Viewed", description = "Sets customerViewed flag to true")
+    @PatchMapping("/{id}/mark-customer-read")
+    @Operation(summary = "Mark Booking Updates as Customer Read", description = "Sets unread booking updates for Customer to read")
     public ResponseEntity<ApiResponse<Void>> markCustomerViewed(@PathVariable UUID id) {
-        log.info("REST Request to mark booking as customer viewed: {}", id);
+        log.info("REST Request to mark booking updates as customer read: {}", id);
         bookingService.markCustomerViewed(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Booking marked as customer viewed"));
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking updates marked as customer read"));
     }
 }

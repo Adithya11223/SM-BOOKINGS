@@ -26,6 +26,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/CustomerRegisterRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/ForgotPasswordRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/ResetPasswordRequest.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/AnnouncementRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/BookingItemRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CreateBookingRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CreateServiceRequest.java
@@ -49,11 +50,14 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/BaseEntity.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Booking.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/BookingItem.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/BookingUpdate.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/BusinessSettings.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Customer.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/FcmToken.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Notification.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Service.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/enums/TargetRole.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/enums/UpdateType.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/enums/BookingStatus.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/enums/BookingType.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/enums/NotificationType.java
@@ -70,6 +74,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/AdminRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/BookingItemRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/BookingRepository.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/BookingUpdateRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/BusinessSettingsRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/CustomerRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/FcmTokenRepository.java

@@ -49,9 +49,10 @@ export interface Booking {
   venueAddress?: string;
   mapLink?: string;
   numberOfPeople?: number;
-  
   adminViewed?: boolean;
   customerViewed?: boolean;
+  hasUnreadAdminUpdates?: boolean;
+  hasUnreadCustomerUpdates?: boolean;
 }
 
 export interface BusinessSettings {

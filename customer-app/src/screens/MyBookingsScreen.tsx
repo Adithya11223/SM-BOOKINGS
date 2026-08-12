@@ -135,10 +135,10 @@ export default function MyBookingsScreen({ navigation }: any) {
             date={formatDate(item.date)}
             time={item.time}
             status={item.status}
-            showUnreadDot={(item.status === 'confirmed' || item.status === 'completed') && !item.customerViewed}
+            showUnreadDot={item.hasUnreadCustomerUpdates}
             onDelete={item.status === 'cancelled' ? () => handleDelete(item.id) : undefined}
             onPress={() => {
-              if ((item.status === 'confirmed' || item.status === 'completed') && !item.customerViewed) {
+              if (item.hasUnreadCustomerUpdates) {
                 markCustomerViewed(item.id);
               }
               // @ts-ignore - navigation type mismatch between stack and tab for nested routing, 

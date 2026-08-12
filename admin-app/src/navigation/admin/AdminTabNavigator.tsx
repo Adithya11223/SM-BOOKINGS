@@ -37,7 +37,7 @@ export const AdminTabNavigator = () => {
         };
 
         const { bookings } = useBookings();
-        const unviewedCount = bookings.filter(b => b.status === 'pending' && !b.adminViewed).length;
+        const unviewedCount = bookings.filter(b => b.hasUnreadAdminUpdates).length;
 
         return (
           <BottomNavigation

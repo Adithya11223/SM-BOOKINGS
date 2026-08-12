@@ -156,7 +156,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const markCustomerViewed = useCallback(async (bookingId: string) => {
     // Optimistic UI update
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, customerViewed: true } : b));
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, hasUnreadCustomerUpdates: false } : b));
     try {
       await BookingService.markCustomerViewed(bookingId);
     } catch (error) {

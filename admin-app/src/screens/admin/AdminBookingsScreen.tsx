@@ -63,7 +63,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
       transition={{ type: 'spring', delay: index * 100 }}
       style={styles.card}
     >
-      {booking.status === 'pending' && !booking.adminViewed && (
+      {booking.status === 'pending' && booking.hasUnreadAdminUpdates && (
         <View style={styles.unreadDot} />
       )}
       <View style={styles.cardHeader}>
@@ -108,7 +108,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
           <TouchableOpacity 
             style={styles.iconButton}
             onPress={() => {
-              if (booking.status === 'pending' && !booking.adminViewed) {
+              if (booking.status === 'pending' && booking.hasUnreadAdminUpdates) {
                 markAdminViewed(booking.id);
               }
               // @ts-ignore
@@ -123,7 +123,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
               <TouchableOpacity 
                 style={[styles.actionBtn, { backgroundColor: theme.colors.error }]}
                 onPress={() => {
-                  if (!booking.adminViewed) markAdminViewed(booking.id);
+                  if (booking.hasUnreadAdminUpdates) markAdminViewed(booking.id);
                   updateBookingStatus(booking.id, 'cancelled');
                 }}
               >
@@ -132,7 +132,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
               <TouchableOpacity 
                 style={[styles.actionBtn, { backgroundColor: theme.colors.success }]}
                 onPress={() => {
-                  if (!booking.adminViewed) markAdminViewed(booking.id);
+                  if (booking.hasUnreadAdminUpdates) markAdminViewed(booking.id);
                   updateBookingStatus(booking.id, 'confirmed');
                 }}
               >

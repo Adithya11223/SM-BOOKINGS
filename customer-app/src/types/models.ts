@@ -50,7 +50,8 @@ export interface Booking {
   googleMapsLink?: string;
   peopleCount?: number;
   
-  customerViewed?: boolean;
+  hasUnreadAdminUpdates?: boolean;
+  hasUnreadCustomerUpdates?: boolean;
 }
 
 export interface BusinessSettings {

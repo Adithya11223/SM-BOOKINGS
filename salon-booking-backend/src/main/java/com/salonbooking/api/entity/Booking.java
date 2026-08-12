@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -64,14 +65,6 @@ public class Booking extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "admin_viewed", nullable = false)
-    @Builder.Default
-    private Boolean adminViewed = false;
-
-    @Column(name = "customer_viewed", nullable = false)
-    @Builder.Default
-    private Boolean customerViewed = true;
-
     private String address;
 
     @Column(name = "google_maps_link")
@@ -90,4 +83,19 @@ public class Booking extends BaseEntity {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<BookingUpdate> bookingUpdates = new ArrayList<>();
+
+    public boolean getHasUnreadAdminUpdates() {
+        return bookingUpdates != null && bookingUpdates.stream()
+                .anyMatch(u -> u.getTargetRole() == com.salonbooking.api.entity.enums.TargetRole.ADMIN && !u.isRead());
+    }
+
+    public boolean getHasUnreadCustomerUpdates() {
+        return bookingUpdates != null && bookingUpdates.stream()
+                .anyMatch(u -> u.getTargetRole() == com.salonbooking.api.entity.enums.TargetRole.CUSTOMER && !u.isRead());
+    }
 }
