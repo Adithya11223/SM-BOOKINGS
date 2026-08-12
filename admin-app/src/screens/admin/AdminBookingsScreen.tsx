@@ -146,9 +146,6 @@ export default function AdminBookingsScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <TopAppBar 
         title="Manage Bookings" 
-        rightActionIcon="notifications-none"
-        rightActionBadgeCount={unreadCount}
-        onRightActionPress={() => navigation.navigate('AdminNotifications' as any)}
       />
       
       <View style={styles.searchContainer}>
