@@ -9,6 +9,7 @@ export interface TabItem {
   name: string;
   icon: keyof typeof MaterialIcons.glyphMap;
   label: string;
+  badgeCount?: number;
 }
 
 interface BottomNavigationProps {
@@ -48,6 +49,9 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 size={24}
                 color={isActive ? theme.colors.primary : theme.colors.textSecondary}
               />
+              {tab.badgeCount !== undefined && tab.badgeCount > 0 && (
+                <View style={styles.badge} />
+              )}
             </MotiView>
             <MotiText 
               animate={{
@@ -96,6 +100,17 @@ const styles = StyleSheet.create({
   labelActive: {
     color: theme.colors.primary,
     fontWeight: '700',
+  },
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: theme.colors.error,
+    borderRadius: 6,
+    width: 12,
+    height: 12,
+    borderWidth: 2,
+    borderColor: theme.colors.background,
   },
 });
 

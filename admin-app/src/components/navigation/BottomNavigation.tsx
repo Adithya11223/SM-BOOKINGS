@@ -50,11 +50,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 color={isActive ? theme.colors.primary : theme.colors.textSecondary}
               />
               {tab.badgeCount !== undefined && tab.badgeCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {tab.badgeCount > 99 ? '99+' : tab.badgeCount}
-                  </Text>
-                </View>
+                <View style={styles.badge} />
               )}
             </MotiView>
             <MotiText 
@@ -107,22 +103,14 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
+    top: 2,
+    right: 2,
     backgroundColor: theme.colors.error,
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 1,
+    borderRadius: 6,
+    width: 12,
+    height: 12,
+    borderWidth: 2,
     borderColor: theme.colors.background,
-  },
-  badgeText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
   },
 });
 
