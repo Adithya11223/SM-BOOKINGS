@@ -154,7 +154,11 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         return { token: null, deviceId: localDeviceId };
       }
       try {
-        token = (await Notifications.getDevicePushTokenAsync()).data;
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        if (!projectId) {
+          console.error("No EAS projectId found in app.json");
+        }
+        token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       } catch (e) {
         console.error("Error getting push token", e);
       }

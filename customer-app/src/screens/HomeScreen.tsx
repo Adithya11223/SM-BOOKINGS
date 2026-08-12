@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppConfig } from '../hooks/';
+import { useAppConfig, useNotifications } from '../hooks/';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, RefreshControl, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ type HomeScreenProps = {
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const { businessSettings, refreshSettings } = useAppConfig();
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
   
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -86,6 +87,17 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.greeting} numberOfLines={1}>{getGreeting()} <Text style={styles.userName}>{user?.name || 'Guest'}</Text></Text>
             </View>
           </View>
+          <TouchableOpacity 
+            style={styles.notificationButton} 
+            onPress={() => navigation.navigate('Notifications' as any)}
+          >
+            <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </MotiView>
         
         {businessSettings && (
@@ -223,6 +235,29 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.bodySmall.fontSize,
     fontWeight: '700',
     color: theme.colors.text,
+  },
+  notificationButton: {
+    padding: 8,
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    backgroundColor: theme.colors.error,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: theme.colors.background,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   operatingHoursCard: {
     flexDirection: 'row',

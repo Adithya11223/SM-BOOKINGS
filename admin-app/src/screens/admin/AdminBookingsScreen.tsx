@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useBookings } from '../../hooks/';
+import { useBookings, useNotifications } from '../../hooks/';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -18,6 +18,7 @@ type TabType = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export default function AdminBookingsScreen({ navigation }: Props) {
   const { bookings, updateBookingStatus } = useBookings();
+  const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -143,7 +144,12 @@ export default function AdminBookingsScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopAppBar title="Manage Bookings" />
+      <TopAppBar 
+        title="Manage Bookings" 
+        rightActionIcon="notifications-none"
+        rightActionBadgeCount={unreadCount}
+        onRightActionPress={() => navigation.navigate('AdminNotifications' as any)}
+      />
       
       <View style={styles.searchContainer}>
         <MaterialIcons name="search" size={20} color={theme.colors.textSecondary} style={styles.searchIcon} />
