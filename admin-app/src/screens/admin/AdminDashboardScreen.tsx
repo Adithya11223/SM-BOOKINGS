@@ -107,6 +107,14 @@ export default function AdminDashboardScreen({ navigation }: Props) {
             </View>
           </View>
         </View>
+        
+        <TouchableOpacity 
+          style={styles.notificationBtn}
+          onPress={() => navigation.getParent()?.navigate('AdminNotifications' as never)}
+        >
+          <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
+          {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
+        </TouchableOpacity>
         </MotiView>
 
       <ScrollView 
@@ -243,11 +251,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 10 : 10,
     paddingBottom: theme.spacing.md,
+    backgroundColor: theme.colors.background,
   },
   headerLeft: {
     flex: 1,
+  },
+  notificationBtn: {
+    padding: theme.spacing.sm,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 50,
   },
   greeting: {
     fontSize: theme.typography.body.fontSize,

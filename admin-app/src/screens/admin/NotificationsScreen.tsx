@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useBookings, useNotifications } from '../../hooks/';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,12 @@ type Props = NativeStackScreenProps<AdminRootStackParamList, 'Notifications'>;
 
 export default function NotificationsScreen({ navigation }: Props) {
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications } = useNotifications();
+
+  useEffect(() => {
+    if (unreadCount > 0) {
+      markAllAsRead();
+    }
+  }, [unreadCount]);
 
   const handlePress = (item: any) => {
     if (!item.isRead) {
