@@ -18,7 +18,6 @@ type TabType = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export default function AdminBookingsScreen({ navigation }: Props) {
   const { bookings, updateBookingStatus, deleteBooking, markAdminViewed } = useBookings();
-  const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [isLoading, setIsLoading] = useState(false);
 
