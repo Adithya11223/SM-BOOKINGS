@@ -13,6 +13,10 @@ import BusinessSettingsScreen from '../../screens/admin/BusinessSettingsScreen';
 const Tab = createBottomTabNavigator<AdminTabParamList>();
 
 export const AdminTabNavigator = () => {
+  // Hook must be called at component top level, not inside tabBar callback
+  const { bookings } = useBookings();
+  const unviewedCount = bookings.filter(b => b.hasUnreadAdminUpdates).length;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -20,7 +24,7 @@ export const AdminTabNavigator = () => {
       }}
       tabBar={(props) => {
         const currentRouteName = props.state.routes[props.state.index].name;
-        
+
         const getTabName = (route: string) => {
           if (route === 'AdminDashboard') return 'dashboard';
           if (route === 'AdminBookings') return 'bookings';
@@ -35,9 +39,6 @@ export const AdminTabNavigator = () => {
           if (tabName === 'services') props.navigation.navigate('AdminServices');
           if (tabName === 'settings') props.navigation.navigate('BusinessSettings');
         };
-
-        const { bookings } = useBookings();
-        const unviewedCount = bookings.filter(b => b.hasUnreadAdminUpdates).length;
 
         return (
           <BottomNavigation

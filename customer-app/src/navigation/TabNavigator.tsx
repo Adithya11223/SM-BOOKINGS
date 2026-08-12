@@ -12,16 +12,18 @@ import ProfileScreen from '../screens/ProfileScreen';
 const Tab = createTabs<MainTabParamList>();
 
 export const TabNavigator = () => {
+  // Hook must be called at component top level, not inside tabBar callback
+  const { bookings } = useBookings();
+  const unviewedCount = bookings.filter(b => b.hasUnreadCustomerUpdates).length;
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
       }}
       tabBar={(props) => {
-        // Map react-navigation props to our custom BottomNavigation component
         const currentRouteName = props.state.routes[props.state.index].name;
-        
-        // Map our route names to the tab names expected by our component
+
         const getTabName = (route: string) => {
           if (route === 'Home') return 'home';
           if (route === 'MyBookings') return 'bookings';
@@ -34,9 +36,6 @@ export const TabNavigator = () => {
           if (tabName === 'bookings') props.navigation.navigate('MyBookings');
           if (tabName === 'profile') props.navigation.navigate('Profile');
         };
-
-        const { bookings } = useBookings();
-        const unviewedCount = bookings.filter(b => b.hasUnreadCustomerUpdates).length;
 
         return (
           <BottomNavigation
