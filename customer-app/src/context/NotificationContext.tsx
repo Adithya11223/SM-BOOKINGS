@@ -105,6 +105,17 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           }
           return [parsed, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         });
+
+        // Trigger local push notification instantly
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: parsed.title || 'New Notification',
+            body: parsed.message || 'You have a new update.',
+            data: { screen: 'Notifications', bookingId: parsed.bookingId },
+            sound: true,
+          },
+          trigger: null,
+        });
       };
 
       const privateTopic = `/topic/customer/${receiverId}/notifications`;
@@ -181,7 +192,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchNotifications = async () => {
     try {
-      const receiverId = user?.id;
+      const receiverId = user?.id || deviceId;
       if (!receiverId) return;
       const response = await api.get(`/notifications?receiverType=CUSTOMER&receiverId=${receiverId}`);
       if (response.data.success) {
@@ -205,7 +216,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const markAllAsRead = async () => {
     try {
-      const receiverId = user?.id;
+      const receiverId = user?.id || deviceId;
       if (!receiverId) return;
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       await api.patch(`/notifications/read-all?receiverType=CUSTOMER&receiverId=${receiverId}`);
@@ -236,7 +247,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const clearAllNotifications = async () => {
     try {
-      const receiverId = user?.id;
+      const receiverId = user?.id || deviceId;
       if (!receiverId) return;
       setNotifications([]);
       await api.delete(`/notifications/clear-all?receiverType=CUSTOMER&receiverId=${receiverId}`);

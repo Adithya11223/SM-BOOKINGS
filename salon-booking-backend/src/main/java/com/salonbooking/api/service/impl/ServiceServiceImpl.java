@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -103,7 +104,14 @@ public class ServiceServiceImpl implements ServiceService {
     @com.salonbooking.api.annotation.AuditLog(action = "Delete Service")
     public void deleteService(UUID id) {
         Service service = getServiceEntityById(id);
-        repository.delete(service);
-        log.info("Deleted service: {}", id);
+        try {
+            repository.delete(service);
+            repository.flush();
+            log.info("Deleted service: {}", id);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Service {} is referenced by bookings. Soft deleting instead.", id);
+            service.setIsVisible(false);
+            repository.save(service);
+        }
     }
 }
