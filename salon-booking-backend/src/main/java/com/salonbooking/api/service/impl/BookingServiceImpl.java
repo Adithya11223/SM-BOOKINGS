@@ -153,7 +153,8 @@ public class BookingServiceImpl implements BookingService {
                 .updateType(UpdateType.CREATED)
                 .targetRole(TargetRole.ADMIN)
                 .build();
-        bookingUpdateRepository.save(adminUpdate);
+        adminUpdate = bookingUpdateRepository.save(adminUpdate);
+        savedBooking.getBookingUpdates().add(adminUpdate);
 
         if (request.getDeviceId() != null) {
             fcmTokenRepository.findByDeviceId(request.getDeviceId()).ifPresent(token -> {
@@ -203,7 +204,8 @@ public class BookingServiceImpl implements BookingService {
                 .updateType(type)
                 .targetRole(TargetRole.CUSTOMER)
                 .build();
-        bookingUpdateRepository.save(customerUpdate);
+        customerUpdate = bookingUpdateRepository.save(customerUpdate);
+        updatedBooking.getBookingUpdates().add(customerUpdate);
 
         if (newStatus == BookingStatus.COMPLETED) {
             customerService.updateCustomerBookingStats(booking.getCustomer());
@@ -270,7 +272,8 @@ public class BookingServiceImpl implements BookingService {
                 .updateType(UpdateType.CONFIRMED)
                 .targetRole(TargetRole.CUSTOMER)
                 .build();
-        bookingUpdateRepository.save(confirmUpdate);
+        confirmUpdate = bookingUpdateRepository.save(confirmUpdate);
+        updatedOriginal.getBookingUpdates().add(confirmUpdate);
 
         // 2. Create new booking for rejected items.
         Booking rejectedBooking = Booking.builder()
@@ -311,7 +314,8 @@ public class BookingServiceImpl implements BookingService {
                 .updateType(UpdateType.CANCELLED)
                 .targetRole(TargetRole.CUSTOMER)
                 .build();
-        bookingUpdateRepository.save(cancelUpdate);
+        cancelUpdate = bookingUpdateRepository.save(cancelUpdate);
+        savedRejected.getBookingUpdates().add(cancelUpdate);
 
         // Notifications
         Notification acceptNotif = notificationGenerator.generateBookingStatusUpdatedNotification(updatedOriginal);
