@@ -28,6 +28,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final com.salonbooking.api.util.NotificationGenerator notificationGenerator;
     private final com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher;
     private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
+    private final com.salonbooking.api.repository.CustomerRepository customerRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -110,13 +111,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void broadcastAnnouncement(String title, String message) {
-        Notification notification = notificationGenerator.generateBusinessNotification(
+        List<com.salonbooking.api.entity.Customer> customers = customerRepository.findAll();
+        for (com.salonbooking.api.entity.Customer customer : customers) {
+            Notification notification = notificationGenerator.generateBusinessNotification(
+                title, message, com.salonbooking.api.enums.NotificationType.PROMOTIONAL
+            );
+            notification.setReceiverId(customer.getId());
+            notification = repository.save(notification);
+            webSocketEventPublisher.publishNotificationUpdate(notification);
+        }
+        
+        // Push notification logic can just use a dummy notification since it looks for fcm tokens
+        Notification broadcastNotif = notificationGenerator.generateBusinessNotification(
             title, message, com.salonbooking.api.enums.NotificationType.PROMOTIONAL
         );
-        notification = repository.save(notification);
-        
-        webSocketEventPublisher.publishNotificationUpdate(notification);
-        pushNotificationService.sendPushNotification(notification);
+        pushNotificationService.sendPushNotification(broadcastNotif);
         
         log.info("Broadcast announcement: {}", title);
     }
