@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useBookings } from '../hooks/';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -16,8 +16,23 @@ type Props = NativeStackScreenProps<RootStackParamList, 'MainTabs'>;
 type TabType = 'upcoming' | 'completed' | 'cancelled';
 
 export default function MyBookingsScreen({ navigation }: Props) {
-  const { bookings } = useBookings();
+  const { bookings, deleteBooking } = useBookings();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Booking",
+      "Are you sure you want to permanently delete this cancelled booking?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: () => deleteBooking(id) 
+        }
+      ]
+    );
+  };
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
@@ -71,6 +86,7 @@ export default function MyBookingsScreen({ navigation }: Props) {
             date={formatDate(item.date)}
             time={item.time}
             status={item.status}
+            onDelete={item.status === 'cancelled' ? () => handleDelete(item.id) : undefined}
             onPress={() => {
               // @ts-ignore - navigation type mismatch between stack and tab for nested routing, 
               // but standard push works at runtime because they share the root stack

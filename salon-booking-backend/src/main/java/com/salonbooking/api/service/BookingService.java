@@ -15,5 +15,6 @@ public interface BookingService {
     List<BookingResponse> getBookingsByReferences(List<String> references);
     BookingDetailResponse createBooking(CreateBookingRequest request);
     BookingDetailResponse updateBookingStatus(UUID id, UpdateBookingStatusRequest request);
+    void deleteBooking(UUID id);
     BookingDetailResponse partialAcceptBooking(UUID id, List<UUID> acceptedServiceIds);
 }

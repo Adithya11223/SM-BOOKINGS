@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useBookings } from '../../hooks/';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Button, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdminRootStackParamList } from '../../navigation/admin/AdminTypes';
@@ -9,11 +9,12 @@ import { formatDate } from '../../utils/formatters';
 import { TopAppBar } from '../../components/navigation/TopAppBar';
 import { SearchBar } from '../../components/inputs/SearchBar';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { MaterialIcons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'BookingHistory'>;
 
 export default function BookingHistoryScreen({ navigation }: Props) {
-  const { bookings } = useBookings();
+  const { bookings, deleteBooking } = useBookings();
   const [search, setSearch] = useState('');
   
   // Date filter state
@@ -65,6 +66,21 @@ export default function BookingHistoryScreen({ navigation }: Props) {
     if (selectedDate) setToDate(selectedDate);
   };
 
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Booking",
+      "Are you sure you want to permanently delete this cancelled booking?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: () => deleteBooking(id) 
+        }
+      ]
+    );
+  };
+
   const HistoryCard = ({ booking }: { booking: any }) => {
     const displayId = booking.bookingNumber || booking.id;
     
@@ -75,9 +91,16 @@ export default function BookingHistoryScreen({ navigation }: Props) {
       >
         <View style={styles.header}>
           <Text style={styles.bookingId}>{displayId}</Text>
-          <Text style={[styles.status, { color: booking.status === 'completed' ? theme.colors.success : theme.colors.error }]}>
-            {booking.status.toUpperCase()}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+            <Text style={[styles.status, { color: booking.status === 'completed' ? theme.colors.success : theme.colors.error }]}>
+              {booking.status.toUpperCase()}
+            </Text>
+            {booking.status === 'cancelled' && (
+              <TouchableOpacity onPress={() => handleDelete(booking.id)}>
+                <MaterialIcons name="delete-outline" size={24} color={theme.colors.error} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <Text style={styles.customerName}>{booking.customerName}</Text>
         <Text style={styles.date}>{formatDate(booking.date)} at {booking.time}</Text>

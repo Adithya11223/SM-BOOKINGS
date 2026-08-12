@@ -9,7 +9,8 @@ const BOOKING_REFS_KEY = '@my_booking_references';
 
 interface BookingContextType {
   bookings: Booking[];
-  addBooking: (booking: Partial<Booking>) => Promise<string | null>; 
+  addBooking: (booking: Partial<Booking>) => Promise<string | null>;
+  deleteBooking: (bookingId: string) => Promise<void>;
   isLoading: boolean;
   refreshBookings: () => Promise<void>;
 }
@@ -122,12 +123,43 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, []);
 
+  const deleteBooking = useCallback(async (bookingId: string) => {
+    try {
+      setIsLoading(true);
+      
+      const bookingToDelete = bookings.find(b => b.id === bookingId);
+      const bookingNumber = (bookingToDelete as any)?.bookingNumber;
+
+      // Remove from API
+      await BookingService.deleteBooking(bookingId);
+      
+      // Remove from AsyncStorage
+      if (bookingNumber) {
+        const refsStr = await AsyncStorage.getItem(BOOKING_REFS_KEY);
+        if (refsStr) {
+          const refs: string[] = JSON.parse(refsStr);
+          const updatedRefs = refs.filter(r => r !== bookingNumber);
+          await AsyncStorage.setItem(BOOKING_REFS_KEY, JSON.stringify(updatedRefs));
+        }
+      }
+
+      setBookings(prev => prev.filter(b => b.id !== bookingId));
+    } catch (error) {
+      console.error('Failed to delete booking:', error);
+      Alert.alert('Error', 'Failed to delete booking.');
+      fetchBookings(); // Refresh to ensure state matches backend
+    } finally {
+      setIsLoading(false);
+    }
+  }, [bookings, fetchBookings]);
+
   const value = useMemo(() => ({
     bookings,
     addBooking,
+    deleteBooking,
     isLoading,
     refreshBookings: fetchBookings
-  }), [bookings, addBooking, isLoading, fetchBookings]);
+  }), [bookings, addBooking, deleteBooking, isLoading, fetchBookings]);
 
   return (
     <BookingContext.Provider value={value}>

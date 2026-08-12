@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -127,11 +128,20 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/partial-accept")
-    @Operation(summary = "Partially Accept Booking", description = "Accepts specific services in a booking and cancels the rest")
+    @Operation(summary = "Partially Accept Booking", description = "Accepts some services of a booking and creates a new cancelled booking for rejected services")
     public ResponseEntity<ApiResponse<BookingDetailResponse>> partialAcceptBooking(
-            @PathVariable UUID id, @RequestBody List<UUID> acceptedServiceIds) {
-        log.info("REST Request to partially accept booking for: {} with services {}", id, acceptedServiceIds);
+            @PathVariable UUID id,
+            @RequestBody List<UUID> acceptedServiceIds) {
+        log.info("REST Request to partially accept booking: {}", id);
         BookingDetailResponse response = bookingService.partialAcceptBooking(id, acceptedServiceIds);
-        return ResponseEntity.ok(ApiResponse.success(response, "Booking partially accepted successfully"));
+        return ResponseEntity.ok(ApiResponse.success(response, "Booking partially accepted"));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete Cancelled Booking", description = "Permanently deletes a cancelled booking from the database")
+    public ResponseEntity<ApiResponse<Void>> deleteBooking(@PathVariable UUID id) {
+        log.info("REST Request to delete cancelled booking: {}", id);
+        bookingService.deleteBooking(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking deleted successfully"));
     }
 }

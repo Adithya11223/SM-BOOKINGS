@@ -297,4 +297,30 @@ public class BookingServiceImpl implements BookingService {
         log.info("Partially accepted booking {}, created cancelled booking {}", updatedOriginal.getBookingNumber(), savedRejected.getBookingNumber());
         return detailResponse;
     }
+
+    @Override
+    @Transactional
+    public void deleteBooking(UUID id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        
+        if (booking.getBookingStatus() != BookingStatus.CANCELLED) {
+            throw new IllegalArgumentException("Only cancelled bookings can be deleted");
+        }
+        
+        bookingRepository.delete(booking);
+        log.info("Deleted cancelled booking: {}", id);
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void cleanupOldCancelledBookings() {
+        java.time.Instant sevenDaysAgo = java.time.Instant.now().minus(7, java.time.temporal.ChronoUnit.DAYS);
+        List<Booking> oldCancelledBookings = bookingRepository.findByBookingStatusAndUpdatedAtBefore(BookingStatus.CANCELLED, sevenDaysAgo);
+        
+        if (!oldCancelledBookings.isEmpty()) {
+            bookingRepository.deleteAll(oldCancelledBookings);
+            log.info("Cleaned up {} old cancelled bookings", oldCancelledBookings.size());
+        }
+    }
 }

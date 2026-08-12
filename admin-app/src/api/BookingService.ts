@@ -56,4 +56,8 @@ export class BookingService {
     const response = await apiClient.patch<ApiResponse<any>>(`/bookings/${id}/partial-accept`, acceptedServiceIds);
     return this.mapToFrontend(response.data.data);
   }
+
+  static async deleteBooking(id: string): Promise<void> {
+    await apiClient.delete(`/bookings/${id}`);
+  }
 }

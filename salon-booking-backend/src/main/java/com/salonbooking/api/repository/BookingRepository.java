@@ -17,4 +17,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "items"})
     java.util.List<Booking> findByBookingNumberIn(java.util.List<String> bookingNumbers);
+
+    java.util.List<Booking> findByBookingStatusAndUpdatedAtBefore(com.salonbooking.api.enums.BookingStatus status, java.time.Instant date);
 }

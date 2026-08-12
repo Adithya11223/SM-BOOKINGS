@@ -12,6 +12,7 @@ interface BookingCardProps {
   time: string;
   status: BookingStatus;
   onPress: () => void;
+  onDelete?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -22,7 +23,8 @@ export const BookingCard = ({
   date,
   time,
   status,
-  onPress
+  onPress,
+  onDelete
 }: BookingCardProps) => {
   const scale = useSharedValue(1);
 
@@ -42,7 +44,14 @@ export const BookingCard = ({
         <Text style={styles.serviceName} numberOfLines={1}>
           {serviceName}
         </Text>
-        <StatusBadge status={status} />
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+          <StatusBadge status={status} />
+          {onDelete && (
+            <Pressable onPress={onDelete} style={{padding: 4}}>
+              <MaterialIcons name="delete-outline" size={24} color={theme.colors.error} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {customerName && (

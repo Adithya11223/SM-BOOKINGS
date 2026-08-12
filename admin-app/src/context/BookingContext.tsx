@@ -10,6 +10,7 @@ interface BookingContextType {
   addBooking: (booking: Partial<Booking>) => Promise<string | null>; 
   updateBookingStatus: (bookingId: string, status: BookingStatus) => Promise<void>;
   partialAcceptBooking: (bookingId: string, acceptedServiceIds: string[]) => Promise<void>;
+  deleteBooking: (bookingId: string) => Promise<void>;
   isLoading: boolean;
   refreshBookings: () => Promise<void>;
 }
@@ -119,14 +120,26 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, [fetchBookings]);
 
+  const deleteBooking = useCallback(async (bookingId: string) => {
+    try {
+      setBookings(prev => prev.filter(b => b.id !== bookingId));
+      await BookingService.deleteBooking(bookingId);
+    } catch (error) {
+      console.error('Failed to delete booking:', error);
+      Alert.alert('Error', 'Failed to delete booking.');
+      fetchBookings();
+    }
+  }, [fetchBookings]);
+
   const value = useMemo(() => ({
     bookings,
     addBooking,
     updateBookingStatus,
     partialAcceptBooking,
+    deleteBooking,
     isLoading,
     refreshBookings: fetchBookings
-  }), [bookings, addBooking, updateBookingStatus, partialAcceptBooking, isLoading, fetchBookings]);
+  }), [bookings, addBooking, updateBookingStatus, partialAcceptBooking, deleteBooking, isLoading, fetchBookings]);
 
   return (
     <BookingContext.Provider value={value}>

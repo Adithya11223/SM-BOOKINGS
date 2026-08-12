@@ -77,4 +77,8 @@ export class BookingService {
     const response = await apiClient.patch<ApiResponse<any>>(`/bookings/${id}/status`, { bookingStatus: status.toUpperCase() });
     return this.mapToFrontend(response.data.data);
   }
+
+  static async deleteBooking(id: string): Promise<void> {
+    await apiClient.delete(`/bookings/${id}`);
+  }
 }
