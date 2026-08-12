@@ -29,6 +29,7 @@ export interface CartItem {
 
 export interface Booking {
   id: string;
+  bookingNumber?: string;
   type: BookingType;
   items: CartItem[];
   totalPrice: number;

@@ -64,7 +64,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
       style={styles.card}
     >
       <View style={styles.cardHeader}>
-        <Text style={styles.bookingId}>{booking.bookingNumber}</Text>
+        <Text style={styles.bookingId}>{booking.bookingNumber || booking.id}</Text>
         <StatusBadge status={booking.status} />
       </View>
       

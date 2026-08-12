@@ -7,6 +7,7 @@ import { StatusBadge, BookingStatus } from '../badges/StatusBadge';
 
 interface BookingCardProps {
   serviceName: string;
+  bookingNumber?: string;
   customerName?: string; // Optional for customer view
   date: string;
   time: string;
@@ -39,9 +40,14 @@ export const BookingCard = ({
       accessibilityRole="button"
     >
       <View style={styles.header}>
-        <Text style={styles.serviceName} numberOfLines={1}>
-          {serviceName}
-        </Text>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.serviceName} numberOfLines={1}>
+            {serviceName}
+          </Text>
+          {bookingNumber && (
+            <Text style={styles.bookingNumberText}>{bookingNumber}</Text>
+          )}
+        </View>
         <StatusBadge status={status} />
       </View>
 
@@ -83,12 +89,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
-  serviceName: {
+  headerTextContainer: {
     flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  serviceName: {
     fontSize: theme.typography.body.fontSize,
     fontWeight: '600',
     color: theme.colors.text,
-    marginRight: theme.spacing.sm,
+  },
+  bookingNumberText: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
   },
   customerRow: {
     flexDirection: 'row',

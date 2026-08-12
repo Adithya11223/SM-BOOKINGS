@@ -72,7 +72,7 @@ export default function AdminBookingDetailsScreen({ route, navigation }: Props) 
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopAppBar title={`Booking #${(booking as any).bookingNumber || booking.id.substring(0, 8)}`} onBackPress={() => navigation.goBack()} />
+      <TopAppBar title={`Booking #${booking.bookingNumber || booking.id.substring(0, 8)}`} onBackPress={() => navigation.goBack()} />
       
       <ScrollView contentContainerStyle={styles.content}>
         

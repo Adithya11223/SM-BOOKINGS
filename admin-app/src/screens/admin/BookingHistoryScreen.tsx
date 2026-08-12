@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useBookings } from '../../hooks/';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdminRootStackParamList } from '../../navigation/admin/AdminTypes';
@@ -8,36 +8,86 @@ import { theme, shadows } from '../../theme';
 import { formatDate } from '../../utils/formatters';
 import { TopAppBar } from '../../components/navigation/TopAppBar';
 import { SearchBar } from '../../components/inputs/SearchBar';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'BookingHistory'>;
 
 export default function BookingHistoryScreen({ navigation }: Props) {
   const { bookings } = useBookings();
   const [search, setSearch] = useState('');
+  
+  // Date filter state
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   // Show only completed and cancelled for history
-  const historyBookings = bookings.filter(b => 
-    (b.status === 'completed' || b.status === 'cancelled') &&
-    (b.customerName.toLowerCase().includes(search.toLowerCase()) || 
-     b.id.toLowerCase().includes(search.toLowerCase()))
-  );
+  const historyBookings = bookings.filter(b => {
+    // 1. Status filter
+    if (b.status !== 'completed' && b.status !== 'cancelled') return false;
 
-  const HistoryCard = ({ booking }: { booking: any }) => (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.bookingId}>{booking.id}</Text>
-        <Text style={[styles.status, { color: booking.status === 'completed' ? theme.colors.success : theme.colors.error }]}>
-          {booking.status.toUpperCase()}
-        </Text>
-      </View>
-      <Text style={styles.customerName}>{booking.customerName}</Text>
-      <Text style={styles.date}>{formatDate(booking.date)} at {booking.time}</Text>
-      <View style={styles.footer}>
-        <Text style={styles.type}>{booking.type === 'salon' ? 'Visiting Shop' : 'Home Service'}</Text>
-        <Text style={styles.price}>₹{booking.totalPrice.toFixed(2)}</Text>
-      </View>
-    </View>
-  );
+    // 2. Search filter (Name or Booking Code)
+    const searchLower = search.toLowerCase();
+    const displayId = b.bookingNumber || b.id;
+    const matchesSearch = 
+      b.customerName.toLowerCase().includes(searchLower) || 
+      displayId.toLowerCase().includes(searchLower);
+      
+    if (!matchesSearch) return false;
+
+    // 3. Date range filter
+    const bookingDate = new Date(b.date);
+    bookingDate.setHours(0, 0, 0, 0);
+
+    if (fromDate) {
+      const from = new Date(fromDate);
+      from.setHours(0, 0, 0, 0);
+      if (bookingDate < from) return false;
+    }
+    
+    if (toDate) {
+      const to = new Date(toDate);
+      to.setHours(0, 0, 0, 0);
+      if (bookingDate > to) return false;
+    }
+
+    return true;
+  });
+
+  const onFromDateChange = (event: any, selectedDate?: Date) => {
+    setShowFromPicker(Platform.OS === 'ios');
+    if (selectedDate) setFromDate(selectedDate);
+  };
+
+  const onToDateChange = (event: any, selectedDate?: Date) => {
+    setShowToPicker(Platform.OS === 'ios');
+    if (selectedDate) setToDate(selectedDate);
+  };
+
+  const HistoryCard = ({ booking }: { booking: any }) => {
+    const displayId = booking.bookingNumber || booking.id;
+    
+    return (
+      <TouchableOpacity 
+        style={styles.card} 
+        onPress={() => navigation.navigate('AdminBookingDetails', { bookingId: booking.id })}
+      >
+        <View style={styles.header}>
+          <Text style={styles.bookingId}>{displayId}</Text>
+          <Text style={[styles.status, { color: booking.status === 'completed' ? theme.colors.success : theme.colors.error }]}>
+            {booking.status.toUpperCase()}
+          </Text>
+        </View>
+        <Text style={styles.customerName}>{booking.customerName}</Text>
+        <Text style={styles.date}>{formatDate(booking.date)} at {booking.time}</Text>
+        <View style={styles.footer}>
+          <Text style={styles.type}>{booking.type === 'salon' ? 'Visiting Shop' : 'Home Service'}</Text>
+          <Text style={styles.price}>₹{booking.totalPrice.toFixed(2)}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,15 +97,60 @@ export default function BookingHistoryScreen({ navigation }: Props) {
         <SearchBar 
           value={search} 
           onChangeText={setSearch} 
-          placeholder="Search by Name or ID..." 
+          placeholder="Search by Name or Code (e.g. BKG-HEM)..." 
         />
+        
+        <View style={styles.dateFilterContainer}>
+          <TouchableOpacity style={styles.dateButton} onPress={() => setShowFromPicker(true)}>
+            <Text style={styles.dateButtonText}>
+              From: {fromDate ? fromDate.toLocaleDateString() : 'Any'}
+            </Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.dateSeparator}>-</Text>
+          
+          <TouchableOpacity style={styles.dateButton} onPress={() => setShowToPicker(true)}>
+            <Text style={styles.dateButtonText}>
+              To: {toDate ? toDate.toLocaleDateString() : 'Any'}
+            </Text>
+          </TouchableOpacity>
+          
+          {(fromDate || toDate) && (
+            <TouchableOpacity style={styles.clearButton} onPress={() => { setFromDate(undefined); setToDate(undefined); }}>
+              <Text style={styles.clearButtonText}>Clear</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
+
+      {showFromPicker && (
+        <DateTimePicker
+          value={fromDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={onFromDateChange}
+        />
+      )}
+      
+      {showToPicker && (
+        <DateTimePicker
+          value={toDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={onToDateChange}
+        />
+      )}
 
       <FlatList
         data={historyBookings}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => <HistoryCard booking={item} />}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No history matches your filters.</Text>
+          </View>
+        }
       />
     </SafeAreaView>
   );
@@ -69,6 +164,43 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  dateFilterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: theme.spacing.md,
+  },
+  dateButton: {
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  dateButtonText: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.text,
+  },
+  dateSeparator: {
+    marginHorizontal: 8,
+    color: theme.colors.textSecondary,
+  },
+  clearButton: {
+    marginLeft: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: theme.colors.error + '20',
+    borderRadius: theme.borderRadius.sm,
+  },
+  clearButtonText: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.error,
+    fontWeight: '600',
   },
   list: {
     padding: theme.spacing.md,
@@ -119,5 +251,12 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.body.fontSize,
     fontWeight: '700',
     color: theme.colors.primary,
+  },
+  emptyContainer: {
+    padding: theme.spacing.xl,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: theme.colors.textSecondary,
   }
 });
