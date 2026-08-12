@@ -244,6 +244,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setTotalAmount(priceCalculator.calculateTotalAmount(acceptedItems));
         booking.setTotalDuration(priceCalculator.calculateTotalDuration(acceptedItems));
         booking.setBookingStatus(BookingStatus.CONFIRMED);
+        booking.setCustomerViewed(false); // Flag for customer red dot
         Booking updatedOriginal = bookingRepository.save(booking);
 
         // 2. Create new booking for rejected items.
@@ -259,6 +260,8 @@ public class BookingServiceImpl implements BookingService {
                 .googleMapsLink(booking.getGoogleMapsLink())
                 .eventType(booking.getEventType())
                 .peopleCount(booking.getPeopleCount())
+                .adminViewed(true) // Admin just created it
+                .customerViewed(false) // Customer hasn't seen it
                 .build();
         
         List<BookingItem> newRejectedItems = new ArrayList<>();
