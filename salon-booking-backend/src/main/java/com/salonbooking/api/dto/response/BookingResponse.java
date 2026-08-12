@@ -20,4 +20,6 @@ public class BookingResponse {
     private BigDecimal totalAmount;
     private Integer totalDuration;
     private String customerName; // Flattened for easy summary display
+    private Boolean adminViewed;
+    private Boolean customerViewed;
 }

@@ -17,7 +17,7 @@ type Props = BottomTabScreenProps<AdminTabParamList, 'AdminBookings'>;
 type TabType = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export default function AdminBookingsScreen({ navigation }: Props) {
-  const { bookings, updateBookingStatus, deleteBooking } = useBookings();
+  const { bookings, updateBookingStatus, deleteBooking, markAdminViewed } = useBookings();
   const { unreadCount } = useNotifications();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +63,9 @@ export default function AdminBookingsScreen({ navigation }: Props) {
       transition={{ type: 'spring', delay: index * 100 }}
       style={styles.card}
     >
+      {booking.status === 'pending' && !booking.adminViewed && (
+        <View style={styles.unreadDot} />
+      )}
       <View style={styles.cardHeader}>
         <Text style={styles.bookingId}>{booking.bookingNumber || booking.id}</Text>
         <StatusBadge status={booking.status} />
@@ -105,6 +108,9 @@ export default function AdminBookingsScreen({ navigation }: Props) {
           <TouchableOpacity 
             style={styles.iconButton}
             onPress={() => {
+              if (booking.status === 'pending' && !booking.adminViewed) {
+                markAdminViewed(booking.id);
+              }
               // @ts-ignore
               navigation.getParent()?.navigate('AdminBookingDetails', { bookingId: booking.id });
             }}
@@ -116,13 +122,19 @@ export default function AdminBookingsScreen({ navigation }: Props) {
             <>
               <TouchableOpacity 
                 style={[styles.actionBtn, { backgroundColor: theme.colors.error }]}
-                onPress={() => updateBookingStatus(booking.id, 'cancelled')}
+                onPress={() => {
+                  if (!booking.adminViewed) markAdminViewed(booking.id);
+                  updateBookingStatus(booking.id, 'cancelled');
+                }}
               >
                 <Text style={styles.actionBtnText}>Reject</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.actionBtn, { backgroundColor: theme.colors.success }]}
-                onPress={() => updateBookingStatus(booking.id, 'confirmed')}
+                onPress={() => {
+                  if (!booking.adminViewed) markAdminViewed(booking.id);
+                  updateBookingStatus(booking.id, 'confirmed');
+                }}
               >
                 <Text style={styles.actionBtnText}>Accept</Text>
               </TouchableOpacity>
@@ -248,10 +260,21 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: theme.typography.body.fontSize,
+    fontSize: theme.typography.body1.fontSize,
     color: theme.colors.text,
-    padding: 0,
-    minHeight: 40,
+    paddingVertical: theme.spacing.sm,
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: theme.colors.error,
+    borderWidth: 2,
+    borderColor: theme.colors.card,
+    zIndex: 1,
   },
   tab: {
     paddingVertical: theme.spacing.md,

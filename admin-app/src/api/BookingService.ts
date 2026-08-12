@@ -25,6 +25,8 @@ export class BookingService {
           duration: i.durationSnapshot || 0,
         }
       })),
+      adminViewed: b.adminViewed,
+      customerViewed: b.customerViewed,
     } as Booking;
   }
   static async getBookings(params?: any): Promise<Booking[]> {
@@ -59,5 +61,9 @@ export class BookingService {
 
   static async deleteBooking(id: string): Promise<void> {
     await apiClient.delete(`/bookings/${id}`);
+  }
+
+  static async markAdminViewed(id: string): Promise<void> {
+    await apiClient.patch(`/bookings/${id}/admin-view`);
   }
 }

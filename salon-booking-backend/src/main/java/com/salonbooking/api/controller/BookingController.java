@@ -144,4 +144,20 @@ public class BookingController {
         bookingService.deleteBooking(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Booking deleted successfully"));
     }
+
+    @PatchMapping("/{id}/admin-view")
+    @Operation(summary = "Mark Booking as Admin Viewed", description = "Sets adminViewed flag to true")
+    public ResponseEntity<ApiResponse<Void>> markAdminViewed(@PathVariable UUID id) {
+        log.info("REST Request to mark booking as admin viewed: {}", id);
+        bookingService.markAdminViewed(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking marked as admin viewed"));
+    }
+
+    @PatchMapping("/{id}/customer-view")
+    @Operation(summary = "Mark Booking as Customer Viewed", description = "Sets customerViewed flag to true")
+    public ResponseEntity<ApiResponse<Void>> markCustomerViewed(@PathVariable UUID id) {
+        log.info("REST Request to mark booking as customer viewed: {}", id);
+        bookingService.markCustomerViewed(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking marked as customer viewed"));
+    }
 }

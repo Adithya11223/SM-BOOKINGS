@@ -17,4 +17,6 @@ public interface BookingService {
     BookingDetailResponse updateBookingStatus(UUID id, UpdateBookingStatusRequest request);
     void deleteBooking(UUID id);
     BookingDetailResponse partialAcceptBooking(UUID id, List<UUID> acceptedServiceIds);
+    void markAdminViewed(UUID id);
+    void markCustomerViewed(UUID id);
 }

@@ -112,6 +112,8 @@ public class BookingServiceImpl implements BookingService {
                 .googleMapsLink(request.getGoogleMapsLink())
                 .eventType(request.getEventType())
                 .peopleCount(request.getPeopleCount())
+                .adminViewed(false)
+                .customerViewed(true)
                 // Placeholders that will be calculated
                 .totalAmount(BigDecimal.ZERO)
                 .totalDuration(0)
@@ -181,6 +183,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setBookingStatus(newStatus);
+        booking.setCustomerViewed(false); // Admin changed it, so customer hasn't seen the new status
         Booking updatedBooking = bookingRepository.save(booking);
 
         if (newStatus == BookingStatus.COMPLETED) {
@@ -310,6 +313,25 @@ public class BookingServiceImpl implements BookingService {
         
         bookingRepository.delete(booking);
         log.info("Deleted cancelled booking: {}", id);
+    }
+
+    @Transactional
+    public void markAdminViewed(UUID id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        booking.setAdminViewed(true);
+        Booking updated = bookingRepository.save(booking);
+        webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(updated));
+    }
+
+    @Override
+    @Transactional
+    public void markCustomerViewed(UUID id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        booking.setCustomerViewed(true);
+        Booking updated = bookingRepository.save(booking);
+        webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(updated));
     }
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ?")

@@ -6,5 +6,26 @@ export const useBookings = () => {
   if (context === undefined) {
     throw new Error('useBookings must be used within a BookingProvider');
   }
-  return context;
+
+  const {
+    bookings,
+    addBooking,
+    updateBookingStatus,
+    partialAcceptBooking,
+    deleteBooking,
+    markAdminViewed,
+    isLoading,
+    refreshBookings
+  } = context;
+
+  return {
+    bookings,
+    addBooking,
+    updateBookingStatus,
+    partialAcceptBooking,
+    deleteBooking,
+    markAdminViewed,
+    isLoading,
+    refreshBookings
+  };
 };

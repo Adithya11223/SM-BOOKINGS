@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator as createTabs } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
 import { BottomNavigation } from '../components/navigation/BottomNavigation';
+import { useBookings } from '../hooks';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -34,13 +35,16 @@ export const TabNavigator = () => {
           if (tabName === 'profile') props.navigation.navigate('Profile');
         };
 
+        const { bookings } = useBookings();
+        const unviewedCount = bookings.filter(b => (b.status === 'confirmed' || b.status === 'completed') && !b.customerViewed).length;
+
         return (
           <BottomNavigation
             activeTab={getTabName(currentRouteName)}
             onTabPress={handleTabPress}
             tabs={[
               { name: 'home', icon: 'home', label: 'Home' },
-              { name: 'bookings', icon: 'calendar-today', label: 'Bookings' },
+              { name: 'bookings', icon: 'calendar-today', label: 'Bookings', badgeCount: unviewedCount },
               { name: 'profile', icon: 'person', label: 'Profile' },
             ]}
           />

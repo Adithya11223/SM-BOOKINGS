@@ -11,6 +11,7 @@ interface BookingContextType {
   updateBookingStatus: (bookingId: string, status: BookingStatus) => Promise<void>;
   partialAcceptBooking: (bookingId: string, acceptedServiceIds: string[]) => Promise<void>;
   deleteBooking: (bookingId: string) => Promise<void>;
+  markAdminViewed: (bookingId: string) => Promise<void>;
   isLoading: boolean;
   refreshBookings: () => Promise<void>;
 }
@@ -131,15 +132,26 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, [fetchBookings]);
 
+  const markAdminViewed = useCallback(async (bookingId: string) => {
+    // Optimistic UI update
+    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, adminViewed: true } : b));
+    try {
+      await BookingService.markAdminViewed(bookingId);
+    } catch (error) {
+      console.error('Failed to mark booking as viewed:', error);
+    }
+  }, []);
+
   const value = useMemo(() => ({
     bookings,
     addBooking,
     updateBookingStatus,
     partialAcceptBooking,
     deleteBooking,
+    markAdminViewed,
     isLoading,
     refreshBookings: fetchBookings
-  }), [bookings, addBooking, updateBookingStatus, partialAcceptBooking, deleteBooking, isLoading, fetchBookings]);
+  }), [bookings, addBooking, updateBookingStatus, partialAcceptBooking, deleteBooking, markAdminViewed, isLoading, fetchBookings]);
 
   return (
     <BookingContext.Provider value={value}>

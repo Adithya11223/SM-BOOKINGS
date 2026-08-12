@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AdminTabParamList } from './AdminTypes';
 import { BottomNavigation } from '../../components/navigation/BottomNavigation';
+import { useBookings } from '../../hooks';
 
 // Screens
 import AdminDashboardScreen from '../../screens/admin/AdminDashboardScreen';
@@ -35,13 +36,16 @@ export const AdminTabNavigator = () => {
           if (tabName === 'settings') props.navigation.navigate('BusinessSettings');
         };
 
+        const { bookings } = useBookings();
+        const unviewedCount = bookings.filter(b => b.status === 'pending' && !b.adminViewed).length;
+
         return (
           <BottomNavigation
             activeTab={getTabName(currentRouteName)}
             onTabPress={handleTabPress}
             tabs={[
               { name: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
-              { name: 'bookings', icon: 'event-note', label: 'Bookings' },
+              { name: 'bookings', icon: 'event-note', label: 'Bookings', badgeCount: unviewedCount },
               { name: 'services', icon: 'spa', label: 'Services' },
               { name: 'settings', icon: 'settings', label: 'Settings' },
             ]}

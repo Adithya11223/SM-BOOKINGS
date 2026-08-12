@@ -49,6 +49,9 @@ export interface Booking {
   venueAddress?: string;
   mapLink?: string;
   numberOfPeople?: number;
+  
+  adminViewed?: boolean;
+  customerViewed?: boolean;
 }
 
 export interface BusinessSettings {

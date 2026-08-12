@@ -15,7 +15,7 @@ import { EmptyState } from '../components/states/EmptyState';
 type TabType = 'upcoming' | 'completed' | 'cancelled';
 
 export default function MyBookingsScreen({ navigation }: any) {
-  const { bookings, deleteBooking } = useBookings();
+  const { bookings, deleteBooking, markCustomerViewed } = useBookings();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
 
   const handleDelete = (id: string) => {
@@ -135,8 +135,12 @@ export default function MyBookingsScreen({ navigation }: any) {
             date={formatDate(item.date)}
             time={item.time}
             status={item.status}
+            showUnreadDot={(item.status === 'confirmed' || item.status === 'completed') && !item.customerViewed}
             onDelete={item.status === 'cancelled' ? () => handleDelete(item.id) : undefined}
             onPress={() => {
+              if ((item.status === 'confirmed' || item.status === 'completed') && !item.customerViewed) {
+                markCustomerViewed(item.id);
+              }
               // @ts-ignore - navigation type mismatch between stack and tab for nested routing, 
               // but standard push works at runtime because they share the root stack
               navigation.getParent()?.navigate('BookingDetails', { bookingId: item.id })

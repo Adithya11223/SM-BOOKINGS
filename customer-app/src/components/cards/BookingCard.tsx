@@ -11,6 +11,7 @@ interface BookingCardProps {
   date: string;
   time: string;
   status: BookingStatus;
+  showUnreadDot?: boolean;
   onPress: () => void;
   onDelete?: () => void;
 }
@@ -40,6 +41,7 @@ export const BookingCard = ({
       onPressOut={() => { scale.value = withSpring(1, { damping: 15 }); }}
       accessibilityRole="button"
     >
+      {showUnreadDot && <View style={styles.unreadDot} />}
       <View style={styles.header}>
         <Text style={styles.serviceName} numberOfLines={1}>
           {serviceName}
@@ -131,5 +133,17 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.text,
     fontWeight: '500',
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: theme.colors.error,
+    borderWidth: 2,
+    borderColor: theme.colors.card,
+    zIndex: 1,
   }
 });

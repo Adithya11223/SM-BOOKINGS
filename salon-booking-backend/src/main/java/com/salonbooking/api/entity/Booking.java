@@ -64,6 +64,14 @@ public class Booking extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "admin_viewed", nullable = false)
+    @Builder.Default
+    private Boolean adminViewed = false;
+
+    @Column(name = "customer_viewed", nullable = false)
+    @Builder.Default
+    private Boolean customerViewed = true;
+
     private String address;
 
     @Column(name = "google_maps_link")

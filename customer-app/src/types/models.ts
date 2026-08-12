@@ -49,6 +49,8 @@ export interface Booking {
   address?: string;
   googleMapsLink?: string;
   peopleCount?: number;
+  
+  customerViewed?: boolean;
 }
 
 export interface BusinessSettings {
