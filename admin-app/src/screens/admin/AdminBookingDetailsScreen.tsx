@@ -18,7 +18,7 @@ type Props = NativeStackScreenProps<AdminRootStackParamList, 'AdminBookingDetail
 
 export default function AdminBookingDetailsScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
-  const { updateBookingStatus, partialAcceptBooking } = useBookings();
+  const { updateBookingStatus, partialAcceptBooking, markAdminViewed } = useBookings();
   const [booking, setBooking] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [selectedServiceIds, setSelectedServiceIds] = React.useState<string[]>([]);
@@ -30,6 +30,10 @@ export default function AdminBookingDetailsScreen({ route, navigation }: Props) 
         setBooking(fullBooking);
         if (fullBooking.status === 'pending') {
           setSelectedServiceIds(fullBooking.items.map((i: any) => i.service.id));
+        }
+        // Mark as read if there are unread admin updates
+        if (fullBooking.hasUnreadAdminUpdates) {
+          markAdminViewed(bookingId);
         }
       } catch (error) {
         console.error("Failed to load booking details", error);

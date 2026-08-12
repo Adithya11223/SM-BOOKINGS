@@ -17,7 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetails'>;
 
 export default function BookingDetailsScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
-  const { bookings } = useBookings();
+  const { bookings, markCustomerViewed } = useBookings();
   
   const initialBooking = bookings.find(b => b.id === bookingId);
   const [booking, setBooking] = useState<Booking | undefined>(initialBooking);
@@ -29,6 +29,10 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
         setIsLoading(true);
         const fullBooking = await BookingService.getBookingById(bookingId);
         setBooking(fullBooking);
+        // Mark as read if there are unread customer updates
+        if (fullBooking.hasUnreadCustomerUpdates) {
+          markCustomerViewed(bookingId);
+        }
       } catch (error) {
         console.error('Failed to fetch full booking details:', error);
       } finally {
