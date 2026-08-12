@@ -2,7 +2,7 @@ import React, { createContext, useState, ReactNode, useCallback, useMemo, useEff
 import { Booking } from '../types';
 import { BookingService } from '../api/BookingService';
 import { webSocketService } from '../api/WebSocketService';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BOOKING_REFS_KEY = '@my_booking_references';
@@ -76,17 +76,15 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     // Add AppState listener to refetch bookings when coming to foreground
     // This is crucial because WebSockets drop messages while the app is backgrounded
-    const appStateSubscription = import('react-native').then(({ AppState }) => {
-       return AppState.addEventListener('change', nextAppState => {
-         if (nextAppState === 'active') {
-           fetchBookings();
-         }
-       });
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        fetchBookings();
+      }
     });
 
     return () => {
       webSocketService.unsubscribe('/topic/bookings', handleBookingUpdate);
-      appStateSubscription.then(sub => sub.remove());
+      subscription.remove();
     };
   }, [fetchBookings]);
 

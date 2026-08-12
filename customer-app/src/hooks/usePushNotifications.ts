@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api/axios';
+import { navigationRef } from '../navigation/navigationRef';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -36,15 +37,13 @@ export function usePushNotifications() {
       console.log('Notification tapped:', response);
       const data = response.notification.request.content.data;
       if (data && data.screen) {
-        import('../navigation/navigationRef').then(({ navigationRef }) => {
-          if (navigationRef.isReady()) {
-            if (data.bookingId) {
-              navigationRef.navigate(data.screen as never, { bookingId: data.bookingId } as never);
-            } else {
-              navigationRef.navigate(data.screen as never);
-            }
+        if (navigationRef.isReady()) {
+          if (data.bookingId) {
+            navigationRef.navigate(data.screen as any, { bookingId: data.bookingId } as any);
+          } else {
+            navigationRef.navigate(data.screen as any);
           }
-        });
+        }
       }
     });
 

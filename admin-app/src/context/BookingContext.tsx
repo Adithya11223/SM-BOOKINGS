@@ -2,7 +2,7 @@ import React, { createContext, useState, ReactNode, useCallback, useMemo, useEff
 import { Booking, BookingStatus } from '../types';
 import { BookingService } from '../api/BookingService';
 import { webSocketService } from '../api/WebSocketService';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 
 interface BookingContextType {
@@ -63,17 +63,15 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
     webSocketService.subscribe('/topic/bookings', handleBookingUpdate);
     
     // Add AppState listener to refetch bookings when coming to foreground
-    const appStateSubscription = import('react-native').then(({ AppState }) => {
-       return AppState.addEventListener('change', nextAppState => {
-         if (nextAppState === 'active') {
-           fetchBookings();
-         }
-       });
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        fetchBookings();
+      }
     });
 
     return () => {
       webSocketService.unsubscribe('/topic/bookings', handleBookingUpdate);
-      appStateSubscription.then(sub => sub.remove());
+      subscription.remove();
     };
   }, [fetchBookings, user]);
 

@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: theme.typography.body.fontSize,
     color: theme.colors.text,
     paddingVertical: theme.spacing.sm,
   },

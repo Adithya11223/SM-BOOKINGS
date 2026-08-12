@@ -5,6 +5,7 @@ import { RootStackParamList } from './types';
 // Navigators
 import { TabNavigator } from './TabNavigator';
 import { AuthNavigator } from './AuthNavigator';
+import { navigate } from './navigationRef';
 
 import { useAuth } from '../context/AuthContext';
 import * as Notifications from 'expo-notifications';
@@ -25,7 +26,6 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator = () => {
   const { isLoaded, isSignedIn } = useAuth();
-  const navigation = import('@react-navigation/native').then(m => m.useNavigation);
   const response = Notifications.useLastNotificationResponse();
   const [navigatedFromNotif, setNavigatedFromNotif] = React.useState('');
 
@@ -34,11 +34,9 @@ export const RootNavigator = () => {
       const data = response.notification.request.content.data;
       if (data?.screen) {
         setNavigatedFromNotif(response.notification.request.identifier);
-        import('./navigationRef').then(({ navigate }) => {
-          setTimeout(() => {
-            navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
-          }, 500); // Wait for stack to mount
-        });
+        setTimeout(() => {
+          navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
+        }, 500); // Wait for stack to mount
       }
     }
   }, [isLoaded, isSignedIn, response, navigatedFromNotif]);

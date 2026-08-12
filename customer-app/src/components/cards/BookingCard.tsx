@@ -24,6 +24,7 @@ export const BookingCard = ({
   date,
   time,
   status,
+  showUnreadDot,
   onPress,
   onDelete
 }: BookingCardProps) => {

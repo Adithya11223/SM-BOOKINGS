@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api/axios';
 import { webSocketService } from '../api/WebSocketService';
 import { useAuth } from '../hooks/useAuth';
+import { navigate } from '../navigation/navigationRef';
 
 export interface NotificationItem {
   id: string;
@@ -76,9 +77,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
       const data = response.notification.request.content.data;
       if (data?.screen) {
-        import('../navigation/navigationRef').then(({ navigate }) => {
-          navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
-        });
+        navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
       }
     });
 
