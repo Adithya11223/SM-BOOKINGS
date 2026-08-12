@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T02:21:18-0700",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
+    date = "2026-08-12T02:30:44-0700",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class CustomerMapperImpl implements CustomerMapper {
@@ -22,10 +22,10 @@ public class CustomerMapperImpl implements CustomerMapper {
 
         Customer.CustomerBuilder customer = Customer.builder();
 
-        customer.name( request.getName() );
-        customer.phoneNumber( request.getPhoneNumber() );
         customer.email( request.getEmail() );
+        customer.name( request.getName() );
         customer.notes( request.getNotes() );
+        customer.phoneNumber( request.getPhoneNumber() );
 
         return customer.build();
     }
@@ -38,12 +38,12 @@ public class CustomerMapperImpl implements CustomerMapper {
 
         CustomerResponse customerResponse = new CustomerResponse();
 
-        customerResponse.setId( entity.getId() );
-        customerResponse.setName( entity.getName() );
-        customerResponse.setPhoneNumber( entity.getPhoneNumber() );
         customerResponse.setEmail( entity.getEmail() );
-        customerResponse.setNotes( entity.getNotes() );
+        customerResponse.setId( entity.getId() );
         customerResponse.setLastBookingDate( entity.getLastBookingDate() );
+        customerResponse.setName( entity.getName() );
+        customerResponse.setNotes( entity.getNotes() );
+        customerResponse.setPhoneNumber( entity.getPhoneNumber() );
         customerResponse.setTotalBookings( entity.getTotalBookings() );
 
         return customerResponse;
@@ -55,9 +55,9 @@ public class CustomerMapperImpl implements CustomerMapper {
             return;
         }
 
-        entity.setName( request.getName() );
-        entity.setPhoneNumber( request.getPhoneNumber() );
         entity.setEmail( request.getEmail() );
+        entity.setName( request.getName() );
         entity.setNotes( request.getNotes() );
+        entity.setPhoneNumber( request.getPhoneNumber() );
     }
 }

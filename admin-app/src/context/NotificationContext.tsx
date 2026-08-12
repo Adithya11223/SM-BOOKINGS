@@ -218,6 +218,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     Notifications.setBadgeCountAsync(unreadCount);
+    if (unreadCount === 0) {
+      Notifications.dismissAllNotificationsAsync().catch(console.error);
+    }
   }, [unreadCount]);
 
   const deleteNotification = async (id: string) => {

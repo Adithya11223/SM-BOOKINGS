@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T02:21:18-0700",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
+    date = "2026-08-12T02:30:44-0700",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class BusinessSettingsMapperImpl implements BusinessSettingsMapper {
@@ -22,31 +22,31 @@ public class BusinessSettingsMapperImpl implements BusinessSettingsMapper {
 
         BusinessSettingsResponse businessSettingsResponse = new BusinessSettingsResponse();
 
-        businessSettingsResponse.setId( entity.getId() );
-        businessSettingsResponse.setBusinessName( entity.getBusinessName() );
-        businessSettingsResponse.setTagline( entity.getTagline() );
-        businessSettingsResponse.setLogoUrl( entity.getLogoUrl() );
-        businessSettingsResponse.setCoverImageUrl( entity.getCoverImageUrl() );
-        businessSettingsResponse.setPhoneNumber( entity.getPhoneNumber() );
-        businessSettingsResponse.setWhatsappNumber( entity.getWhatsappNumber() );
-        businessSettingsResponse.setEmail( entity.getEmail() );
+        businessSettingsResponse.setAdCreatedAt( entity.getAdCreatedAt() );
+        businessSettingsResponse.setAdImageUrl( entity.getAdImageUrl() );
         businessSettingsResponse.setAddress( entity.getAddress() );
-        businessSettingsResponse.setOpeningTime( entity.getOpeningTime() );
+        businessSettingsResponse.setBusinessName( entity.getBusinessName() );
         businessSettingsResponse.setClosingTime( entity.getClosingTime() );
-        businessSettingsResponse.setInstagram( entity.getInstagram() );
-        businessSettingsResponse.setFacebook( entity.getFacebook() );
+        businessSettingsResponse.setCoverImageUrl( entity.getCoverImageUrl() );
+        businessSettingsResponse.setCurrency( entity.getCurrency() );
         businessSettingsResponse.setDescription( entity.getDescription() );
+        businessSettingsResponse.setEmail( entity.getEmail() );
+        businessSettingsResponse.setFacebook( entity.getFacebook() );
+        businessSettingsResponse.setId( entity.getId() );
+        businessSettingsResponse.setInstagram( entity.getInstagram() );
+        businessSettingsResponse.setIsActive( entity.getIsActive() );
+        businessSettingsResponse.setIsServiceOpen( entity.getIsServiceOpen() );
+        businessSettingsResponse.setIsShopOpen( entity.getIsShopOpen() );
+        businessSettingsResponse.setLogoUrl( entity.getLogoUrl() );
+        businessSettingsResponse.setOpeningTime( entity.getOpeningTime() );
         businessSettingsResponse.setOwnerName( entity.getOwnerName() );
         businessSettingsResponse.setOwnerTitle( entity.getOwnerTitle() );
-        businessSettingsResponse.setYoutube( entity.getYoutube() );
+        businessSettingsResponse.setPhoneNumber( entity.getPhoneNumber() );
+        businessSettingsResponse.setTagline( entity.getTagline() );
         businessSettingsResponse.setThreads( entity.getThreads() );
-        businessSettingsResponse.setCurrency( entity.getCurrency() );
         businessSettingsResponse.setTimezone( entity.getTimezone() );
-        businessSettingsResponse.setIsActive( entity.getIsActive() );
-        businessSettingsResponse.setIsShopOpen( entity.getIsShopOpen() );
-        businessSettingsResponse.setIsServiceOpen( entity.getIsServiceOpen() );
-        businessSettingsResponse.setAdImageUrl( entity.getAdImageUrl() );
-        businessSettingsResponse.setAdCreatedAt( entity.getAdCreatedAt() );
+        businessSettingsResponse.setWhatsappNumber( entity.getWhatsappNumber() );
+        businessSettingsResponse.setYoutube( entity.getYoutube() );
 
         return businessSettingsResponse;
     }
@@ -57,27 +57,27 @@ public class BusinessSettingsMapperImpl implements BusinessSettingsMapper {
             return;
         }
 
-        entity.setBusinessName( request.getBusinessName() );
-        entity.setTagline( request.getTagline() );
-        entity.setLogoUrl( request.getLogoUrl() );
-        entity.setCoverImageUrl( request.getCoverImageUrl() );
-        entity.setPhoneNumber( request.getPhoneNumber() );
-        entity.setWhatsappNumber( request.getWhatsappNumber() );
-        entity.setEmail( request.getEmail() );
+        entity.setAdImageUrl( request.getAdImageUrl() );
         entity.setAddress( request.getAddress() );
-        entity.setOpeningTime( request.getOpeningTime() );
+        entity.setBusinessName( request.getBusinessName() );
         entity.setClosingTime( request.getClosingTime() );
-        entity.setInstagram( request.getInstagram() );
-        entity.setFacebook( request.getFacebook() );
+        entity.setCoverImageUrl( request.getCoverImageUrl() );
+        entity.setCurrency( request.getCurrency() );
         entity.setDescription( request.getDescription() );
+        entity.setEmail( request.getEmail() );
+        entity.setFacebook( request.getFacebook() );
+        entity.setInstagram( request.getInstagram() );
+        entity.setIsServiceOpen( request.getIsServiceOpen() );
+        entity.setIsShopOpen( request.getIsShopOpen() );
+        entity.setLogoUrl( request.getLogoUrl() );
+        entity.setOpeningTime( request.getOpeningTime() );
         entity.setOwnerName( request.getOwnerName() );
         entity.setOwnerTitle( request.getOwnerTitle() );
-        entity.setYoutube( request.getYoutube() );
+        entity.setPhoneNumber( request.getPhoneNumber() );
+        entity.setTagline( request.getTagline() );
         entity.setThreads( request.getThreads() );
-        entity.setCurrency( request.getCurrency() );
         entity.setTimezone( request.getTimezone() );
-        entity.setIsShopOpen( request.getIsShopOpen() );
-        entity.setIsServiceOpen( request.getIsServiceOpen() );
-        entity.setAdImageUrl( request.getAdImageUrl() );
+        entity.setWhatsappNumber( request.getWhatsappNumber() );
+        entity.setYoutube( request.getYoutube() );
     }
 }

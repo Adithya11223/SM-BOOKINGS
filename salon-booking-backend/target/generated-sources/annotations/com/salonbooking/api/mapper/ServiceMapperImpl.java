@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T02:21:18-0700",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
+    date = "2026-08-12T02:30:44-0700",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class ServiceMapperImpl implements ServiceMapper {
@@ -23,13 +23,13 @@ public class ServiceMapperImpl implements ServiceMapper {
 
         Service.ServiceBuilder service = Service.builder();
 
-        service.name( request.getName() );
-        service.description( request.getDescription() );
         service.category( request.getCategory() );
-        service.type( request.getType() );
-        service.price( request.getPrice() );
+        service.description( request.getDescription() );
         service.durationMinutes( request.getDurationMinutes() );
         service.imageUrl( request.getImageUrl() );
+        service.name( request.getName() );
+        service.price( request.getPrice() );
+        service.type( request.getType() );
 
         return service.build();
     }
@@ -42,16 +42,16 @@ public class ServiceMapperImpl implements ServiceMapper {
 
         ServiceResponse serviceResponse = new ServiceResponse();
 
-        serviceResponse.setId( entity.getId() );
-        serviceResponse.setName( entity.getName() );
-        serviceResponse.setDescription( entity.getDescription() );
         serviceResponse.setCategory( entity.getCategory() );
-        serviceResponse.setType( entity.getType() );
-        serviceResponse.setPrice( entity.getPrice() );
+        serviceResponse.setDescription( entity.getDescription() );
+        serviceResponse.setDisplayOrder( entity.getDisplayOrder() );
         serviceResponse.setDurationMinutes( entity.getDurationMinutes() );
+        serviceResponse.setId( entity.getId() );
         serviceResponse.setImageUrl( entity.getImageUrl() );
         serviceResponse.setIsVisible( entity.getIsVisible() );
-        serviceResponse.setDisplayOrder( entity.getDisplayOrder() );
+        serviceResponse.setName( entity.getName() );
+        serviceResponse.setPrice( entity.getPrice() );
+        serviceResponse.setType( entity.getType() );
 
         return serviceResponse;
     }
@@ -62,14 +62,14 @@ public class ServiceMapperImpl implements ServiceMapper {
             return;
         }
 
-        entity.setName( request.getName() );
-        entity.setDescription( request.getDescription() );
         entity.setCategory( request.getCategory() );
-        entity.setType( request.getType() );
-        entity.setPrice( request.getPrice() );
+        entity.setDescription( request.getDescription() );
+        entity.setDisplayOrder( request.getDisplayOrder() );
         entity.setDurationMinutes( request.getDurationMinutes() );
         entity.setImageUrl( request.getImageUrl() );
         entity.setIsVisible( request.getIsVisible() );
-        entity.setDisplayOrder( request.getDisplayOrder() );
+        entity.setName( request.getName() );
+        entity.setPrice( request.getPrice() );
+        entity.setType( request.getType() );
     }
 }

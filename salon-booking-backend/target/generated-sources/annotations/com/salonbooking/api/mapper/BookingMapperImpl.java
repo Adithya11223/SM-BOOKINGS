@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T02:21:18-0700",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
+    date = "2026-08-12T02:30:44-0700",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class BookingMapperImpl implements BookingMapper {
@@ -34,12 +34,12 @@ public class BookingMapperImpl implements BookingMapper {
         BookingResponse bookingResponse = new BookingResponse();
 
         bookingResponse.setCustomerName( entityCustomerName( entity ) );
-        bookingResponse.setId( entity.getId() );
-        bookingResponse.setBookingNumber( entity.getBookingNumber() );
-        bookingResponse.setBookingType( entity.getBookingType() );
-        bookingResponse.setBookingStatus( entity.getBookingStatus() );
         bookingResponse.setBookingDate( entity.getBookingDate() );
+        bookingResponse.setBookingNumber( entity.getBookingNumber() );
+        bookingResponse.setBookingStatus( entity.getBookingStatus() );
         bookingResponse.setBookingTime( entity.getBookingTime() );
+        bookingResponse.setBookingType( entity.getBookingType() );
+        bookingResponse.setId( entity.getId() );
         bookingResponse.setTotalAmount( entity.getTotalAmount() );
         bookingResponse.setTotalDuration( entity.getTotalDuration() );
 
@@ -55,21 +55,21 @@ public class BookingMapperImpl implements BookingMapper {
         BookingDetailResponse bookingDetailResponse = new BookingDetailResponse();
 
         bookingDetailResponse.setCustomerName( entityCustomerName( entity ) );
-        bookingDetailResponse.setId( entity.getId() );
-        bookingDetailResponse.setBookingNumber( entity.getBookingNumber() );
-        bookingDetailResponse.setBookingType( entity.getBookingType() );
-        bookingDetailResponse.setBookingStatus( entity.getBookingStatus() );
         bookingDetailResponse.setBookingDate( entity.getBookingDate() );
+        bookingDetailResponse.setBookingNumber( entity.getBookingNumber() );
+        bookingDetailResponse.setBookingStatus( entity.getBookingStatus() );
         bookingDetailResponse.setBookingTime( entity.getBookingTime() );
+        bookingDetailResponse.setBookingType( entity.getBookingType() );
+        bookingDetailResponse.setId( entity.getId() );
         bookingDetailResponse.setTotalAmount( entity.getTotalAmount() );
         bookingDetailResponse.setTotalDuration( entity.getTotalDuration() );
-        bookingDetailResponse.setNotes( entity.getNotes() );
         bookingDetailResponse.setAddress( entity.getAddress() );
-        bookingDetailResponse.setGoogleMapsLink( entity.getGoogleMapsLink() );
-        bookingDetailResponse.setEventType( entity.getEventType() );
-        bookingDetailResponse.setPeopleCount( entity.getPeopleCount() );
         bookingDetailResponse.setCustomer( customerMapper.toResponse( entity.getCustomer() ) );
+        bookingDetailResponse.setEventType( entity.getEventType() );
+        bookingDetailResponse.setGoogleMapsLink( entity.getGoogleMapsLink() );
         bookingDetailResponse.setItems( bookingItemListToBookingItemResponseList( entity.getItems() ) );
+        bookingDetailResponse.setNotes( entity.getNotes() );
+        bookingDetailResponse.setPeopleCount( entity.getPeopleCount() );
 
         return bookingDetailResponse;
     }
@@ -83,11 +83,11 @@ public class BookingMapperImpl implements BookingMapper {
         BookingItemResponse bookingItemResponse = new BookingItemResponse();
 
         bookingItemResponse.setServiceId( entityServiceId( entity ) );
-        bookingItemResponse.setId( entity.getId() );
-        bookingItemResponse.setServiceNameSnapshot( entity.getServiceNameSnapshot() );
-        bookingItemResponse.setPriceSnapshot( entity.getPriceSnapshot() );
         bookingItemResponse.setDurationSnapshot( entity.getDurationSnapshot() );
+        bookingItemResponse.setId( entity.getId() );
+        bookingItemResponse.setPriceSnapshot( entity.getPriceSnapshot() );
         bookingItemResponse.setQuantity( entity.getQuantity() );
+        bookingItemResponse.setServiceNameSnapshot( entity.getServiceNameSnapshot() );
         bookingItemResponse.setSubtotal( entity.getSubtotal() );
 
         return bookingItemResponse;

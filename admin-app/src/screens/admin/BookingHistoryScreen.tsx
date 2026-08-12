@@ -160,30 +160,36 @@ export default function BookingHistoryScreen({ navigation }: Props) {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <Text style={{ fontSize: 12, color: theme.colors.textSecondary, marginBottom: 5 }}>Sort By:</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {[
-              { label: 'Date: Newest', value: 'date-desc' },
-              { label: 'Date: Oldest', value: 'date-asc' },
-              { label: 'Price: High', value: 'price-desc' },
-              { label: 'Price: Low', value: 'price-asc' },
-            ].map(option => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.sortChip,
-                  sortBy === option.value && styles.sortChipActive
-                ]}
-                onPress={() => setSortBy(option.value as SortType)}
-              >
-                <Text style={[
-                  styles.sortChipText,
-                  sortBy === option.value && styles.sortChipTextActive
-                ]}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.sm }}>
+            <Text style={{ fontSize: 14, color: theme.colors.textSecondary }}>Sort By:</Text>
+            <TouchableOpacity 
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: theme.colors.surface,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: theme.colors.border,
+              }}
+              onPress={() => {
+                Alert.alert('Sort By', 'Choose an option', [
+                  { text: 'Date: Newest', onPress: () => setSortBy('date-desc') },
+                  { text: 'Date: Oldest', onPress: () => setSortBy('date-asc') },
+                  { text: 'Price: High', onPress: () => setSortBy('price-desc') },
+                  { text: 'Price: Low', onPress: () => setSortBy('price-asc') },
+                  { text: 'Cancel', style: 'cancel' }
+                ], { cancelable: true });
+              }}
+            >
+              <Text style={{ color: theme.colors.text, marginRight: 8, fontSize: 14, fontWeight: '500' }}>
+                {sortBy === 'date-desc' ? 'Date: Newest' : 
+                 sortBy === 'date-asc' ? 'Date: Oldest' : 
+                 sortBy === 'price-desc' ? 'Price: High' : 'Price: Low'}
+              </Text>
+              <MaterialIcons name="arrow-drop-down" size={20} color={theme.colors.text} />
+            </TouchableOpacity>
           </View>
         </View>
       </View>

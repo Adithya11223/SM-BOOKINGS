@@ -122,7 +122,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
         
         <TouchableOpacity 
           style={styles.notificationBtn}
-          onPress={() => navigation.getParent()?.navigate('Notifications' as never)}
+          onPress={() => navigation.navigate('Notifications' as any)}
         >
           <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
           {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
@@ -356,7 +356,6 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.md,
     marginBottom: theme.spacing.xl,
     justifyContent: 'space-between',
   },
@@ -365,6 +364,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
     ...shadows.medium,
   },
   statIconBox: {

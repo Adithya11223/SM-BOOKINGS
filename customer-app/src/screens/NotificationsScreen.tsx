@@ -30,42 +30,42 @@ export default function NotificationsScreen({ navigation }: Props) {
     }
   };
 
-  const NotifCard = ({ item, index }: { item: any, index: number }) => {
-    let icon = 'notifications';
-    let color = theme.colors.primary;
-    if (item.type?.includes('BOOKING')) {
-      icon = 'event-note';
-    } else if (item.type?.includes('CANCELLED')) {
-      icon = 'event-busy';
-      color = theme.colors.error;
-    }
+const NotifCard = ({ item, index, handlePress, deleteNotification }: { item: any, index: number, handlePress: (item: any) => void, deleteNotification: (id: string) => void }) => {
+  let icon = 'notifications';
+  let color = theme.colors.primary;
+  if (item.type?.includes('BOOKING')) {
+    icon = 'event-note';
+  } else if (item.type?.includes('CANCELLED')) {
+    icon = 'event-busy';
+    color = theme.colors.error;
+  }
 
-    return (
-      <TouchableOpacity onPress={() => handlePress(item)}>
-        <MotiView 
-          from={{ opacity: 0, translateX: -20 }}
-          animate={{ opacity: 1, translateX: 0 }}
-          transition={{ type: 'spring', delay: index * 50 }}
-          style={[styles.card, !item.isRead && styles.cardUnread]}
-        >
-          <View style={[styles.iconBox, { backgroundColor: `${color}15` }]}>
-            <MaterialIcons name={icon as any} size={24} color={color} />
+  return (
+    <TouchableOpacity onPress={() => handlePress(item)}>
+      <MotiView 
+        from={{ opacity: 0, translateX: -20 }}
+        animate={{ opacity: 1, translateX: 0 }}
+        transition={{ type: 'spring', delay: index * 50 }}
+        style={[styles.card, !item.isRead && styles.cardUnread]}
+      >
+        <View style={[styles.iconBox, { backgroundColor: `${color}15` }]}>
+          <MaterialIcons name={icon as any} size={24} color={color} />
+        </View>
+        <View style={styles.content}>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, !item.isRead && styles.titleUnread]}>{item.title}</Text>
+            {!item.isRead && <View style={styles.unreadDot} />}
           </View>
-          <View style={styles.content}>
-            <View style={styles.titleRow}>
-              <Text style={[styles.title, !item.isRead && styles.titleUnread]}>{item.title}</Text>
-              {!item.isRead && <View style={styles.unreadDot} />}
-            </View>
-            <Text style={styles.message}>{item.message}</Text>
-            <Text style={styles.time}>{new Date(item.createdAt).toLocaleString()}</Text>
-          </View>
-          <TouchableOpacity onPress={() => deleteNotification(item.id)} style={styles.deleteBtn}>
-            <MaterialIcons name="delete-outline" size={22} color={theme.colors.error} />
-          </TouchableOpacity>
-        </MotiView>
-      </TouchableOpacity>
-    );
-  };
+          <Text style={styles.message}>{item.message}</Text>
+          <Text style={styles.time}>{new Date(item.createdAt).toLocaleString()}</Text>
+        </View>
+        <TouchableOpacity onPress={() => deleteNotification(item.id)} style={styles.deleteBtn}>
+          <MaterialIcons name="delete-outline" size={22} color={theme.colors.error} />
+        </TouchableOpacity>
+      </MotiView>
+    </TouchableOpacity>
+  );
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,7 +86,7 @@ export default function NotificationsScreen({ navigation }: Props) {
             description="You're all caught up! No new notifications at the moment."
           />
         }
-        renderItem={({ item, index }) => <NotifCard item={item} index={index} />}
+        renderItem={({ item, index }) => <NotifCard item={item} index={index} handlePress={handlePress} deleteNotification={deleteNotification} />}
       />
     </SafeAreaView>
   );
