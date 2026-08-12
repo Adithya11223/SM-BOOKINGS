@@ -22,7 +22,7 @@ export default function EventMakeupBookingFormScreen({ navigation }: Props) {
   
   const [name, setName] = useState(MOCK_USER.name);
   const [phone, setPhone] = useState(MOCK_USER.phone);
-  const [address, setAddress] = useState(MOCK_USER.address);
+  const [address, setAddress] = useState('');
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [notes, setNotes] = useState('');
@@ -35,7 +35,7 @@ export default function EventMakeupBookingFormScreen({ navigation }: Props) {
 
     setTimeout(async () => {
       const bookingId = await addBooking({
-        type: 'home',
+        type: 'event',
         items: cart,
         totalPrice: cartTotal,
         totalDuration: cart.reduce((acc, curr) => acc + curr.service.duration * curr.quantity, 0),

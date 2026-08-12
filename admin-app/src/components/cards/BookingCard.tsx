@@ -19,6 +19,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export const BookingCard = ({
   serviceName,
+  bookingNumber,
   customerName,
   date,
   time,

@@ -181,7 +181,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           <View style={styles.statsGrid}>
             {[1, 2, 3, 4].map(i => (
               <View key={i} style={styles.statCard}>
-                <SkeletonLoader width={40} height={40} borderRadius={20} />
+                <SkeletonLoader width={40} height={40} radius={20} />
                 <View style={{height: 10}} />
                 <SkeletonLoader width={60} height={20} />
                 <View style={{height: 5}} />

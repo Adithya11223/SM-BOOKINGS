@@ -11,11 +11,9 @@ import { TopAppBar } from '../components/navigation/TopAppBar';
 import { BookingCard } from '../components/cards/BookingCard';
 import { EmptyState } from '../components/states/EmptyState';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MainTabs'>;
-
 type TabType = 'upcoming' | 'completed' | 'cancelled';
 
-export default function MyBookingsScreen({ navigation }: Props) {
+export default function MyBookingsScreen({ navigation }: any) {
   const { bookings, deleteBooking } = useBookings();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
 

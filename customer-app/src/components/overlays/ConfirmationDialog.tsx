@@ -56,10 +56,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
               title={confirmTitle}
               variant="primary"
               onPress={onConfirm}
-              style={[
-                styles.actionButton,
-                isDestructive && { backgroundColor: theme.colors.error }
-              ]}
+              style={isDestructive ? { ...styles.actionButton, backgroundColor: theme.colors.error } : styles.actionButton}
             />
           </View>
         </View>

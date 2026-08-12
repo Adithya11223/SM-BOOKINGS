@@ -72,8 +72,8 @@ export default function NotificationsScreen({ navigation }: Props) {
       <TopAppBar 
         title="Notifications" 
         onBackPress={() => navigation.goBack()} 
-        rightIcon={notifications.length > 0 ? "delete-sweep" : undefined}
-        onRightIconPress={notifications.length > 0 ? clearAllNotifications : undefined}
+        rightActionIcon={notifications.length > 0 ? "delete-sweep" : undefined}
+        onRightActionPress={notifications.length > 0 ? clearAllNotifications : undefined}
       />
       <FlatList
         data={notifications}

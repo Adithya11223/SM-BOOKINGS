@@ -241,7 +241,7 @@ export default function BusinessSettingsScreen({ navigation }: Props) {
           isLoading={isUpdating || isLoading}
         />
 
-        <SectionHeader title="Admin Credentials" style={[styles.sectionHeader, { marginTop: theme.spacing.xl }]} />
+        <SectionHeader title="Admin Credentials" style={{ ...styles.sectionHeader, marginTop: theme.spacing.xl }} />
         <View style={{ marginBottom: theme.spacing.lg }}>
           <Text style={{ color: theme.colors.textSecondary, marginBottom: theme.spacing.md, fontSize: theme.typography.caption.fontSize }}>
             To update your email or password, please verify your current password first.

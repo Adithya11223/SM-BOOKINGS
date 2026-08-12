@@ -16,10 +16,11 @@ export interface Service {
   imageUrl?: string;
   inclusions: string[];
   visible?: boolean; // For admin toggle
+  type?: 'event' | 'salon' | string; // For backend mapping
 }
 
 export interface MakeupService extends Service {
-  type: MakeupType;
+  makeupType?: MakeupType;
 }
 
 export interface CartItem {
@@ -45,9 +46,9 @@ export interface Booking {
   
   // Event specific
   eventType?: string;
-  venueAddress?: string;
-  mapLink?: string;
-  numberOfPeople?: number;
+  address?: string;
+  googleMapsLink?: string;
+  peopleCount?: number;
 }
 
 export interface BusinessSettings {

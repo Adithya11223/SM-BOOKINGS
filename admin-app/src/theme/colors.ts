@@ -2,6 +2,7 @@ export const colors = {
   primary: '#B87C7C',
   secondary: '#F2E4E6',
   background: '#FFFFFF',
+  surface: '#FAFAFA',
   card: '#FAFAFA',
   text: '#2A2A2A',
   textSecondary: '#7A7A7A',

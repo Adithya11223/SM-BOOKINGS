@@ -63,9 +63,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     registerForPushNotificationsAsync().then(async (tokenData) => {
       if (tokenData) {
-        setExpoPushToken(tokenData.token);
+        setExpoPushToken(tokenData.token || null);
         setDeviceId(tokenData.deviceId);
-        await sendTokenToBackend(tokenData.token, tokenData.deviceId, user?.id);
+        await sendTokenToBackend(tokenData.token || null, tokenData.deviceId, user?.id);
       }
     });
 
