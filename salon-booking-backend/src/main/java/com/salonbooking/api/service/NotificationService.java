@@ -13,4 +13,5 @@ public interface NotificationService {
     void markAllAsRead(String receiverType, UUID receiverId);
     void deleteNotification(UUID id);
     void deleteAllNotifications(String receiverType, UUID receiverId);
+    void broadcastAnnouncement(String title, String message);
 }

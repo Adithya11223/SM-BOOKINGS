@@ -9,6 +9,7 @@ import { MotiView } from 'moti';
 import { AdminRootStackParamList } from '../../navigation/admin/AdminTypes';
 import { theme, shadows } from '../../theme';
 import { SkeletonLoader } from '../../components/states/SkeletonLoader';
+import { AnnouncementDialog } from '../../components/overlays/AnnouncementDialog';
 
 type Props = {
   navigation: NativeStackNavigationProp<AdminRootStackParamList, 'AdminMainTabs'>;
@@ -19,6 +20,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
   const { bookings, isLoading: bookingsLoading, refreshBookings } = useBookings();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
 
   const initialLoading = appConfigLoading || bookingsLoading;
 
@@ -120,14 +122,23 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           </View>
         </View>
         
-        <TouchableOpacity 
-          style={styles.notificationBtn}
-          onPress={() => navigation.navigate('Notifications' as any)}
-        >
-          <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
-          {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity 
+            style={styles.notificationBtn}
+            onPress={() => setAnnouncementVisible(true)}
+          >
+            <MaterialIcons name="campaign" size={28} color={theme.colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.notificationBtn}
+            onPress={() => navigation.navigate('Notifications' as any)}
+          >
+            <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
+            {/* Badge is handled automatically by the system, but we can add a visual dot if needed */}
+          </TouchableOpacity>
+        </View>
         </MotiView>
+        <AnnouncementDialog visible={announcementVisible} onClose={() => setAnnouncementVisible(false)} />
 
       <ScrollView 
         contentContainerStyle={styles.content}

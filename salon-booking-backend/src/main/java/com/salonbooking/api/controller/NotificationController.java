@@ -81,4 +81,13 @@ public class NotificationController {
         notificationService.deleteAllNotifications(receiverType, receiverId);
         return ResponseEntity.ok(ApiResponse.success(null, "All notifications deleted successfully"));
     }
+
+    @org.springframework.web.bind.annotation.PostMapping("/announce")
+    @Operation(summary = "Broadcast Announcement", description = "Broadcasts an announcement to all customers")
+    public ResponseEntity<ApiResponse<Void>> broadcastAnnouncement(
+            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody com.salonbooking.api.dto.request.AnnouncementRequest request) {
+        log.info("REST Request to broadcast announcement: {}", request.getTitle());
+        notificationService.broadcastAnnouncement(request.getTitle(), request.getMessage());
+        return ResponseEntity.ok(ApiResponse.success(null, "Announcement broadcasted successfully"));
+    }
 }

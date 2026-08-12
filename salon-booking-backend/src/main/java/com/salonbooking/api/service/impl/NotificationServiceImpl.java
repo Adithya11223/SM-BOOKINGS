@@ -25,6 +25,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository repository;
     private final NotificationMapper mapper;
+    private final com.salonbooking.api.util.NotificationGenerator notificationGenerator;
+    private final com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher;
+    private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -102,6 +105,20 @@ public class NotificationServiceImpl implements NotificationService {
         }
         repository.deleteAll(notifications);
         log.info("Deleted all notifications for receiverType={}, receiverId={}", receiverType, receiverId);
+    }
+
+    @Override
+    @Transactional
+    public void broadcastAnnouncement(String title, String message) {
+        Notification notification = notificationGenerator.generateBusinessNotification(
+            title, message, com.salonbooking.api.enums.NotificationType.PROMOTIONAL
+        );
+        notification = repository.save(notification);
+        
+        webSocketEventPublisher.publishNotificationUpdate(notification);
+        pushNotificationService.sendPushNotification(notification);
+        
+        log.info("Broadcast announcement: {}", title);
     }
 
     @Scheduled(cron = "0 0 0 * * *") // Runs daily at midnight
