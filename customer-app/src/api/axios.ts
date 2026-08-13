@@ -2,7 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import config from '../config/config';
 
-export const API_URL = config.API_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || config.API_URL || 'https://sm-bookings.onrender.com/api/v1';
+export const API_URL = (BASE_URL && !BASE_URL.includes('10.0.2.2')) ? BASE_URL : 'https://sm-bookings.onrender.com/api/v1';
 
 const apiClient = axios.create({
   baseURL: API_URL,
