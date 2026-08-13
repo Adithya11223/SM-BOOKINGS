@@ -29,7 +29,9 @@ export default function RegisterScreen() {
     setLoading(true);
     setError('');
 
-    const formattedPhoneNumber = `+91${phoneNumber.replace(/^0+/, '')}`; // Ensure +91 format
+    const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+    const phoneDigits = (cleanPhone.length === 12 && cleanPhone.startsWith('91')) ? cleanPhone.substring(2) : cleanPhone;
+    const formattedPhoneNumber = `+91${phoneDigits}`;
 
     try {
       const response = await apiClient.post('/auth/customer/register', {
