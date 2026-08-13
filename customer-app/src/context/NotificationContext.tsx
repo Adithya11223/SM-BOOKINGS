@@ -106,21 +106,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       if (data?.id) {
         markAsRead(data.id);
       } else if (data?.bookingId) {
-        setNotifications(prev => {
-          const match = prev.find(n => n.bookingId === data.bookingId);
-          if (match) {
-            markAsRead(match.id);
-          }
-          return prev;
-        });
-      } else if (data?.serviceId) {
-        setNotifications(prev => {
-          const match = prev.find(n => n.serviceId === data.serviceId);
-          if (match) {
-            markAsRead(match.id);
-          }
-          return prev;
-        });
+        markBookingNotificationsAsRead(data.bookingId);
       }
 
       if (data?.screen) {
@@ -363,9 +349,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   useEffect(() => {
-    Notifications.setBadgeCountAsync(unreadCount);
+    Notifications.setBadgeCountAsync(unreadCount).catch(() => {});
     if (unreadCount === 0) {
-      Notifications.dismissAllNotificationsAsync().catch(console.error);
+      Notifications.setBadgeCountAsync(0).catch(() => {});
+      Notifications.dismissAllNotificationsAsync().catch(() => {});
     }
   }, [unreadCount]);
 
