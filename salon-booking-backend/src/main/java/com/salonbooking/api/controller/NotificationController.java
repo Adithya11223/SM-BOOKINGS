@@ -4,7 +4,6 @@ import com.salonbooking.api.dto.ApiResponse;
 import com.salonbooking.api.dto.response.NotificationResponse;
 import com.salonbooking.api.security.UserDetailsImpl;
 import com.salonbooking.api.service.NotificationService;
-import com.salonbooking.api.service.WebSocketEventPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final WebSocketEventPublisher webSocketEventPublisher;
 
     private UserDetailsImpl getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
