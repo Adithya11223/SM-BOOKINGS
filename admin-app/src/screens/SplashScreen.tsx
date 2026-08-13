@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MotiView, MotiText } from 'moti';
 import { theme } from '../theme';
+import * as Notifications from 'expo-notifications';
 
 type SplashScreenProps = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -13,6 +14,9 @@ export default function SplashScreen({ navigation }: SplashScreenProps) {
   const { businessSettings } = useAppConfig();
 
   useEffect(() => {
+    // Proactively request notification permissions on first launch
+    Notifications.requestPermissionsAsync().catch(() => {});
+
     const timer = setTimeout(() => {
       navigation.replace('MainTabs', { screen: 'Home' });
     }, 2500);

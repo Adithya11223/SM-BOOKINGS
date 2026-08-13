@@ -8,6 +8,7 @@ import { MotiView, MotiText } from 'moti';
 import { theme } from '../theme';
 
 import { useAuth } from '../context/AuthContext';
+import * as Notifications from 'expo-notifications';
 
 type SplashScreenProps = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -16,6 +17,9 @@ export default function SplashScreen({ navigation }: SplashScreenProps) {
   const { isLoaded, isSignedIn } = useAuth();
 
   useEffect(() => {
+    // Proactively request notification permissions on first launch
+    Notifications.requestPermissionsAsync().catch(() => {});
+
     if (!isLoaded) return;
     
     const timer = setTimeout(() => {
