@@ -5,17 +5,19 @@ import { BookingStatus } from '../types/enums';
 
 export class BookingService {
   static mapToFrontend(b: any): Booking {
+    const rawStatus = (b.bookingStatus || b.status || 'PENDING').toString().toLowerCase();
     return {
       ...b,
       bookingNumber: b.bookingNumber || b.reference || b.id || '',
-      customerName: b.customer?.name || b.customerName,
-      customerPhone: b.customer?.phoneNumber || b.customerPhone,
-      type: b.bookingType === 'SALON_VISIT' ? 'salon' : 'home',
-      totalPrice: b.totalAmount,
+      customerName: b.customerName || b.customer?.name || 'Customer',
+      customerPhone: b.customerPhone || b.customer?.phoneNumber || 'N/A',
+      type: (b.bookingType === 'SALON_VISIT' || b.type === 'salon') ? 'salon' : 'home',
+      totalPrice: b.totalAmount !== undefined ? b.totalAmount : b.totalPrice,
       totalDuration: b.totalDuration,
-      date: b.bookingDate || new Date().toISOString(),
-      time: b.bookingTime || '00:00',
-      status: b.bookingStatus?.toLowerCase() || 'pending',
+      date: b.bookingDate || b.date || new Date().toISOString(),
+      time: b.bookingTime || b.time || '00:00',
+      status: rawStatus,
+      bookingStatus: rawStatus,
       items: (b.items || []).map((i: any) => ({
         id: i.id,
         quantity: i.quantity || 1,

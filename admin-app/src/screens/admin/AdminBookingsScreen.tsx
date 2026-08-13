@@ -12,22 +12,51 @@ import { StatusBadge } from '../../components/badges/StatusBadge';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MotiView, MotiScrollView } from 'moti';
 
+import { RefreshControl } from 'react-native';
+
 type Props = BottomTabScreenProps<AdminTabParamList, 'AdminBookings'>;
 
 type TabType = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export default function AdminBookingsScreen({ navigation }: Props) {
-  const { bookings, updateBookingStatus, deleteBooking, markAdminViewed } = useBookings();
+  const { bookings, updateBookingStatus, deleteBooking, markAdminViewed, refreshBookings, isLoading: isBookingsLoading } = useBookings();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
-  const [isLoading, setIsLoading] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    refreshBookings();
+  }, []);
+
+  const tabCounts = useMemo(() => {
+    const counts: Record<TabType, number> = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+    bookings.forEach(b => {
+      const raw = (b.status || (b as any).bookingStatus || 'pending').toString().toLowerCase();
+      let tabKey: TabType = 'pending';
+      if (raw.includes('confirm') || raw.includes('upcom')) tabKey = 'confirmed';
+      else if (raw.includes('complet')) tabKey = 'completed';
+      else if (raw.includes('cancel')) tabKey = 'cancelled';
+      else if (raw.includes('pend')) tabKey = 'pending';
+      
+      counts[tabKey] = (counts[tabKey] || 0) + 1;
+    });
+    return counts;
+  }, [bookings]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
-      const matchesTab = booking.status === activeTab;
-      const matchesSearch = searchQuery.length > 0 
-        ? (booking.bookingNumber?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
+      const raw = (booking.status || (booking as any).bookingStatus || 'pending').toString().toLowerCase();
+      let bookingTabKey: TabType = 'pending';
+      if (raw.includes('confirm') || raw.includes('upcom')) bookingTabKey = 'confirmed';
+      else if (raw.includes('complet')) bookingTabKey = 'completed';
+      else if (raw.includes('cancel')) bookingTabKey = 'cancelled';
+      else if (raw.includes('pend')) bookingTabKey = 'pending';
+
+      const matchesTab = bookingTabKey === activeTab;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = q.length > 0 
+        ? ((booking.bookingNumber?.toLowerCase().includes(q) || false) ||
+           (booking.customerName?.toLowerCase().includes(q) || false) ||
+           (booking.customerPhone?.toLowerCase().includes(q) || false))
         : true;
       return matchesTab && matchesSearch;
     });
@@ -39,13 +68,14 @@ export default function AdminBookingsScreen({ navigation }: Props) {
 
   const renderTab = (title: string, tabValue: TabType) => {
     const isActive = activeTab === tabValue;
+    const count = tabCounts[tabValue] || 0;
     return (
       <TouchableOpacity 
         style={[styles.tab, isActive && styles.tabActive]}
         onPress={() => handleTabChange(tabValue)}
       >
         <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
-          {title}
+          {title} ({count})
         </Text>
       </TouchableOpacity>
     );
@@ -240,7 +270,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
         </MotiScrollView>
       </View>
 
-      {isLoading ? (
+      {isBookingsLoading && bookings.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
@@ -249,6 +279,14 @@ export default function AdminBookingsScreen({ navigation }: Props) {
           data={filteredBookings}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={isBookingsLoading}
+              onRefresh={refreshBookings}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
+            />
+          }
           ListEmptyComponent={
             <EmptyState 
               icon="event-available"
