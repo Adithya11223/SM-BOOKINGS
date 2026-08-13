@@ -111,10 +111,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         // 6. Customer Metrics
         long totalCustomers = customerRepository.count();
-        Long withCompleted = customerRepository.countCustomersWithCompletedBookings();
+        Long withCompleted = customerRepository.countCustomersWithCompletedBookings(BookingStatus.COMPLETED);
         long customersWithCompleted = withCompleted != null ? withCompleted : 0L;
 
-        List<UUID> repeatCustomerIds = customerRepository.findRepeatCustomerIds();
+        List<UUID> repeatCustomerIds = customerRepository.findRepeatCustomerIds(BookingStatus.COMPLETED);
         long repeatCustomers = repeatCustomerIds != null ? repeatCustomerIds.size() : 0L;
 
         log.info("Fetched admin analytics: Total Bookings={}, Today Revenue={}, Popular Services Count={}",

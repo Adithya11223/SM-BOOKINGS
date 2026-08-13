@@ -54,8 +54,8 @@ class AnalyticsServiceTest {
         when(bookingRepository.countByBookingStatus(BookingStatus.CANCELLED)).thenReturn(1L);
 
         when(customerRepository.count()).thenReturn(8L);
-        when(customerRepository.countCustomersWithCompletedBookings()).thenReturn(4L);
-        when(customerRepository.findRepeatCustomerIds()).thenReturn(Collections.singletonList(UUID.randomUUID()));
+        when(customerRepository.countCustomersWithCompletedBookings(any())).thenReturn(4L);
+        when(customerRepository.findRepeatCustomerIds(any())).thenReturn(Collections.singletonList(UUID.randomUUID()));
 
         UUID serviceId = UUID.randomUUID();
         List<Object[]> topServices = new ArrayList<>();
@@ -94,8 +94,8 @@ class AnalyticsServiceTest {
         when(bookingRepository.countByBookingStatus(any(BookingStatus.class))).thenReturn(0L);
 
         when(customerRepository.count()).thenReturn(0L);
-        when(customerRepository.countCustomersWithCompletedBookings()).thenReturn(0L);
-        when(customerRepository.findRepeatCustomerIds()).thenReturn(Collections.emptyList());
+        when(customerRepository.countCustomersWithCompletedBookings(any())).thenReturn(0L);
+        when(customerRepository.findRepeatCustomerIds(any())).thenReturn(Collections.emptyList());
         when(bookingRepository.findTopPopularServices(any(), any(Pageable.class))).thenReturn(Collections.emptyList());
 
         AdminAnalyticsOverviewResponse response = analyticsService.getAnalyticsOverview();
