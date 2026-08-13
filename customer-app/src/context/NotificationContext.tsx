@@ -84,6 +84,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           message: content.body || '',
           type: data.notificationType || 'GENERAL',
           bookingId: data.bookingId || undefined,
+          serviceId: data.serviceId || undefined,
           isRead: false,
           createdAt: data.createdAt || new Date().toISOString(),
         };
@@ -112,10 +113,24 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           }
           return prev;
         });
+      } else if (data?.serviceId) {
+        setNotifications(prev => {
+          const match = prev.find(n => n.serviceId === data.serviceId);
+          if (match) {
+            markAsRead(match.id);
+          }
+          return prev;
+        });
       }
 
       if (data?.screen) {
-        navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
+        if (data.screen === 'ServiceDetails' && data.serviceId) {
+          navigate('ServiceDetails' as any, { serviceId: data.serviceId });
+        } else if (data.screen === 'Services') {
+          navigate('Services' as any, data.serviceId ? { serviceId: data.serviceId } : undefined);
+        } else {
+          navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
+        }
       }
     };
 
@@ -138,6 +153,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   }, [isSignedIn, user?.id]);
 
   useEffect(() => {
+    if (!isSignedIn) {
+      setNotifications([]);
+      Notifications.setBadgeCountAsync(0).catch(() => {});
+      if (deviceId) {
+        api.post('/fcm/token/unregister', { deviceId }).catch(() => {});
+      }
+      return;
+    }
+
     fetchNotifications();
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
@@ -174,6 +198,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         message: parsed.message || '',
         type: parsed.type || 'GENERAL',
         bookingId: parsed.booking ? parsed.booking.id : parsed.bookingId,
+        serviceId: parsed.service ? parsed.service.id : parsed.serviceId,
         isRead: parsed.isRead || false,
         createdAt: parsed.createdAt || new Date().toISOString(),
       };
@@ -188,11 +213,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
       // Only trigger local push notification banner if the notification is unread (not a read receipt sync)
       if (!item.isRead) {
+        const targetScreen = item.serviceId ? 'ServiceDetails' : (item.bookingId ? 'BookingDetails' : 'Notifications');
         Notifications.scheduleNotificationAsync({
           content: {
             title: item.title,
             body: item.message,
-            data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
+            data: { screen: targetScreen, bookingId: item.bookingId, serviceId: item.serviceId, id: item.id },
             sound: true,
           },
           trigger: null,

@@ -75,7 +75,15 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             data.put("message", notification.getMessage() != null ? notification.getMessage() : "");
             data.put("notificationType", notification.getType() != null ? notification.getType().name() : "GENERAL");
             data.put("bookingId", notification.getBooking() != null ? notification.getBooking().getId().toString() : "");
-            data.put("screen", notification.getBooking() != null ? (notification.getReceiverType().equalsIgnoreCase("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications");
+            data.put("serviceId", notification.getServiceId() != null ? notification.getServiceId().toString() : "");
+
+            String targetScreen = "Notifications";
+            if (notification.getBooking() != null) {
+                targetScreen = notification.getReceiverType().equalsIgnoreCase("ADMIN") ? "AdminBookingDetails" : "BookingDetails";
+            } else if (notification.getServiceId() != null) {
+                targetScreen = "ServiceDetails";
+            }
+            data.put("screen", targetScreen);
             data.put("createdAt", notification.getCreatedAt() != null ? notification.getCreatedAt().toString() : java.time.Instant.now().toString());
             message.put("data", data);
 

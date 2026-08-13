@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface NotificationMapper {
 
     @Mapping(target = "bookingId", source = "booking.id")
+    @Mapping(target = "serviceId", source = "service.id")
     NotificationResponse toResponse(Notification entity);
 }

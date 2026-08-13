@@ -68,6 +68,9 @@ export default function NotificationsScreen({ navigation }: Props) {
     }
     if (item.bookingId) {
       navigation.navigate('BookingDetails', { bookingId: item.bookingId });
+    } else if (item.serviceId || item.service?.id) {
+      const serviceId = item.serviceId || item.service?.id;
+      navigation.navigate('ServiceDetails' as any, { serviceId });
     }
   };
 

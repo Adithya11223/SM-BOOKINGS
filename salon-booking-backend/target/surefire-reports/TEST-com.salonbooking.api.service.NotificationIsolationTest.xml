@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.salonbooking.api.service.NotificationIsolationTest" time="1.127" tests="6" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.salonbooking.api.service.NotificationIsolationTest" time="1.098" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -13,7 +13,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="IN"/>
     <property name="sun.boot.library.path" value="/Users/adithya/Library/Java/JavaVirtualMachines/jbr-21.0.11/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire/surefirebooter-20260812193836645_3.jar /Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire 2026-08-12T19-38-36_595-jvmRun1 surefire-20260812193836645_1tmp surefire_0-20260812193836645_2tmp"/>
+    <property name="sun.java.command" value="/Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire/surefirebooter-20260812201706540_3.jar /Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire 2026-08-12T20-17-06_492-jvmRun1 surefire-20260812201706540_1tmp surefire_0-20260812201706540_2tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="NotificationIsolationTest"/>
@@ -33,7 +33,7 @@
     <property name="intellij.os.virtualization" value="none"/>
     <property name="jbr.virtualization.information" value="No virtualization detected"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire/surefirebooter-20260812193836645_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/adithya/Developer/SM_SALOON/salon-booking-backend/target/surefire/surefirebooter-20260812201706540_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="21.0.11+10-b1163.116"/>
@@ -62,23 +62,23 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="customerCannotAccessAdminNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="1.072">
+  <testcase name="customerCannotAccessAdminNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="1.045">
     <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/adithya/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.12/byte-buddy-agent-1.14.12.jar)
 WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
 WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
 WARNING: Dynamic loading of agents will be disallowed by default in a future release
 ]]></system-err>
   </testcase>
-  <testcase name="customerCannotAccessOtherCustomerNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.005"/>
-  <testcase name="pushNotificationForSpecificCustomerDoesNotFallbackToAllCustomers" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.011">
-    <system-out><![CDATA[19:38:38.138 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- Found 0 customer push token(s)
-19:38:38.139 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- No push tokens found for receiverType=CUSTOMER receiverId=76a287f7-1e5a-4b49-b80a-068e0f8260b3. Skipping push notification.
+  <testcase name="customerCannotAccessOtherCustomerNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.006"/>
+  <testcase name="pushNotificationForSpecificCustomerDoesNotFallbackToAllCustomers" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.01">
+    <system-out><![CDATA[20:17:08.029 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- Found 0 customer push token(s)
+20:17:08.031 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- No push tokens found for receiverType=CUSTOMER receiverId=8a72a970-0d73-490e-8e8e-2d8f649ed37a. Skipping push notification.
 ]]></system-out>
   </testcase>
   <testcase name="adminCannotAccessCustomerPrivateNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.004"/>
-  <testcase name="customerGetNotificationsReturnsOnlyOwnNotifications" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.003"/>
+  <testcase name="customerGetNotificationsReturnsOnlyOwnNotifications" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.004"/>
   <testcase name="customerCanAccessOwnNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.006">
-    <system-out><![CDATA[19:38:38.159 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Marked notification as read: 254a295c-0778-4d47-9a26-97960c2cfbce
+    <system-out><![CDATA[20:17:08.050 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Marked notification as read: 11862553-e0b1-4bbd-8de2-8b852a1040b2
 ]]></system-out>
   </testcase>
 </testsuite>
