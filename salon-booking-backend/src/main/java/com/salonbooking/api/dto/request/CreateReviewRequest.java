@@ -24,7 +24,6 @@ public class CreateReviewRequest {
     @NotNull(message = "Booking ID is required")
     private UUID bookingId;
 
-    @NotNull(message = "Service ID is required")
     private UUID serviceId;
 
     @NotNull(message = "Rating is required")

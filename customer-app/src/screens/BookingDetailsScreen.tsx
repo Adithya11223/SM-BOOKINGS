@@ -156,30 +156,6 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
               <View style={styles.serviceInfo}>
                 <Text style={styles.serviceName}>{item.service.name}</Text>
                 <Text style={styles.serviceQty}>Qty: {item.quantity}</Text>
-                {booking.status === 'completed' && (() => {
-                  const existingReview = (booking as any)?.reviews?.find((r: any) => r.serviceId === item.service.id);
-                  if (existingReview) {
-                    return (
-                      <View style={styles.reviewedBadge}>
-                        <MaterialIcons name="star" size={14} color="#FFB800" />
-                        <Text style={styles.reviewedText}>Rated {existingReview.rating}.0/5</Text>
-                        {existingReview.comment ? (
-                          <Text style={styles.reviewedCommentText} numberOfLines={1}>"{existingReview.comment}"</Text>
-                        ) : null}
-                      </View>
-                    );
-                  }
-                  return (
-                    <TouchableOpacity
-                      style={styles.reviewBtn}
-                      onPress={() => setSelectedReviewService({ id: item.service.id, name: item.service.name })}
-                      activeOpacity={0.7}
-                    >
-                      <MaterialIcons name="star-rate" size={16} color="#FFD700" />
-                      <Text style={styles.reviewBtnText}>Leave Review</Text>
-                    </TouchableOpacity>
-                  );
-                })()}
               </View>
               <Text style={styles.servicePrice}>₹{(item.service.price * item.quantity).toFixed(2)}</Text>
             </View>
@@ -189,6 +165,51 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
             <Text style={styles.totalValue}>₹{booking.totalPrice.toFixed(2)}</Text>
           </View>
         </View>
+
+        {booking.status === 'completed' && (() => {
+          const existingReview = (booking as any)?.reviews && (booking as any).reviews.length > 0
+            ? (booking as any).reviews[0]
+            : null;
+
+          if (existingReview) {
+            return (
+              <View style={{ marginTop: theme.spacing.md }}>
+                <SectionHeader title="Your Order Review" style={styles.sectionHeader} />
+                <View style={styles.card}>
+                  <View style={styles.orderReviewHeader}>
+                    <View style={styles.starsRow}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <MaterialIcons
+                          key={star}
+                          name="star"
+                          size={18}
+                          color={star <= existingReview.rating ? "#FFB800" : "#E2E8F0"}
+                        />
+                      ))}
+                      <Text style={styles.orderRatingText}>{existingReview.rating}.0 / 5.0</Text>
+                    </View>
+                  </View>
+                  {existingReview.comment ? (
+                    <Text style={styles.orderReviewComment}>"{existingReview.comment}"</Text>
+                  ) : (
+                    <Text style={styles.orderReviewNoComment}>No typed comment left</Text>
+                  )}
+                </View>
+              </View>
+            );
+          }
+
+          return (
+            <TouchableOpacity
+              style={styles.rateOrderBtn}
+              onPress={() => setSelectedReviewService({ id: booking.items[0]?.service?.id || '', name: 'Order Review' })}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="star" size={20} color="#FFFFFF" />
+              <Text style={styles.rateOrderBtnText}>Rate & Review Order</Text>
+            </TouchableOpacity>
+          );
+        })()}
 
         {selectedReviewService && (
           <ReviewModal
@@ -378,30 +399,47 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
   },
-  reviewedBadge: {
+  rateOrderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF9E6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginTop: 4,
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-    flexWrap: 'wrap',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginTop: theme.spacing.md,
+    gap: 8,
   },
-  reviewedText: {
-    fontSize: 12,
-    fontWeight: '600',
+  rateOrderBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  orderReviewHeader: {
+    marginBottom: 6,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  orderRatingText: {
+    fontSize: 14,
+    fontWeight: '700',
     color: '#D97706',
-    marginLeft: 4,
+    marginLeft: 8,
   },
-  reviewedCommentText: {
-    fontSize: 11,
+  orderReviewComment: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: theme.colors.text,
+    lineHeight: 20,
+    marginTop: 4,
+  },
+  orderReviewNoComment: {
+    fontSize: 13,
     fontStyle: 'italic',
     color: theme.colors.textSecondary,
-    marginLeft: 6,
-    flexShrink: 1,
+    marginTop: 4,
   },
   servicePrice: {
     fontSize: theme.typography.body.fontSize,

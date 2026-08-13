@@ -125,10 +125,10 @@ public class ReviewServiceTest {
         CreateReviewRequest req = new CreateReviewRequest(bookingId, serviceId, 5, "Excellent service!");
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(completedBooking));
-        when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(service));
-        when(reviewRepository.existsByBookingIdAndServiceId(bookingId, serviceId)).thenReturn(false);
+        when(reviewRepository.existsByBookingId(bookingId)).thenReturn(false);
 
         Review savedReview = new Review();
+        savedReview.setId(UUID.randomUUID());
         savedReview.setRating(5);
         savedReview.setComment("Excellent service!");
 
@@ -177,8 +177,7 @@ public class ReviewServiceTest {
         CreateReviewRequest req = new CreateReviewRequest(bookingId, serviceId, 5, "Nice");
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(completedBooking));
-        when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(service));
-        when(reviewRepository.existsByBookingIdAndServiceId(bookingId, serviceId)).thenReturn(true);
+        when(reviewRepository.existsByBookingId(bookingId)).thenReturn(true);
 
         assertThrows(BusinessException.class, () -> reviewService.createReview(customerId, req));
     }
@@ -191,17 +190,6 @@ public class ReviewServiceTest {
 
         UUID otherCustomer = UUID.randomUUID();
         assertThrows(BusinessException.class, () -> reviewService.createReview(otherCustomer, req));
-    }
-
-    @Test
-    void serviceNotInBookingThrowsException() {
-        UUID unbookedServiceId = UUID.randomUUID();
-        CreateReviewRequest req = new CreateReviewRequest(bookingId, unbookedServiceId, 5, "Nice");
-
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(completedBooking));
-        when(serviceRepository.findById(unbookedServiceId)).thenReturn(Optional.of(new Service()));
-
-        assertThrows(BusinessException.class, () -> reviewService.createReview(customerId, req));
     }
 
     @Test
@@ -223,8 +211,7 @@ public class ReviewServiceTest {
         CreateReviewRequest req = new CreateReviewRequest(bookingId, serviceId, 5, "Nice");
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(completedBooking));
-        when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(service));
-        when(reviewRepository.existsByBookingIdAndServiceId(bookingId, serviceId)).thenReturn(true);
+        when(reviewRepository.existsByBookingId(bookingId)).thenReturn(true);
 
         assertThrows(BusinessException.class, () -> reviewService.createReview(customerId, req));
     }

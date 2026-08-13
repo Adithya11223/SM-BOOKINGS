@@ -79,18 +79,16 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException("Only completed bookings can be reviewed");
         }
 
-        Service service = serviceRepository.findById(request.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + request.getServiceId()));
-
-        boolean serviceInBooking = booking.getItems().stream()
-                .anyMatch(item -> item.getService() != null && item.getService().getId().equals(request.getServiceId()));
-
-        if (!serviceInBooking) {
-            throw new BusinessException("Selected service was not part of this booking");
+        if (reviewRepository.existsByBookingId(request.getBookingId())) {
+            throw new BusinessException("You have already submitted a review for this order");
         }
 
-        if (reviewRepository.existsByBookingIdAndServiceId(request.getBookingId(), request.getServiceId())) {
-            throw new BusinessException("You have already submitted a review for this service in this booking");
+        Service service = null;
+        if (request.getServiceId() != null) {
+            service = serviceRepository.findById(request.getServiceId()).orElse(null);
+        }
+        if (service == null && !booking.getItems().isEmpty() && booking.getItems().get(0).getService() != null) {
+            service = booking.getItems().get(0).getService();
         }
 
         Review review = new Review(
@@ -108,9 +106,9 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             String customerName = (booking.getCustomer() != null && booking.getCustomer().getName() != null)
                     ? booking.getCustomer().getName() : "Customer";
-            String title = "⭐ New Service Rating";
+            String title = "⭐ New Order Rating";
             String stars = "★".repeat(Math.max(1, Math.min(5, saved.getRating())));
-            String message = customerName + " rated " + service.getName() + " " + stars +
+            String message = customerName + " rated order " + booking.getBookingNumber() + " " + stars +
                     (saved.getComment() != null && !saved.getComment().isBlank() ? ": \"" + saved.getComment() + "\"" : "");
 
             com.salonbooking.api.entity.Notification notif = com.salonbooking.api.entity.Notification.builder()

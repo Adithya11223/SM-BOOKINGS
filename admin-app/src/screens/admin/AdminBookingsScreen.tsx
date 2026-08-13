@@ -98,26 +98,40 @@ export default function AdminBookingsScreen({ navigation }: Props) {
         </View>
       </View>
       
-      <View style={styles.servicesContainer}>
-        <Text style={styles.servicesLabel}>Services ({booking.items?.length || 0})</Text>
-        <Text style={styles.servicesText} numberOfLines={2}>
-          {booking.items && booking.items.length > 0
-            ? booking.items.map((i: any) => i.serviceNameSnapshot || i.service?.name).filter(Boolean).join(', ')
-            : 'No service details'}
-        </Text>
-      </View>
-
-      {booking.reviews && booking.reviews.length > 0 && (
-        <View style={styles.reviewCardBadge}>
-          <MaterialIcons name="star" size={15} color="#FFB800" />
-          <Text style={styles.reviewCardRatingText}>
-            {booking.reviews[0].rating}.0 Rating
+      {booking.status === 'completed' ? (
+        <View style={styles.servicesContainer}>
+          <Text style={styles.servicesLabel}>Review</Text>
+          {booking.reviews && booking.reviews.length > 0 ? (
+            <View style={styles.reviewCardBadgeInline}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <MaterialIcons
+                  key={star}
+                  name="star"
+                  size={16}
+                  color={star <= booking.reviews[0].rating ? "#FFB800" : "#E2E8F0"}
+                />
+              ))}
+              <Text style={styles.reviewCardRatingTextInline}>
+                {booking.reviews[0].rating}.0
+              </Text>
+              {booking.reviews[0].comment ? (
+                <Text style={styles.reviewCardCommentTextInline} numberOfLines={1}>
+                  "{booking.reviews[0].comment}"
+                </Text>
+              ) : null}
+            </View>
+          ) : (
+            <Text style={styles.noReviewText}>Not Rated Yet</Text>
+          )}
+        </View>
+      ) : (
+        <View style={styles.servicesContainer}>
+          <Text style={styles.servicesLabel}>Services ({booking.items?.length || 0})</Text>
+          <Text style={styles.servicesText} numberOfLines={2}>
+            {booking.items && booking.items.length > 0
+              ? booking.items.map((i: any) => i.serviceNameSnapshot || i.service?.name).filter(Boolean).join(', ')
+              : 'No service details'}
           </Text>
-          {booking.reviews[0].comment ? (
-            <Text style={styles.reviewCardCommentText} numberOfLines={1}>
-              "{booking.reviews[0].comment}"
-            </Text>
-          ) : null}
         </View>
       )}
 
@@ -407,23 +421,30 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.bodySmall.fontSize,
     color: theme.colors.text,
   },
-  reviewCardBadge: {
+  reviewCardBadgeInline: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF9E6',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    marginBottom: theme.spacing.md,
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
+    marginTop: 2,
     flexWrap: 'wrap',
   },
-  reviewCardRatingText: {
-    fontSize: 12,
+  reviewCardRatingTextInline: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#D97706',
-    marginLeft: 4,
+    marginLeft: 6,
+  },
+  reviewCardCommentTextInline: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: theme.colors.textSecondary,
+    marginLeft: 6,
+    flexShrink: 1,
+  },
+  noReviewText: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: theme.colors.textSecondary,
+    marginTop: 2,
   },
   reviewCardCommentText: {
     fontSize: 11,
