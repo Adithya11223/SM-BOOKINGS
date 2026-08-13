@@ -259,7 +259,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const fetchNotifications = async () => {
     try {
       if (!user?.id) return; // Admin must be logged in
-      const response = await api.get(`/notifications?receiverType=ADMIN`);
+      const response = await api.get('/notifications');
       if (response.data.success) {
         setNotifications(response.data.data);
       }
@@ -287,7 +287,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       if (!user?.id) return;
       const unreadWithBookings = notifications.filter(n => !n.isRead && n.bookingId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      await api.patch(`/notifications/read-all?receiverType=ADMIN`);
+      await api.patch('/notifications/read-all');
       unreadWithBookings.forEach(n => {
         if (n.bookingId) {
           BookingService.markAdminViewed(n.bookingId).catch(() => {});
@@ -320,8 +320,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const clearAllNotifications = async () => {
     try {
+      if (!user?.id) return;
       setNotifications([]);
-      await api.delete(`/notifications/clear-all?receiverType=ADMIN`);
+      await api.delete('/notifications/clear-all');
     } catch (error) {
       console.error('Failed to clear all notifications:', error);
       fetchNotifications();

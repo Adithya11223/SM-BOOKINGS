@@ -273,9 +273,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchNotifications = async () => {
     try {
-      const receiverId = user?.id || deviceId;
-      if (!receiverId) return;
-      const response = await api.get(`/notifications?receiverType=CUSTOMER&receiverId=${receiverId}`);
+      if (!isSignedIn) return;
+      const response = await api.get('/notifications');
       if (response.data.success) {
         setNotifications(response.data.data);
       }
@@ -301,11 +300,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const markAllAsRead = async () => {
     try {
-      const receiverId = user?.id || deviceId;
-      if (!receiverId) return;
+      if (!isSignedIn) return;
       const unreadWithBookings = notifications.filter(n => !n.isRead && n.bookingId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      await api.patch(`/notifications/read-all?receiverType=CUSTOMER&receiverId=${receiverId}`);
+      await api.patch('/notifications/read-all');
       unreadWithBookings.forEach(n => {
         if (n.bookingId) {
           BookingService.markCustomerViewed(n.bookingId).catch(() => {});
@@ -338,10 +336,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const clearAllNotifications = async () => {
     try {
-      const receiverId = user?.id || deviceId;
-      if (!receiverId) return;
+      if (!isSignedIn) return;
       setNotifications([]);
-      await api.delete(`/notifications/clear-all?receiverType=CUSTOMER&receiverId=${receiverId}`);
+      await api.delete('/notifications/clear-all');
     } catch (error) {
       console.error('Failed to clear all notifications:', error);
       fetchNotifications();

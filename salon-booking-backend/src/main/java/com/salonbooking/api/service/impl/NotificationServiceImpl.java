@@ -18,6 +18,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.salonbooking.api.entity.enums.TargetRole;
+import com.salonbooking.api.security.UserDetailsImpl;
+import org.springframework.security.access.AccessDeniedException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,26 @@ public class NotificationServiceImpl implements NotificationService {
     private final com.salonbooking.api.repository.BookingUpdateRepository bookingUpdateRepository;
     private final com.salonbooking.api.repository.BookingRepository bookingRepository;
     private final com.salonbooking.api.mapper.BookingMapper bookingMapper;
+
+    private void validateNotificationOwnership(Notification notification, UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("Authentication required to access notification");
+        }
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            if (!"ADMIN".equalsIgnoreCase(notification.getReceiverType())) {
+                throw new AccessDeniedException("Admin cannot access customer private notification");
+            }
+        } else {
+            if (!"CUSTOMER".equalsIgnoreCase(notification.getReceiverType())) {
+                throw new AccessDeniedException("Customer cannot access admin notification");
+            }
+            if (notification.getReceiverId() != null && !notification.getReceiverId().equals(userDetails.getId())) {
+                throw new AccessDeniedException("Access denied: You do not own this notification");
+            }
+        }
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -60,9 +84,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public NotificationResponse markAsRead(UUID id) {
+    public NotificationResponse markAsRead(UUID id, UserDetailsImpl userDetails) {
         Notification notification = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        
+        validateNotificationOwnership(notification, userDetails);
+
         notification.setIsRead(true);
         notification.setReadAt(java.time.Instant.now());
         notification = repository.save(notification);
@@ -70,9 +97,9 @@ public class NotificationServiceImpl implements NotificationService {
         // If this notification is tied to a booking, also mark that booking's unread indicator as read
         if (notification.getBooking() != null) {
             UUID bookingId = notification.getBooking().getId();
-            com.salonbooking.api.enums.TargetRole targetRole = "ADMIN".equalsIgnoreCase(notification.getReceiverType()) 
-                    ? com.salonbooking.api.enums.TargetRole.ADMIN 
-                    : com.salonbooking.api.enums.TargetRole.CUSTOMER;
+            TargetRole targetRole = "ADMIN".equalsIgnoreCase(notification.getReceiverType()) 
+                    ? TargetRole.ADMIN 
+                    : TargetRole.CUSTOMER;
             
             List<com.salonbooking.api.entity.BookingUpdate> updates = 
                     bookingUpdateRepository.findByBookingIdAndTargetRoleAndIsReadFalse(bookingId, targetRole);
@@ -100,9 +127,9 @@ public class NotificationServiceImpl implements NotificationService {
             notifications = repository.findForCustomer("CUSTOMER", receiverId);
         }
         
-        com.salonbooking.api.enums.TargetRole targetRole = "ADMIN".equalsIgnoreCase(receiverType) 
-                ? com.salonbooking.api.enums.TargetRole.ADMIN 
-                : com.salonbooking.api.enums.TargetRole.CUSTOMER;
+        TargetRole targetRole = "ADMIN".equalsIgnoreCase(receiverType) 
+                ? TargetRole.ADMIN 
+                : TargetRole.CUSTOMER;
 
         java.util.Set<UUID> touchedBookingIds = new java.util.HashSet<>();
 
@@ -134,9 +161,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void deleteNotification(UUID id) {
+    public void deleteNotification(UUID id, UserDetailsImpl userDetails) {
         Notification notification = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        
+        validateNotificationOwnership(notification, userDetails);
+
         repository.delete(notification);
         log.info("Deleted notification: {}", id);
     }
