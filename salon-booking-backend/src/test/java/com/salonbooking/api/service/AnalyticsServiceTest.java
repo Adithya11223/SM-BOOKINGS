@@ -44,8 +44,8 @@ class AnalyticsServiceTest {
     @Test
     void revenueOverviewAndBookingCountsCalculatedCorrectly() {
         LocalDate today = LocalDate.now();
-        when(bookingRepository.calculateRevenueForDate(any(LocalDate.class))).thenReturn(new BigDecimal("1500.00"));
-        when(bookingRepository.calculateRevenueBetween(any(Instant.class), any(Instant.class))).thenReturn(new BigDecimal("5000.00"));
+        when(bookingRepository.calculateRevenueForDate(any(), any(LocalDate.class))).thenReturn(new BigDecimal("1500.00"));
+        when(bookingRepository.calculateRevenueBetween(any(), any(Instant.class), any(Instant.class))).thenReturn(new BigDecimal("5000.00"));
 
         when(bookingRepository.count()).thenReturn(10L);
         when(bookingRepository.countByBookingStatus(BookingStatus.PENDING)).thenReturn(2L);
@@ -60,7 +60,7 @@ class AnalyticsServiceTest {
         UUID serviceId = UUID.randomUUID();
         List<Object[]> topServices = new ArrayList<>();
         topServices.add(new Object[]{serviceId, "Haircut & Styling", 5L, new BigDecimal("2500.00")});
-        when(bookingRepository.findTopPopularServices(any(Pageable.class))).thenReturn(topServices);
+        when(bookingRepository.findTopPopularServices(any(), any(Pageable.class))).thenReturn(topServices);
 
         AdminAnalyticsOverviewResponse response = analyticsService.getAnalyticsOverview();
 
@@ -87,8 +87,8 @@ class AnalyticsServiceTest {
 
     @Test
     void emptyDatabaseReturnsZeroesSafely() {
-        when(bookingRepository.calculateRevenueForDate(any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
-        when(bookingRepository.calculateRevenueBetween(any(Instant.class), any(Instant.class))).thenReturn(BigDecimal.ZERO);
+        when(bookingRepository.calculateRevenueForDate(any(), any(LocalDate.class))).thenReturn(BigDecimal.ZERO);
+        when(bookingRepository.calculateRevenueBetween(any(), any(Instant.class), any(Instant.class))).thenReturn(BigDecimal.ZERO);
 
         when(bookingRepository.count()).thenReturn(0L);
         when(bookingRepository.countByBookingStatus(any(BookingStatus.class))).thenReturn(0L);
@@ -96,7 +96,7 @@ class AnalyticsServiceTest {
         when(customerRepository.count()).thenReturn(0L);
         when(customerRepository.countCustomersWithCompletedBookings()).thenReturn(0L);
         when(customerRepository.findRepeatCustomerIds()).thenReturn(Collections.emptyList());
-        when(bookingRepository.findTopPopularServices(any(Pageable.class))).thenReturn(Collections.emptyList());
+        when(bookingRepository.findTopPopularServices(any(), any(Pageable.class))).thenReturn(Collections.emptyList());
 
         AdminAnalyticsOverviewResponse response = analyticsService.getAnalyticsOverview();
 

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -41,13 +42,15 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     public AdminAnalyticsOverviewResponse getAnalyticsOverview() {
         LocalDate today = LocalDate.now();
         ZoneId zoneId = ZoneId.systemDefault();
+        List<BookingStatus> validStatuses = Arrays.asList(BookingStatus.CONFIRMED, BookingStatus.COMPLETED);
 
         // 1. Revenue Overview
-        BigDecimal todayRevenue = bookingRepository.calculateRevenueForDate(today);
+        BigDecimal todayRevenue = bookingRepository.calculateRevenueForDate(validStatuses, today);
 
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
         LocalDate startOfNextWeek = startOfWeek.plusWeeks(1);
         BigDecimal currentWeekRevenue = bookingRepository.calculateRevenueBetween(
+                validStatuses,
                 startOfWeek.atStartOfDay(zoneId).toInstant(),
                 startOfNextWeek.atStartOfDay(zoneId).toInstant()
         );
@@ -55,12 +58,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDate startOfMonth = today.withDayOfMonth(1);
         LocalDate startOfNextMonth = startOfMonth.plusMonths(1);
         BigDecimal currentMonthRevenue = bookingRepository.calculateRevenueBetween(
+                validStatuses,
                 startOfMonth.atStartOfDay(zoneId).toInstant(),
                 startOfNextMonth.atStartOfDay(zoneId).toInstant()
         );
 
         LocalDate startOfPrevMonth = startOfMonth.minusMonths(1);
         BigDecimal previousMonthRevenue = bookingRepository.calculateRevenueBetween(
+                validStatuses,
                 startOfPrevMonth.atStartOfDay(zoneId).toInstant(),
                 startOfMonth.atStartOfDay(zoneId).toInstant()
         );
@@ -84,7 +89,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<DailyRevenueDto> revenueTrend = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
-            BigDecimal dayRevenue = bookingRepository.calculateRevenueForDate(date);
+            BigDecimal dayRevenue = bookingRepository.calculateRevenueForDate(validStatuses, date);
             String dateStr = date.toString();
             String dayLabel = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 
@@ -93,7 +98,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         // 5. Popular Services (Top 5)
         List<PopularServiceDto> popularServices = new ArrayList<>();
-        List<Object[]> topServiceRows = bookingRepository.findTopPopularServices(PageRequest.of(0, 5));
+        List<Object[]> topServiceRows = bookingRepository.findTopPopularServices(validStatuses, PageRequest.of(0, 5));
         if (topServiceRows != null) {
             for (Object[] row : topServiceRows) {
                 UUID sId = (UUID) row[0];
