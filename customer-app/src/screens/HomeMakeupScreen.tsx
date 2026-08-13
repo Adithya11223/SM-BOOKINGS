@@ -16,11 +16,10 @@ import { ServiceSkeleton } from '../components/states/SkeletonLoader';
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeMakeup'>;
 
 export default function HomeMakeupScreen({ navigation }: Props) {
-  const { allServices, refreshServices } = useServices();
+  const { allServices, refreshServices, isLoading } = useServices();
   const { addToCart, cartItemCount } = useCart();
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
 
   // Filter only event makeup services that are visible
   const makeupServices = allServices.filter(s => s.type === 'event' && s.visible);
@@ -29,18 +28,13 @@ export default function HomeMakeupScreen({ navigation }: Props) {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshServices();
     setRefreshing(false);
   }, [refreshServices]);
+
+  const showSkeleton = (isLoading && allServices.length === 0) || refreshing;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,7 +54,7 @@ export default function HomeMakeupScreen({ navigation }: Props) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.primary} />
         }
       >
-        {initialLoading || refreshing ? (
+        {showSkeleton ? (
           <>
             <ServiceSkeleton />
             <ServiceSkeleton />

@@ -34,11 +34,7 @@ export default function AdminBookingsScreen({ navigation }: Props) {
   }, [bookings, activeTab, searchQuery]);
 
   const handleTabChange = (tab: TabType) => {
-    setIsLoading(true);
     setActiveTab(tab);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 400); // Simulate network load
   };
 
   const renderTab = (title: string, tabValue: TabType) => {

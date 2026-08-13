@@ -3,6 +3,9 @@ import { Service, MakeupService } from '../types';
 import { ServiceService } from '../api/ServiceService';
 import { webSocketService } from '../api/WebSocketService';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const CACHED_SERVICES_KEY = '@cached_services_admin';
 
 interface ServiceContextType {
   allServices: (Service | MakeupService)[];
@@ -20,14 +23,29 @@ export const ServiceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [allServices, setAllServices] = useState<(Service | MakeupService)[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Load from cache on startup for instant rendering
+  useEffect(() => {
+    AsyncStorage.getItem(CACHED_SERVICES_KEY).then(cached => {
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAllServices(parsed);
+            setIsLoading(false);
+          }
+        } catch (e) {}
+      }
+    });
+  }, []);
+
   const fetchServices = useCallback(async () => {
     try {
       setIsLoading(true);
       const services = await ServiceService.getAllServices();
       setAllServices(services as (Service | MakeupService)[]);
+      AsyncStorage.setItem(CACHED_SERVICES_KEY, JSON.stringify(services)).catch(console.error);
     } catch (error) {
-      console.error('Failed to fetch services:', error);
-      Alert.alert('Error', 'Failed to load services.');
+      console.warn('Failed to fetch services (using cached if available):', error);
     } finally {
       setIsLoading(false);
     }
@@ -41,14 +59,24 @@ export const ServiceProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (action === 'CREATED') {
         setAllServices(prev => {
           if (!prev.find(s => s.id === data.id)) {
-            return [...prev, ServiceService.mapToFrontend(data)];
+            const updated = [...prev, ServiceService.mapToFrontend(data)];
+            AsyncStorage.setItem(CACHED_SERVICES_KEY, JSON.stringify(updated)).catch(console.error);
+            return updated;
           }
           return prev;
         });
       } else if (action === 'UPDATED') {
-        setAllServices(prev => prev.map(s => s.id === data.id ? ServiceService.mapToFrontend(data) : s));
+        setAllServices(prev => {
+          const updated = prev.map(s => s.id === data.id ? ServiceService.mapToFrontend(data) : s);
+          AsyncStorage.setItem(CACHED_SERVICES_KEY, JSON.stringify(updated)).catch(console.error);
+          return updated;
+        });
       } else if (action === 'DELETED') {
-        setAllServices(prev => prev.filter(s => s.id !== data.id));
+        setAllServices(prev => {
+          const updated = prev.filter(s => s.id !== data.id);
+          AsyncStorage.setItem(CACHED_SERVICES_KEY, JSON.stringify(updated)).catch(console.error);
+          return updated;
+        });
       }
     };
 

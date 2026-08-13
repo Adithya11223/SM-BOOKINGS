@@ -16,11 +16,10 @@ import { ServiceSkeleton } from '../components/states/SkeletonLoader';
 type Props = NativeStackScreenProps<RootStackParamList, 'VisitSalon'>;
 
 export default function VisitSalonScreen({ navigation }: Props) {
-  const { allServices, refreshServices } = useServices();
+  const { allServices, refreshServices, isLoading } = useServices();
   const { addToCart, cartItemCount, cartTotal } = useCart();
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
 
   // Filter only salon services that are visible
   const salonServices = allServices.filter(s => s.type === 'salon' && s.visible);
@@ -29,19 +28,13 @@ export default function VisitSalonScreen({ navigation }: Props) {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshServices();
     setRefreshing(false);
   }, [refreshServices]);
+
+  const showSkeleton = (isLoading && allServices.length === 0) || refreshing;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,7 +54,7 @@ export default function VisitSalonScreen({ navigation }: Props) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.primary} />
         }
       >
-        {initialLoading || refreshing ? (
+        {showSkeleton ? (
           <>
             <ServiceSkeleton />
             <ServiceSkeleton />
