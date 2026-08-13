@@ -52,6 +52,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
     
     private final CustomerService customerService;
+    private final com.salonbooking.api.repository.CustomerRepository customerRepository;
     private final ServiceService serviceService;
     
     private final BookingReferenceGenerator referenceGenerator;
