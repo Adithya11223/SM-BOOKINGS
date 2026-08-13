@@ -1,6 +1,7 @@
 package com.salonbooking.api.service;
 
 import com.salonbooking.api.entity.Notification;
+import com.salonbooking.api.entity.Customer;
 import com.salonbooking.api.repository.NotificationRepository;
 import com.salonbooking.api.repository.FcmTokenRepository;
 import com.salonbooking.api.security.UserDetailsImpl;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,14 +64,20 @@ public class NotificationIsolationTest {
 
     private UUID customerAId;
     private UUID customerBId;
+    private UUID customerCId;
+    private UUID customerDId;
     private UserDetailsImpl customerAUser;
     private UserDetailsImpl customerBUser;
+    private UserDetailsImpl customerCUser;
+    private UserDetailsImpl customerDUser;
     private UserDetailsImpl adminUser;
 
     @BeforeEach
     void setUp() {
         customerAId = UUID.randomUUID();
         customerBId = UUID.randomUUID();
+        customerCId = UUID.randomUUID();
+        customerDId = UUID.randomUUID();
 
         pushNotificationServiceImpl = new PushNotificationServiceImpl(fcmTokenRepository);
 
@@ -86,6 +94,24 @@ public class NotificationIsolationTest {
                 customerBId,
                 "Customer B",
                 "customerB@example.com",
+                "password",
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")),
+                true
+        );
+
+        customerCUser = new UserDetailsImpl(
+                customerCId,
+                "Customer C",
+                "customerC@example.com",
+                "password",
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")),
+                true
+        );
+
+        customerDUser = new UserDetailsImpl(
+                customerDId,
+                "Customer D",
+                "customerD@example.com",
                 "password",
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")),
                 true
@@ -195,5 +221,32 @@ public class NotificationIsolationTest {
 
         verify(fcmTokenRepository, times(1)).findByCustomerId(customerAId);
         verify(fcmTokenRepository, never()).findCustomerTokens();
+    }
+
+    @Test
+    void markAllAsReadScopesToAuthenticatedCustomer() {
+        notificationService.markAllAsRead("CUSTOMER", customerAId);
+        verify(webSocketEventPublisher).publishNotificationSync("CUSTOMER", customerAId, "READ_ALL");
+    }
+
+    @Test
+    void deleteAllNotificationsScopesToAuthenticatedCustomer() {
+        notificationService.deleteAllNotifications("CUSTOMER", customerAId);
+        verify(webSocketEventPublisher).publishNotificationSync("CUSTOMER", customerAId, "CLEAR_ALL");
+    }
+
+    @Test
+    void broadcastAnnouncementDeliversToAllCustomers() {
+        Customer cA = new Customer(); cA.setId(customerAId);
+        Customer cB = new Customer(); cB.setId(customerBId);
+
+        when(customerRepository.findAll()).thenReturn(Arrays.asList(cA, cB));
+        Notification notifTemplate = Notification.builder().title("Promo Ad").message("Sale").build();
+        when(notificationGenerator.generateBusinessNotification(anyString(), anyString(), any())).thenReturn(notifTemplate);
+
+        notificationService.broadcastAnnouncement("Promo Ad", "Sale");
+
+        verify(notificationRepository, times(2)).save(any(Notification.class));
+        verify(pushNotificationService, times(1)).sendPushNotification(any(Notification.class));
     }
 }
