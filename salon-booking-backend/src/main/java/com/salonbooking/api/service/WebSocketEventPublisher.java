@@ -52,15 +52,22 @@ public class WebSocketEventPublisher {
         }
     }
     
-    // For DTOs when marked as read
-    public void publishNotificationUpdate(com.salonbooking.api.dto.response.NotificationResponse notification) {
-        if ("ADMIN".equalsIgnoreCase(notification.getReceiverType())) {
-            messagingTemplate.convertAndSend("/topic/admin/notifications", notification);
+    public void publishNotificationSync(String receiverType, java.util.UUID receiverId, String action) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("action", action);
+        payload.put("receiverType", receiverType);
+        payload.put("receiverId", receiverId);
+        
+        if ("ADMIN".equalsIgnoreCase(receiverType)) {
+            log.info("Publishing Notification Sync [{}] to /topic/admin/notifications", action);
+            messagingTemplate.convertAndSend("/topic/admin/notifications", payload);
         } else {
-            if (notification.getReceiverId() != null) {
-                messagingTemplate.convertAndSend("/topic/customer/" + notification.getReceiverId() + "/notifications", notification);
+            if (receiverId != null) {
+                String destination = "/topic/customer/" + receiverId + "/notifications";
+                log.info("Publishing Notification Sync [{}] to {}", action, destination);
+                messagingTemplate.convertAndSend(destination, payload);
             } else {
-                messagingTemplate.convertAndSend("/topic/customer/all/notifications", notification);
+                messagingTemplate.convertAndSend("/topic/customer/all/notifications", payload);
             }
         }
     }

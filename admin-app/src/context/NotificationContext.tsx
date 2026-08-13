@@ -76,23 +76,25 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       const content = notification.request.content;
       const data: any = content.data || {};
       
-      const newNotification: NotificationItem = {
-        id: data.id || ('notif-' + Date.now()),
-        title: content.title || 'New Notification',
-        message: content.body || '',
-        type: data.notificationType || 'GENERAL',
-        bookingId: data.bookingId || undefined,
-        isRead: false,
-        createdAt: data.createdAt || new Date().toISOString(),
-      };
+      if (data?.id) {
+        const newNotification: NotificationItem = {
+          id: data.id,
+          title: content.title || 'New Notification',
+          message: content.body || '',
+          type: data.notificationType || 'GENERAL',
+          bookingId: data.bookingId || undefined,
+          isRead: false,
+          createdAt: data.createdAt || new Date().toISOString(),
+        };
 
-      setNotifications(prev => {
-        const exists = prev.find(n => (newNotification.id && n.id === newNotification.id) || (n.title === newNotification.title && n.message === newNotification.message));
-        if (exists) return prev;
-        return [newNotification, ...prev];
-      });
-
-      fetchNotifications();
+        setNotifications(prev => {
+          const exists = prev.find(n => n.id === newNotification.id);
+          if (exists) return prev;
+          return [newNotification, ...prev];
+        });
+      } else {
+        fetchNotifications();
+      }
     });
     
     const handleNotificationResponse = (response: Notifications.NotificationResponse) => {
@@ -149,8 +151,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     webSocketService.connect();
     
     const handleWsNotification = (parsed: any) => {
+      if (parsed?.action === 'READ_ALL') {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        return;
+      }
+      if (parsed?.action === 'CLEAR_ALL') {
+        setNotifications([]);
+        return;
+      }
+
+      if (!parsed?.id) {
+        fetchNotifications();
+        return;
+      }
+
       const item: NotificationItem = {
-        id: parsed.id || ('ws-' + Date.now()),
+        id: parsed.id,
         title: parsed.title || 'New Notification',
         message: parsed.message || '',
         type: parsed.type || 'GENERAL',

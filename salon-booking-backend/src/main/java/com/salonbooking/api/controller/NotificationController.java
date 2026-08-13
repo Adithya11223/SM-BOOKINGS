@@ -69,8 +69,7 @@ public class NotificationController {
         }
 
         log.info("REST Request by user {} to mark notification as read: {}", user.getId(), id);
-        NotificationResponse readNotification = notificationService.markAsRead(id, user);
-        webSocketEventPublisher.publishNotificationUpdate(readNotification);
+        notificationService.markAsRead(id, user);
         return ResponseEntity.ok(ApiResponse.success(null, "Notification marked as read"));
     }
 

@@ -156,6 +156,7 @@ public class NotificationServiceImpl implements NotificationService {
             });
         }
 
+        webSocketEventPublisher.publishNotificationSync(receiverType, receiverId, "READ_ALL");
         log.info("Marked all notifications as read for receiverType={}, receiverId={}", receiverType, receiverId);
     }
 
@@ -181,6 +182,7 @@ public class NotificationServiceImpl implements NotificationService {
             notifications = repository.findForCustomer("CUSTOMER", receiverId);
         }
         repository.deleteAll(notifications);
+        webSocketEventPublisher.publishNotificationSync(receiverType, receiverId, "CLEAR_ALL");
         log.info("Deleted all notifications for receiverType={}, receiverId={}", receiverType, receiverId);
     }
 
