@@ -34,6 +34,11 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             if (tokens.isEmpty()) {
                 tokens = fcmTokenRepository.findByAdminIdIsNotNull();
             }
+            if (tokens.isEmpty()) {
+                tokens = fcmTokenRepository.findAll().stream()
+                        .filter(t -> t.getReceiverType() != null && "ADMIN".equalsIgnoreCase(t.getReceiverType()))
+                        .collect(java.util.stream.Collectors.toList());
+            }
             log.info("Found {} admin push token(s)", tokens.size());
         } else {
             if (notification.getReceiverId() != null) {
