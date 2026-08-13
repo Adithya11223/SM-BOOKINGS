@@ -58,9 +58,6 @@ export default function AdminBookingsScreen({ navigation }: Props) {
       transition={{ type: 'spring', delay: index * 100 }}
       style={styles.card}
     >
-      {booking.status === 'pending' && booking.hasUnreadAdminUpdates && (
-        <View style={styles.unreadDot} />
-      )}
       <View style={styles.cardHeader}>
         <Text style={styles.bookingId}>{booking.bookingNumber || booking.id}</Text>
         <StatusBadge status={booking.status} />

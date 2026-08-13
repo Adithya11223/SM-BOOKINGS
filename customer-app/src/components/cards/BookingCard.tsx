@@ -42,7 +42,6 @@ export const BookingCard = ({
       onPressOut={() => { scale.value = withSpring(1, { damping: 15 }); }}
       accessibilityRole="button"
     >
-      {showUnreadDot && <View style={styles.unreadDot} />}
       <View style={styles.header}>
         <Text style={styles.serviceName} numberOfLines={1}>
           {serviceName}

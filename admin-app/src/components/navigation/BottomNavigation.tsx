@@ -49,9 +49,6 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 size={24}
                 color={isActive ? theme.colors.primary : theme.colors.textSecondary}
               />
-              {tab.badgeCount !== undefined && tab.badgeCount > 0 && (
-                <View style={styles.badge} />
-              )}
             </MotiView>
             <MotiText 
               animate={{
