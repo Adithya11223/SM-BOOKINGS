@@ -30,10 +30,10 @@ public class BusinessSettings extends BaseEntity {
 
     private String tagline;
 
-    @Column(name = "logo_url")
+    @Column(name = "logo_url", columnDefinition = "TEXT")
     private String logoUrl;
 
-    @Column(name = "cover_image_url")
+    @Column(name = "cover_image_url", columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @Column(name = "phone_number")
