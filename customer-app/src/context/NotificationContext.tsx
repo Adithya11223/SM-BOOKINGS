@@ -266,25 +266,19 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-    if (Device.isDevice) {
+    try {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== 'granted') {
-        return { token: null, deviceId: localDeviceId };
-      }
-      try {
-        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-        if (!projectId) {
-          console.error("No EAS projectId found in app.json");
-        }
+      if (finalStatus === 'granted') {
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId || "1a5e378a-7ebd-43a5-a6a0-bfe32d9aa30d";
         token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-      } catch (e) {
-        console.error("Error getting push token", e);
       }
+    } catch (e) {
+      console.error("Error getting push token", e);
     }
 
     return { token, deviceId: localDeviceId };
