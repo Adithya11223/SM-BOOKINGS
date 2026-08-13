@@ -72,14 +72,16 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException("Booking has no associated customer");
         }
 
-        if (customerId != null) {
+        if (customerId != null && booking.getCustomer() != null) {
             boolean isOwner = booking.getCustomer().getId().equals(customerId);
             if (!isOwner) {
                 com.salonbooking.api.entity.Customer loggedInCustomer = customerRepository.findById(customerId).orElse(null);
                 if (loggedInCustomer != null && loggedInCustomer.getPhoneNumber() != null && booking.getCustomer().getPhoneNumber() != null) {
                     String p1 = loggedInCustomer.getPhoneNumber().replaceAll("[^0-9]", "");
                     String p2 = booking.getCustomer().getPhoneNumber().replaceAll("[^0-9]", "");
-                    if (!p1.isEmpty() && p1.equals(p2)) {
+                    String s1 = p1.length() >= 10 ? p1.substring(p1.length() - 10) : p1;
+                    String s2 = p2.length() >= 10 ? p2.substring(p2.length() - 10) : p2;
+                    if (!s1.isEmpty() && s1.equals(s2)) {
                         isOwner = true;
                     }
                 }

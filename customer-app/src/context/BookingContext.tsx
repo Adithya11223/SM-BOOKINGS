@@ -58,18 +58,21 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     const handleBookingUpdate = (payload: any) => {
       const { action, data } = payload;
-      if (action === 'UPDATED') {
+      if (!data) return;
+      const mapped = BookingService.mapToFrontend(data);
+
+      if (action === 'UPDATED' || action === 'STATUS_CHANGED' || action === 'STATUS_UPDATE') {
         setBookings(prev => {
-          if (prev.some(b => b.id === data.id)) {
-            return prev.map(b => b.id === data.id ? BookingService.mapToFrontend(data) : b);
+          const exists = prev.some(b => b.id === mapped.id);
+          if (exists) {
+            return prev.map(b => b.id === mapped.id ? mapped : b);
           }
           return prev;
         });
+      } else if (action === 'CREATED') {
+        // Automatically fetch bookings to keep state 100% in sync
+        fetchBookings();
       }
-      // We intentionally ignore 'CREATED' actions here.
-      // Since there is no user login, a device only owns bookings created locally on it.
-      // Local creations are already added to state and AsyncStorage by addBooking.
-      // Processing generic CREATED events would cause other users' bookings to show up.
     };
 
     webSocketService.subscribe('/topic/bookings', handleBookingUpdate);

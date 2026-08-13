@@ -95,7 +95,7 @@ async function registerForPushNotificationsAsync() {
     });
   }
 
-  if (Device.isDevice) {
+  try {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
@@ -107,20 +107,16 @@ async function registerForPushNotificationsAsync() {
       return;
     }
     
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-      token = (
-        await Notifications.getExpoPushTokenAsync(
-          projectId ? { projectId } : undefined
-        )
-      ).data;
-      console.log('Expo Push Token:', token);
-    } catch (e) {
-      console.error('Error getting expo push token', e);
-    }
-  } else {
-    console.log('Must use physical device for Push Notifications');
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId ?? "1a5e378a-7ebd-43a5-a6a0-bfe32d9aa30d";
+    token = (
+      await Notifications.getExpoPushTokenAsync(
+        projectId ? { projectId } : undefined
+      )
+    ).data;
+    console.log('Expo Push Token generated:', token);
+  } catch (e) {
+    console.error('Error getting expo push token', e);
   }
 
   return token;

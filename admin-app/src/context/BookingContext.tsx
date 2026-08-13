@@ -47,9 +47,19 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     const handleBookingUpdate = (payload: any) => {
       const { action, data } = payload;
+      if (!data) {
+        fetchBookings();
+        return;
+      }
       const mappedData = BookingService.mapToFrontend(data);
-      if (action === 'UPDATED') {
-        setBookings(prev => prev.map(b => b.id === mappedData.id ? mappedData : b));
+      if (action === 'UPDATED' || action === 'STATUS_CHANGED' || action === 'STATUS_UPDATE') {
+        setBookings(prev => {
+          const exists = prev.some(b => b.id === mappedData.id);
+          if (exists) {
+            return prev.map(b => b.id === mappedData.id ? mappedData : b);
+          }
+          return [mappedData, ...prev];
+        });
       } else if (action === 'CREATED') {
         setBookings(prev => {
           if (!prev.find(b => b.id === mappedData.id)) {
@@ -58,6 +68,8 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
           return prev;
         });
       }
+      // Trigger instant refetch to ensure all stats & metrics update in real-time
+      fetchBookings();
     };
 
     webSocketService.subscribe('/topic/bookings', handleBookingUpdate);
