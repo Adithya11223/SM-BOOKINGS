@@ -70,6 +70,25 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const subscription = Notifications.addNotificationReceivedListener(notification => {
+      const content = notification.request.content;
+      const data: any = content.data || {};
+      
+      const newNotification: NotificationItem = {
+        id: data.id || ('notif-' + Date.now()),
+        title: content.title || 'New Notification',
+        message: content.body || '',
+        type: data.notificationType || 'GENERAL',
+        bookingId: data.bookingId || undefined,
+        isRead: false,
+        createdAt: data.createdAt || new Date().toISOString(),
+      };
+
+      setNotifications(prev => {
+        const exists = prev.find(n => (newNotification.id && n.id === newNotification.id) || (n.title === newNotification.title && n.message === newNotification.message));
+        if (exists) return prev;
+        return [newNotification, ...prev];
+      });
+
       fetchNotifications();
     });
     
@@ -90,39 +109,45 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchNotifications();
 
-    const receiverId = user?.id || deviceId;
-    if (user?.id) { // Admin must be authenticated to get WebSocket notifications
-      webSocketService.connect();
-      
-      const handleWsNotification = (parsed: any) => {
-        setNotifications(prev => {
-          const exists = prev.find(n => n.id === parsed.id);
-          if (exists) {
-            return prev.map(n => n.id === parsed.id ? parsed : n);
-          }
-          return [parsed, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        });
-
-        // Trigger local push notification instantly
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: parsed.title || 'New Notification',
-            body: parsed.message || 'You have a new update.',
-            data: { screen: 'Notifications', bookingId: parsed.bookingId },
-            sound: true,
-          },
-          trigger: null,
-        });
+    webSocketService.connect();
+    
+    const handleWsNotification = (parsed: any) => {
+      const item: NotificationItem = {
+        id: parsed.id || ('ws-' + Date.now()),
+        title: parsed.title || 'New Notification',
+        message: parsed.message || '',
+        type: parsed.type || 'GENERAL',
+        bookingId: parsed.booking ? parsed.booking.id : parsed.bookingId,
+        isRead: parsed.isRead || false,
+        createdAt: parsed.createdAt || new Date().toISOString(),
       };
 
-      const adminTopic = `/topic/admin/notifications`;
+      setNotifications(prev => {
+        const exists = prev.find(n => n.id === item.id);
+        if (exists) {
+          return prev.map(n => n.id === item.id ? item : n);
+        }
+        return [item, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      });
 
-      webSocketService.subscribe(adminTopic, handleWsNotification);
+      // Trigger local push notification banner in foreground
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: item.title,
+          body: item.message,
+          data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
+          sound: true,
+        },
+        trigger: null,
+      }).catch(() => {});
+    };
 
-      return () => {
-        webSocketService.unsubscribe(adminTopic, handleWsNotification);
-      };
-    }
+    const adminTopic = `/topic/admin/notifications`;
+    webSocketService.subscribe(adminTopic, handleWsNotification);
+
+    return () => {
+      webSocketService.unsubscribe(adminTopic, handleWsNotification);
+    };
   }, [user?.id, deviceId]);
 
   const registerForPushNotificationsAsync = async () => {

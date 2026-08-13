@@ -74,9 +74,13 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             message.put("_displayInForeground", true);
 
             Map<String, String> data = new HashMap<>();
+            data.put("id", notification.getId() != null ? notification.getId().toString() : "");
+            data.put("title", notification.getTitle() != null ? notification.getTitle() : "");
+            data.put("message", notification.getMessage() != null ? notification.getMessage() : "");
             data.put("notificationType", notification.getType() != null ? notification.getType().name() : "GENERAL");
             data.put("bookingId", notification.getBooking() != null ? notification.getBooking().getId().toString() : "");
             data.put("screen", notification.getBooking() != null ? (notification.getReceiverType().equalsIgnoreCase("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications");
+            data.put("createdAt", notification.getCreatedAt() != null ? notification.getCreatedAt().toString() : java.time.Instant.now().toString());
             message.put("data", data);
 
             messages.add(message);
