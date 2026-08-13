@@ -12,7 +12,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     Optional<Booking> findByBookingNumber(String bookingNumber);
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "items"})
-    @org.springframework.data.jpa.repository.Query("SELECT b FROM Booking b")
+    @org.springframework.data.jpa.repository.Query("SELECT b FROM Booking b ORDER BY b.createdAt DESC")
     java.util.List<Booking> findAllBookings();
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "items"})

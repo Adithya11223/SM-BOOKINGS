@@ -60,8 +60,8 @@ public class BookingController {
             @RequestParam(required = false) LocalDate date,
             @RequestParam(required = false) BookingType bookingType,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "bookingDate") String sort) {
+            @RequestParam(defaultValue = "1000") int size,
+            @RequestParam(defaultValue = "createdAt") String sort) {
         
         log.info("REST Request to get bookings");
         List<BookingResponse> allBookings = bookingService.getAllBookings();
@@ -72,9 +72,12 @@ public class BookingController {
                 .filter(b -> bookingType == null || b.getBookingType() == bookingType)
                 .sorted((b1, b2) -> {
                     if ("totalAmount".equalsIgnoreCase(sort)) {
-                        return b2.getTotalAmount().compareTo(b1.getTotalAmount()); // desc
+                        return b2.getTotalAmount().compareTo(b1.getTotalAmount());
                     }
-                    return b2.getBookingDate().compareTo(b1.getBookingDate()); // default desc
+                    if (b1.getCreatedAt() != null && b2.getCreatedAt() != null) {
+                        return b2.getCreatedAt().compareTo(b1.getCreatedAt());
+                    }
+                    return b2.getBookingDate().compareTo(b1.getBookingDate());
                 })
                 .collect(Collectors.toList());
 

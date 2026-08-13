@@ -30,6 +30,7 @@ export class BookingService {
       })),
       hasUnreadAdminUpdates: b.hasUnreadAdminUpdates,
       hasUnreadCustomerUpdates: b.hasUnreadCustomerUpdates,
+      createdAt: b.createdAt,
     } as Booking;
   }
   static async getBookings(params?: any): Promise<Booking[]> {
