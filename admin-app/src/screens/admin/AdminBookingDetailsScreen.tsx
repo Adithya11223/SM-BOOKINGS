@@ -194,6 +194,38 @@ export default function AdminBookingDetailsScreen({ route, navigation }: Props) 
           </View>
         </MotiView>
 
+        {((booking as any)?.reviews && (booking as any).reviews.length > 0) && (
+          <MotiView 
+            from={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 250 }}
+          >
+            <SectionHeader title="Customer Review & Rating" style={styles.sectionHeader} />
+            <View style={styles.card}>
+              {(booking as any).reviews.map((rev: any, i: number) => (
+                <View key={rev.id || i} style={[styles.reviewDetailRow, i > 0 && styles.borderTop]}>
+                  <View style={styles.starsDetailRow}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <MaterialIcons
+                        key={star}
+                        name="star"
+                        size={18}
+                        color={star <= rev.rating ? "#FFB800" : "#E2E8F0"}
+                      />
+                    ))}
+                    <Text style={styles.reviewDetailRatingText}>{rev.rating}.0 / 5.0</Text>
+                  </View>
+                  {rev.comment ? (
+                    <Text style={styles.reviewDetailComment}>"{rev.comment}"</Text>
+                  ) : (
+                    <Text style={styles.reviewDetailNoComment}>No written comment provided</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          </MotiView>
+        )}
+
         {/* Admin Actions */}
         {booking.status === 'pending' && (
           <MotiView 
@@ -389,6 +421,31 @@ const styles = StyleSheet.create({
   serviceQty: {
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
+  },
+  reviewDetailRow: {
+    paddingVertical: theme.spacing.sm,
+  },
+  starsDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  reviewDetailRatingText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#D97706',
+    marginLeft: 8,
+  },
+  reviewDetailComment: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: theme.colors.text,
+    lineHeight: 18,
+  },
+  reviewDetailNoComment: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    fontStyle: 'italic',
   },
   servicePrice: {
     fontSize: theme.typography.body.fontSize,
