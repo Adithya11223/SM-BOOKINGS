@@ -32,6 +32,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     @org.springframework.data.jpa.repository.Query("SELECT SUM(b.totalAmount) FROM Booking b WHERE b.bookingStatus IN :statuses AND b.bookingDate = :date")
     java.math.BigDecimal calculateRevenueForDate(@org.springframework.data.repository.query.Param("statuses") java.util.List<com.salonbooking.api.enums.BookingStatus> statuses, @org.springframework.data.repository.query.Param("date") java.time.LocalDate date);
 
-    @org.springframework.data.jpa.repository.Query("SELECT bi.service.id, bi.service.name, COUNT(bi), SUM(bi.price) FROM BookingItem bi WHERE bi.booking.bookingStatus IN :statuses AND bi.service IS NOT NULL GROUP BY bi.service.id, bi.service.name ORDER BY COUNT(bi) DESC")
+    @org.springframework.data.jpa.repository.Query("SELECT s.id, s.name, COUNT(bi.id), SUM(bi.price) FROM BookingItem bi JOIN bi.booking b JOIN bi.service s WHERE b.bookingStatus IN :statuses GROUP BY s.id, s.name ORDER BY COUNT(bi.id) DESC")
     java.util.List<Object[]> findTopPopularServices(@org.springframework.data.repository.query.Param("statuses") java.util.List<com.salonbooking.api.enums.BookingStatus> statuses, org.springframework.data.domain.Pageable pageable);
 }

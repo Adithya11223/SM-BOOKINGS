@@ -16,9 +16,9 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     Optional<Customer> findByPhoneNumber(String phoneNumber);
     boolean existsByPhoneNumber(String phoneNumber);
 
-    @Query("SELECT COUNT(DISTINCT b.customer.id) FROM Booking b WHERE b.bookingStatus = :status AND b.customer IS NOT NULL")
+    @Query("SELECT COUNT(DISTINCT c.id) FROM Booking b JOIN b.customer c WHERE b.bookingStatus = :status")
     Long countCustomersWithCompletedBookings(@Param("status") BookingStatus status);
 
-    @Query("SELECT b.customer.id FROM Booking b WHERE b.bookingStatus = :status AND b.customer IS NOT NULL GROUP BY b.customer.id HAVING COUNT(b.id) >= 2")
+    @Query("SELECT c.id FROM Booking b JOIN b.customer c WHERE b.bookingStatus = :status GROUP BY c.id HAVING COUNT(b.id) >= 2")
     List<UUID> findRepeatCustomerIds(@Param("status") BookingStatus status);
 }

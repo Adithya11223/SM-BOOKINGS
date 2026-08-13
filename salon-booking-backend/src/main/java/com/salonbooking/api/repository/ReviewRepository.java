@@ -13,14 +13,14 @@ import java.util.UUID;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
     
-    @Query("SELECT r FROM Review r JOIN FETCH r.customer WHERE r.service.id = :serviceId ORDER BY r.createdAt DESC")
+    @Query("SELECT r FROM Review r JOIN FETCH r.customer c JOIN r.service s WHERE s.id = :serviceId ORDER BY r.createdAt DESC")
     List<Review> findByServiceId(@Param("serviceId") UUID serviceId);
 
     Optional<Review> findByBookingIdAndServiceId(UUID bookingId, UUID serviceId);
 
     boolean existsByBookingIdAndServiceId(UUID bookingId, UUID serviceId);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.service.id = :serviceId")
+    @Query("SELECT AVG(r.rating) FROM Review r JOIN r.service s WHERE s.id = :serviceId")
     Double getAverageRatingForService(@Param("serviceId") UUID serviceId);
 
     long countByServiceId(UUID serviceId);
