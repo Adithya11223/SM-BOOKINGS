@@ -19,4 +19,5 @@ public interface BookingService {
     BookingDetailResponse partialAcceptBooking(UUID id, List<UUID> acceptedServiceIds);
     void markAdminViewed(UUID id);
     void markCustomerViewed(UUID id);
+    void processAppointmentReminders();
 }

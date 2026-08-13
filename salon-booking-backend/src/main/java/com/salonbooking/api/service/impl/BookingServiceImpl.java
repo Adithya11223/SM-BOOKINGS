@@ -416,4 +416,41 @@ public class BookingServiceImpl implements BookingService {
             log.info("Cleaned up {} old cancelled bookings", oldCancelledBookings.size());
         }
     }
+
+    @Override
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 */15 * * * *")
+    @Transactional
+    public void processAppointmentReminders() {
+        List<Booking> pendingBookings = bookingRepository.findPendingReminders(BookingStatus.CONFIRMED);
+        if (pendingBookings == null || pendingBookings.isEmpty()) {
+            return;
+        }
+
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.LocalDateTime twoHoursFromNow = now.plusHours(2);
+
+        for (Booking booking : pendingBookings) {
+            try {
+                if (booking == null || booking.getBookingDate() == null || booking.getBookingStatus() != BookingStatus.CONFIRMED) {
+                    continue;
+                }
+                java.time.LocalTime time = booking.getBookingTime() != null ? booking.getBookingTime() : java.time.LocalTime.MIDNIGHT;
+                java.time.LocalDateTime appointmentDateTime = java.time.LocalDateTime.of(booking.getBookingDate(), time);
+
+                if (appointmentDateTime.isBefore(twoHoursFromNow) && appointmentDateTime.isAfter(now.minusHours(1))) {
+                    Notification notification = notificationGenerator.generateAppointmentReminderNotification(booking);
+                    notificationRepository.save(notification);
+                    webSocketEventPublisher.publishNotificationUpdate(notification);
+                    pushNotificationService.sendPushNotification(notification);
+
+                    booking.setReminderSent(true);
+                    bookingRepository.save(booking);
+                    log.info("Sent appointment reminder notification for booking {}", booking.getBookingNumber());
+                }
+            } catch (Exception e) {
+                log.error("Error processing appointment reminder for booking {}: {}", 
+                        booking != null ? booking.getBookingNumber() : "unknown", e.getMessage());
+            }
+        }
+    }
 }

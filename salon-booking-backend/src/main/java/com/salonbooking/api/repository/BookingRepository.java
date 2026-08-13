@@ -19,4 +19,8 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     java.util.List<Booking> findByBookingNumberIn(java.util.List<String> bookingNumbers);
 
     java.util.List<Booking> findByBookingStatusAndUpdatedAtBefore(com.salonbooking.api.enums.BookingStatus status, java.time.Instant date);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "items"})
+    @org.springframework.data.jpa.repository.Query("SELECT b FROM Booking b WHERE b.bookingStatus = :status AND (b.reminderSent = false OR b.reminderSent IS NULL)")
+    java.util.List<Booking> findPendingReminders(@org.springframework.data.repository.query.Param("status") com.salonbooking.api.enums.BookingStatus status);
 }

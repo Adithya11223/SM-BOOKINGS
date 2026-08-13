@@ -9,5 +9,6 @@ public enum NotificationType {
     SERVICE_UPDATED,
     BUSINESS_UPDATED,
     PRICE_UPDATED,
-    SALON_CLOSED
+    SALON_CLOSED,
+    APPOINTMENT_REMINDER
 }

@@ -78,4 +78,24 @@ public class NotificationGenerator {
                 .isRead(false)
                 .build();
     }
+
+    public Notification generateAppointmentReminderNotification(Booking booking) {
+        String services = booking.getItems().stream()
+                .map(item -> item.getServiceNameSnapshot() != null ? item.getServiceNameSnapshot() : (item.getService() != null ? item.getService().getName() : "Service"))
+                .collect(Collectors.joining(", "));
+
+        String timeStr = booking.getBookingTime() != null ? booking.getBookingTime().toString() : "soon";
+        String message = String.format("Reminder %s: Your upcoming appointment for %s is scheduled at %s. We look forward to seeing you! ⏰", 
+                booking.getCustomer() != null ? booking.getCustomer().getName() : "Customer", services, timeStr);
+
+        return Notification.builder()
+                .title("Upcoming Appointment Reminder ⏰")
+                .message(message)
+                .type(NotificationType.APPOINTMENT_REMINDER)
+                .receiverType("CUSTOMER")
+                .receiverId(booking.getCustomer() != null ? booking.getCustomer().getId() : null)
+                .booking(booking)
+                .isRead(false)
+                .build();
+    }
 }

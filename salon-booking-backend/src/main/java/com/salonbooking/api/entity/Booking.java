@@ -76,6 +76,10 @@ public class Booking extends BaseEntity {
     @Column(name = "people_count")
     private Integer peopleCount;
 
+    @Column(name = "reminder_sent")
+    @Builder.Default
+    private Boolean reminderSent = false;
+
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<BookingItem> items = new ArrayList<>();

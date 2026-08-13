@@ -249,4 +249,53 @@ public class NotificationIsolationTest {
         verify(notificationRepository, times(2)).save(any(Notification.class));
         verify(pushNotificationService, times(1)).sendPushNotification(any(Notification.class));
     }
+
+    @Mock
+    private com.salonbooking.api.repository.BookingItemRepository bookingItemRepository;
+
+    @InjectMocks
+    private com.salonbooking.api.service.impl.BookingServiceImpl bookingServiceImpl;
+
+    @Test
+    void confirmedBookingReceivesAppointmentReminder() {
+        Customer cA = new Customer(); cA.setId(customerAId); cA.setName("Customer A");
+        com.salonbooking.api.entity.Booking confirmedBooking = com.salonbooking.api.entity.Booking.builder()
+                .bookingNumber("B-100")
+                .bookingStatus(com.salonbooking.api.enums.BookingStatus.CONFIRMED)
+                .bookingDate(java.time.LocalDate.now())
+                .bookingTime(java.time.LocalTime.now().plusHours(1))
+                .customer(cA)
+                .reminderSent(false)
+                .build();
+
+        when(bookingRepository.findPendingReminders(com.salonbooking.api.enums.BookingStatus.CONFIRMED))
+                .thenReturn(Collections.singletonList(confirmedBooking));
+
+        Notification reminderNotif = Notification.builder()
+                .title("Upcoming Appointment Reminder ⏰")
+                .message("Reminder for Customer A")
+                .receiverType("CUSTOMER")
+                .receiverId(customerAId)
+                .build();
+        when(notificationGenerator.generateAppointmentReminderNotification(confirmedBooking)).thenReturn(reminderNotif);
+
+        bookingServiceImpl.processAppointmentReminders();
+
+        assertTrue(confirmedBooking.getReminderSent());
+        verify(notificationRepository).save(reminderNotif);
+        verify(webSocketEventPublisher).publishNotificationUpdate(reminderNotif);
+        verify(pushNotificationService).sendPushNotification(reminderNotif);
+        verify(bookingRepository).save(confirmedBooking);
+    }
+
+    @Test
+    void repeatedSchedulerExecutionDoesNotDuplicateReminder() {
+        when(bookingRepository.findPendingReminders(com.salonbooking.api.enums.BookingStatus.CONFIRMED))
+                .thenReturn(Collections.emptyList());
+
+        bookingServiceImpl.processAppointmentReminders();
+
+        verify(pushNotificationService, never()).sendPushNotification(any());
+        verify(notificationRepository, never()).save(any());
+    }
 }
