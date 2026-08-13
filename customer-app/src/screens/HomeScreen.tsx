@@ -92,12 +92,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             </View>
           </View>
           <TouchableOpacity 
-            style={styles.notificationButton} 
+            style={[styles.notificationButton, { position: 'relative' }]} 
             onPress={() => navigation.navigate('Notifications' as any)}
           >
             <MaterialIcons name="notifications-none" size={26} color={theme.colors.text} />
             {unreadCount > 0 && (
-              <View style={styles.unreadDot} />
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
             )}
           </TouchableOpacity>
         </MotiView>
@@ -247,16 +249,22 @@ const styles = StyleSheet.create({
     padding: 6,
     position: 'relative',
   },
-  unreadDot: {
+  unreadBadge: {
     position: 'absolute',
-    top: 6,
-    right: 8,
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
-    backgroundColor: '#FF3B30',
-    borderWidth: 1.5,
-    borderColor: theme.colors.background,
+    top: 2,
+    right: 2,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  unreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
   operatingHoursCard: {
     flexDirection: 'row',

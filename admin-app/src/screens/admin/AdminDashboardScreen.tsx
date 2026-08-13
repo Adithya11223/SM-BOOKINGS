@@ -171,7 +171,9 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           >
             <MaterialIcons name="notifications-none" size={24} color={theme.colors.text} />
             {unreadCount > 0 && (
-              <View style={styles.unreadDot} />
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
             )}
           </TouchableOpacity>
         </View>
@@ -467,16 +469,22 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     letterSpacing: 0.3,
   },
-  unreadDot: {
+  unreadBadge: {
     position: 'absolute',
     top: 2,
     right: 2,
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
-    backgroundColor: '#FF3B30',
-    borderWidth: 1.5,
-    borderColor: theme.colors.background,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  unreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
   content: {
     padding: theme.spacing.lg,
