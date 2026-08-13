@@ -10,6 +10,7 @@ import { TopAppBar } from '../../components/navigation/TopAppBar';
 import { SearchBar } from '../../components/inputs/SearchBar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialIcons } from '@expo/vector-icons';
+import { SortModal, SortOption } from '../../components/overlays/SortModal';
 
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'BookingHistory'>;
 
@@ -23,9 +24,8 @@ export default function BookingHistoryScreen({ navigation, route }: Props) {
   const [toDate, setToDate] = useState<Date | undefined>(initialToDate ? new Date(initialToDate) : undefined);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
-
-  type SortType = 'date-desc' | 'date-asc' | 'price-desc' | 'price-asc';
-  const [sortBy, setSortBy] = useState<SortType>('date-desc');
+  const [sortBy, setSortBy] = useState<SortOption>('date-desc');
+  const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
   const historyBookings = bookings.filter(b => {
     // 1. Status filter
@@ -178,39 +178,41 @@ export default function BookingHistoryScreen({ navigation, route }: Props) {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.sm }}>
-            <Text style={{ fontSize: 14, color: theme.colors.textSecondary }}>Sort By:</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 14, color: theme.colors.textSecondary, fontWeight: '500' }}>Sort By:</Text>
             <TouchableOpacity 
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: theme.colors.surface,
+                backgroundColor: theme.colors.card,
                 paddingHorizontal: 12,
-                paddingVertical: 8,
+                paddingVertical: 7,
                 borderRadius: 8,
                 borderWidth: 1,
                 borderColor: theme.colors.border,
+                gap: 6,
               }}
-              onPress={() => {
-                Alert.alert('Sort By', 'Choose an option', [
-                  { text: 'Date: Newest', onPress: () => setSortBy('date-desc') },
-                  { text: 'Date: Oldest', onPress: () => setSortBy('date-asc') },
-                  { text: 'Price: High', onPress: () => setSortBy('price-desc') },
-                  { text: 'Price: Low', onPress: () => setSortBy('price-asc') },
-                  { text: 'Cancel', style: 'cancel' }
-                ], { cancelable: true });
-              }}
+              onPress={() => setIsSortModalVisible(true)}
+              activeOpacity={0.7}
             >
-              <Text style={{ color: theme.colors.text, marginRight: 8, fontSize: 14, fontWeight: '500' }}>
+              <MaterialIcons name="sort" size={18} color={theme.colors.primary} />
+              <Text style={{ color: theme.colors.text, fontSize: 14, fontWeight: '600' }}>
                 {sortBy === 'date-desc' ? 'Date: Newest' : 
                  sortBy === 'date-asc' ? 'Date: Oldest' : 
                  sortBy === 'price-desc' ? 'Price: High' : 'Price: Low'}
               </Text>
-              <MaterialIcons name="arrow-drop-down" size={20} color={theme.colors.text} />
+              <MaterialIcons name="arrow-drop-down" size={20} color={theme.colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>
       </View>
+
+      <SortModal
+        visible={isSortModalVisible}
+        onClose={() => setIsSortModalVisible(false)}
+        selectedOption={sortBy}
+        onSelectOption={setSortBy}
+      />
 
       {showFromPicker && (
         <DateTimePicker

@@ -11,30 +11,15 @@ import { formatDate } from '../utils/formatters';
 import { TopAppBar } from '../components/navigation/TopAppBar';
 import { BookingCard } from '../components/cards/BookingCard';
 import { EmptyState } from '../components/states/EmptyState';
+import { SortModal, SortOption } from '../components/overlays/SortModal';
 
 type TabType = 'upcoming' | 'completed' | 'cancelled';
 
 export default function MyBookingsScreen({ navigation }: any) {
   const { bookings, deleteBooking, markCustomerViewed } = useBookings();
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
-
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      "Delete Booking",
-      "Are you sure you want to permanently delete this cancelled booking?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: () => deleteBooking(id) 
-        }
-      ]
-    );
-  };
-
-  type SortType = 'date-desc' | 'date-asc' | 'price-desc' | 'price-asc';
-  const [sortBy, setSortBy] = useState<SortType>('date-desc');
+  const [sortBy, setSortBy] = useState<SortOption>('date-desc');
+  const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
@@ -70,6 +55,30 @@ export default function MyBookingsScreen({ navigation }: any) {
     );
   };
 
+  const getSortLabel = (sort: SortOption) => {
+    switch (sort) {
+      case 'date-desc': return 'Date: Newest';
+      case 'date-asc': return 'Date: Oldest';
+      case 'price-desc': return 'Price: High';
+      case 'price-asc': return 'Price: Low';
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Booking",
+      "Are you sure you want to permanently delete this cancelled booking?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: () => deleteBooking(id) 
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TopAppBar title="My Bookings" />
@@ -81,40 +90,28 @@ export default function MyBookingsScreen({ navigation }: any) {
       </View>
 
       {activeTab !== 'upcoming' && (
-        <View style={{ paddingHorizontal: theme.spacing.lg, marginBottom: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
-            <Text style={{ fontSize: 14, color: theme.colors.textSecondary }}>Sort By:</Text>
-            <TouchableOpacity 
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: theme.colors.surface,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: theme.colors.border,
-              }}
-              onPress={() => {
-                Alert.alert('Sort By', 'Choose an option', [
-                  { text: 'Date: Newest', onPress: () => setSortBy('date-desc') },
-                  { text: 'Date: Oldest', onPress: () => setSortBy('date-asc') },
-                  { text: 'Price: High', onPress: () => setSortBy('price-desc') },
-                  { text: 'Price: Low', onPress: () => setSortBy('price-asc') },
-                  { text: 'Cancel', style: 'cancel' }
-                ], { cancelable: true });
-              }}
-            >
-              <Text style={{ color: theme.colors.text, marginRight: 8, fontSize: 14, fontWeight: '500' }}>
-                {sortBy === 'date-desc' ? 'Date: Newest' : 
-                 sortBy === 'date-asc' ? 'Date: Oldest' : 
-                 sortBy === 'price-desc' ? 'Price: High' : 'Price: Low'}
-              </Text>
-              <MaterialIcons name="arrow-drop-down" size={20} color={theme.colors.text} />
-            </TouchableOpacity>
-          </View>
+        <View style={styles.sortContainer}>
+          <Text style={styles.sortLabel}>Sort By:</Text>
+          <TouchableOpacity 
+            style={styles.sortTriggerButton}
+            onPress={() => setIsSortModalVisible(true)}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="sort" size={18} color={theme.colors.primary} />
+            <Text style={styles.sortTriggerText}>
+              {getSortLabel(sortBy)}
+            </Text>
+            <MaterialIcons name="arrow-drop-down" size={20} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
         </View>
       )}
+
+      <SortModal
+        visible={isSortModalVisible}
+        onClose={() => setIsSortModalVisible(false)}
+        selectedOption={sortBy}
+        onSelectOption={setSortBy}
+      />
 
       <FlatList
         data={filteredBookings}
@@ -187,24 +184,32 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     flexGrow: 1,
   },
-  sortChip: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: theme.colors.surface,
+  sortContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+  },
+  sortLabel: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
+  },
+  sortTriggerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 7,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    gap: 6,
   },
-  sortChipActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  sortChipText: {
-    fontSize: 12,
+  sortTriggerText: {
     color: theme.colors.text,
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: '600',
   },
-  sortChipTextActive: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  }
 });
