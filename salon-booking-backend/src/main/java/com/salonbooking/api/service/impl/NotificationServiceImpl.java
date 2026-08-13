@@ -197,9 +197,10 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setReceiverId(customer.getId());
             notification = repository.save(notification);
             webSocketEventPublisher.publishNotificationUpdate(notification);
+            pushNotificationService.sendPushNotification(notification);
         }
         
-        // Push notification logic can just use a dummy notification since it looks for fcm tokens
+        // Also send push notification to all unauthenticated / guest customer device tokens
         Notification broadcastNotif = notificationGenerator.generateBusinessNotification(
             title, message, com.salonbooking.api.enums.NotificationType.PROMOTIONAL
         );
