@@ -49,10 +49,8 @@ public class ReviewController {
     @Operation(summary = "Submit Review", description = "Submit a 1-5 star review for a completed booking service")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@Valid @RequestBody CreateReviewRequest request) {
         UserDetailsImpl user = getAuthenticatedUser();
-        if (user == null) {
-            throw new BusinessException("Authentication required");
-        }
-        ReviewResponse response = reviewService.createReview(user.getId(), request);
+        UUID customerId = (user != null) ? user.getId() : null;
+        ReviewResponse response = reviewService.createReview(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Review submitted successfully", response));
     }

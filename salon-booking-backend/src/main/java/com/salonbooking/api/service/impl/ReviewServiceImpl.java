@@ -53,9 +53,15 @@ public class ReviewServiceImpl implements ReviewService {
         Booking booking = bookingRepository.findById(request.getBookingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + request.getBookingId()));
 
-        if (!booking.getCustomer().getId().equals(customerId)) {
+        if (booking.getCustomer() == null) {
+            throw new BusinessException("Booking has no associated customer");
+        }
+
+        if (customerId != null && !booking.getCustomer().getId().equals(customerId)) {
             throw new BusinessException("You can only review your own bookings");
         }
+
+        UUID targetCustomerId = booking.getCustomer().getId();
 
         if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
             throw new BusinessException("Only completed bookings can be reviewed");
@@ -84,7 +90,7 @@ public class ReviewServiceImpl implements ReviewService {
         );
 
         Review saved = reviewRepository.save(review);
-        log.info("Saved review {} for booking {} by customer {}", saved.getId(), booking.getId(), customerId);
+        log.info("Saved review {} for booking {} by customer {}", saved.getId(), booking.getId(), targetCustomerId);
         return reviewMapper.toResponse(saved);
     }
 
