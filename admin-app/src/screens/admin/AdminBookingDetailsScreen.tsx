@@ -441,6 +441,8 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: theme.colors.text,
     lineHeight: 18,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   reviewDetailNoComment: {
     fontSize: 12,

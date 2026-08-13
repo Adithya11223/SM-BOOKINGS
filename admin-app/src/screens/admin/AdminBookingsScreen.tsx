@@ -416,6 +416,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: theme.spacing.md,
     alignSelf: 'flex-start',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
   },
   reviewCardRatingText: {
     fontSize: 12,

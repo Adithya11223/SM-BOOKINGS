@@ -387,6 +387,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 4,
     alignSelf: 'flex-start',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
   },
   reviewedText: {
     fontSize: 12,
@@ -399,6 +401,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: theme.colors.textSecondary,
     marginLeft: 6,
+    flexShrink: 1,
   },
   servicePrice: {
     fontSize: theme.typography.body.fontSize,
