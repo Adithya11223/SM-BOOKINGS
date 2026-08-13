@@ -65,20 +65,13 @@ public class SecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public APIs
-                .requestMatchers("/error", "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/forgot-password", "/api/v1/auth/customer/login", "/api/v1/auth/customer/register").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/business").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/services/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/bookings").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/bookings/reference/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/fcm/token").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/notifications").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/notifications/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/notifications/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/reviews").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/services/*/reviews").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/services/*/rating-summary").permitAll()
+                .requestMatchers("/error", "/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/business/**").permitAll()
+                .requestMatchers("/api/v1/services/**").permitAll()
+                .requestMatchers("/api/v1/bookings/**").permitAll()
+                .requestMatchers("/api/v1/fcm/**").permitAll()
+                .requestMatchers("/api/v1/notifications/**").permitAll()
+                .requestMatchers("/api/v1/reviews/**", "/api/v1/reviews").permitAll()
                 
                 // Swagger / Actuator / WebSocket
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/api/health/**", "/ws/**").permitAll()
