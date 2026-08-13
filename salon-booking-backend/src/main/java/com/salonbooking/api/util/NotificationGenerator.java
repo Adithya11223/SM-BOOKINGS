@@ -11,7 +11,7 @@ public class NotificationGenerator {
 
     public Notification generateBookingCreatedNotification(Booking booking) {
         String services = booking.getItems().stream()
-                .map(item -> item.getService().getName())
+                .map(item -> item.getServiceNameSnapshot() != null ? item.getServiceNameSnapshot() : (item.getService() != null ? item.getService().getName() : "Service"))
                 .collect(Collectors.joining(", "));
                 
         return Notification.builder()
@@ -27,7 +27,7 @@ public class NotificationGenerator {
 
     public Notification generateBookingStatusUpdatedNotification(Booking booking) {
         String services = booking.getItems().stream()
-                .map(item -> item.getService().getName())
+                .map(item -> item.getServiceNameSnapshot() != null ? item.getServiceNameSnapshot() : (item.getService() != null ? item.getService().getName() : "Service"))
                 .collect(Collectors.joining(", "));
 
         String message;
