@@ -144,6 +144,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       if (nextAppState === 'active') {
         // App came to foreground -> sync with server as source of truth
         fetchNotifications();
+        if (expoPushToken && deviceId && user?.id) {
+          sendTokenToBackend(expoPushToken, deviceId, user.id);
+        }
       }
     };
     const appStateSub = AppState.addEventListener('change', handleAppStateChange);
