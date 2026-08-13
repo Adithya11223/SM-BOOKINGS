@@ -190,9 +190,10 @@ public class BookingServiceImpl implements BookingService {
         adminUpdate = bookingUpdateRepository.save(adminUpdate);
         savedBooking.getBookingUpdates().add(adminUpdate);
 
-        if (request.getDeviceId() != null) {
+        if (request.getDeviceId() != null && savedBooking.getCustomer() != null) {
+            final UUID custId = savedBooking.getCustomer().getId();
             fcmTokenRepository.findByDeviceId(request.getDeviceId()).ifPresent(token -> {
-                token.setCustomerId(customer.getId());
+                token.setCustomerId(custId);
                 fcmTokenRepository.save(token);
             });
         }
