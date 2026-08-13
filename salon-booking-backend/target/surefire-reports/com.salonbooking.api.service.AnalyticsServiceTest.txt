@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.salonbooking.api.service.AnalyticsServiceTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.salonbooking.api.service.AnalyticsServiceTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.salonbooking.api.service.AnalyticsServiceTest

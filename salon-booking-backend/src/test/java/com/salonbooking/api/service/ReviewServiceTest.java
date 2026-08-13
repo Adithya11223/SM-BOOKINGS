@@ -43,6 +43,9 @@ public class ReviewServiceTest {
     private ServiceRepository serviceRepository;
 
     @Mock
+    private com.salonbooking.api.repository.CustomerRepository customerRepository;
+
+    @Mock
     private ReviewMapper reviewMapper;
 
     @Mock

@@ -31,6 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookingRepository bookingRepository;
     private final ServiceRepository serviceRepository;
+    private final com.salonbooking.api.repository.CustomerRepository customerRepository;
     private final ReviewMapper reviewMapper;
     private final com.salonbooking.api.mapper.BookingMapper bookingMapper;
     private final com.salonbooking.api.repository.NotificationRepository notificationRepository;
@@ -40,6 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewServiceImpl(ReviewRepository reviewRepository,
                              BookingRepository bookingRepository,
                              ServiceRepository serviceRepository,
+                             com.salonbooking.api.repository.CustomerRepository customerRepository,
                              ReviewMapper reviewMapper,
                              com.salonbooking.api.mapper.BookingMapper bookingMapper,
                              com.salonbooking.api.repository.NotificationRepository notificationRepository,
@@ -48,6 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
         this.reviewRepository = reviewRepository;
         this.bookingRepository = bookingRepository;
         this.serviceRepository = serviceRepository;
+        this.customerRepository = customerRepository;
         this.reviewMapper = reviewMapper;
         this.bookingMapper = bookingMapper;
         this.notificationRepository = notificationRepository;
@@ -69,8 +72,28 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException("Booking has no associated customer");
         }
 
-        if (customerId != null && !booking.getCustomer().getId().equals(customerId)) {
-            throw new BusinessException("You can only review your own bookings");
+        if (customerId != null) {
+            boolean isOwner = booking.getCustomer().getId().equals(customerId);
+            if (!isOwner) {
+                com.salonbooking.api.entity.Customer loggedInCustomer = customerRepository.findById(customerId).orElse(null);
+                if (loggedInCustomer != null && loggedInCustomer.getPhoneNumber() != null && booking.getCustomer().getPhoneNumber() != null) {
+                    String p1 = loggedInCustomer.getPhoneNumber().replaceAll("[^0-9]", "");
+                    String p2 = booking.getCustomer().getPhoneNumber().replaceAll("[^0-9]", "");
+                    if (!p1.isEmpty() && p1.equals(p2)) {
+                        isOwner = true;
+                    }
+                }
+            }
+            if (!isOwner) {
+                boolean isAdmin = false;
+                org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getAuthorities() != null) {
+                    isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                }
+                if (!isAdmin) {
+                    throw new BusinessException("You can only review your own bookings");
+                }
+            }
         }
 
         UUID targetCustomerId = booking.getCustomer().getId();
