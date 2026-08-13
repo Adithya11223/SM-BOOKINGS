@@ -204,13 +204,13 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.sm,
   },
   logoCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: `${theme.colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 10,
     overflow: 'hidden',
   },
   logoImage: {
@@ -218,12 +218,13 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   shopName: {
-    fontSize: theme.typography.subtitle.fontSize,
+    fontSize: 15,
     fontWeight: '800',
     color: theme.colors.primary,
+    lineHeight: 18,
     marginBottom: 2,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   greeting: {
     fontSize: theme.typography.bodySmall.fontSize,

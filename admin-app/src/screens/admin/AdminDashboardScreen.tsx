@@ -128,39 +128,29 @@ export default function AdminDashboardScreen({ navigation }: Props) {
                 />
               )}
             </View>
-            <View style={{ flex: 1, paddingRight: 8 }}>
-              <Text style={styles.businessName} numberOfLines={2}>SHREE MATHA BEAUTY PARLOR</Text>
+            <View style={styles.businessNameContainer}>
+              <Text style={styles.businessName}>
+                {businessSettings?.businessName || 'SHREE MATHA BEAUTY PARLOR'}
+              </Text>
             </View>
           </View>
         </View>
         
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={styles.headerRightActions}>
           <TouchableOpacity 
             style={styles.notificationBtn}
             onPress={() => setAnnouncementVisible(true)}
           >
-            <MaterialIcons name="campaign" size={28} color={theme.colors.primary} />
+            <MaterialIcons name="campaign" size={24} color={theme.colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.notificationBtn, { position: 'relative' }]}
             onPress={() => navigation.navigate('Notifications' as any)}
           >
-            <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
+            <MaterialIcons name="notifications-none" size={24} color={theme.colors.text} />
             {unreadCount > 0 && (
-              <View style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                backgroundColor: theme.colors.error,
-                borderRadius: 10,
-                minWidth: 18,
-                height: 18,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderWidth: 1.5,
-                borderColor: theme.colors.background,
-              }}>
-                <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </Text>
               </View>
@@ -369,14 +359,20 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   notificationBtn: {
-    padding: theme.spacing.sm,
+    padding: 7,
     backgroundColor: theme.colors.surface,
     borderRadius: 50,
   },
   greeting: {
-    fontSize: theme.typography.body.fontSize,
+    fontSize: theme.typography.bodySmall.fontSize,
     color: theme.colors.textSecondary,
     marginBottom: 4,
   },
@@ -385,23 +381,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: `${theme.colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 10,
     overflow: 'hidden',
   },
   logoImage: {
     width: '100%',
     height: '100%',
   },
+  businessNameContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   businessName: {
-    fontSize: theme.typography.subtitle.fontSize,
+    fontSize: 15,
     fontWeight: '800',
     color: theme.colors.text,
+    lineHeight: 18,
+    letterSpacing: 0.3,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: theme.colors.error,
+    borderRadius: 9,
+    minWidth: 17,
+    height: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: theme.colors.background,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: 'bold',
   },
   content: {
     padding: theme.spacing.lg,
