@@ -50,12 +50,6 @@ public class FcmTokenController {
     @PostMapping("/token")
     @Operation(summary = "Register FCM Token", description = "Registers or updates a device FCM token with authenticated identity")
     public ResponseEntity<ApiResponse<Void>> registerToken(@RequestBody FcmTokenRequest request) {
-        UserDetailsImpl user = getAuthenticatedUser();
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("Authentication required to register device token"));
-        }
-
         if (request.getDeviceId() == null || request.getDeviceId().isBlank()) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Device ID is required"));
         }
@@ -64,11 +58,24 @@ public class FcmTokenController {
             return ResponseEntity.badRequest().body(ApiResponse.error("FCM Token is required"));
         }
 
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        String receiverType = isAdmin ? "ADMIN" : "CUSTOMER";
-        UUID customerId = isAdmin ? null : user.getId();
-        UUID adminId = isAdmin ? user.getId() : null;
+        UserDetailsImpl user = getAuthenticatedUser();
+        String receiverType = "CUSTOMER";
+        UUID customerId = null;
+        UUID adminId = null;
+
+        if (user != null) {
+            boolean isAdmin = user.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            receiverType = isAdmin ? "ADMIN" : "CUSTOMER";
+            customerId = isAdmin ? null : user.getId();
+            adminId = isAdmin ? user.getId() : null;
+        } else if ("ADMIN".equalsIgnoreCase(request.getReceiverType())) {
+            receiverType = "ADMIN";
+            adminId = request.getAdminId();
+        } else if (request.getCustomerId() != null) {
+            receiverType = "CUSTOMER";
+            customerId = request.getCustomerId();
+        }
 
         log.info("Received FCM token registration for device: {} (user: {}, role: {})", 
                 request.getDeviceId(), user.getId(), receiverType);
