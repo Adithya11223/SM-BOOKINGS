@@ -11,11 +11,17 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sm-bookings.onrender.com/api/v1"
       }
     },
     "production": {
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.smsaloon.com/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://sm-bookings.onrender.com/api/v1"
       }
     }
   },
