@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -12,6 +12,7 @@ import { StatusBadge } from '../components/badges/StatusBadge';
 import { SectionHeader } from '../components/typography/SectionHeader';
 import { EmptyState } from '../components/states/EmptyState';
 import { MaterialIcons } from '@expo/vector-icons';
+import { ReviewModal } from '../components/overlays/ReviewModal';
 
 import { useBookings, useNotifications } from '../hooks/';
 
@@ -25,6 +26,7 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
   const initialBooking = bookings.find(b => b.id === bookingId);
   const [booking, setBooking] = useState<Booking | undefined>(initialBooking);
   const [isLoading, setIsLoading] = useState(!initialBooking);
+  const [selectedReviewService, setSelectedReviewService] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     // Mark booking updates and notifications as read immediately on visit
@@ -154,6 +156,16 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
               <View style={styles.serviceInfo}>
                 <Text style={styles.serviceName}>{item.service.name}</Text>
                 <Text style={styles.serviceQty}>Qty: {item.quantity}</Text>
+                {booking.status === 'completed' && (
+                  <TouchableOpacity
+                    style={styles.reviewBtn}
+                    onPress={() => setSelectedReviewService({ id: item.service.id, name: item.service.name })}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons name="star-rate" size={16} color="#FFD700" />
+                    <Text style={styles.reviewBtnText}>Leave Review</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               <Text style={styles.servicePrice}>₹{(item.service.price * item.quantity).toFixed(2)}</Text>
             </View>
@@ -164,6 +176,16 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
           </View>
         </View>
 
+        {selectedReviewService && (
+          <ReviewModal
+            visible={!!selectedReviewService}
+            bookingId={booking.id}
+            serviceId={selectedReviewService.id}
+            serviceName={selectedReviewService.name}
+            onClose={() => setSelectedReviewService(null)}
+            onSuccess={() => setSelectedReviewService(null)}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -353,5 +375,21 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.h3.fontSize,
     fontWeight: '700',
     color: theme.colors.primary,
+  },
+  reviewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    backgroundColor: '#FFF9C4',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  reviewBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#F57F17',
+    marginLeft: 4,
   },
 });

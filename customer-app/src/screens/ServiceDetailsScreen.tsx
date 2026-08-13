@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../hooks/';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -9,12 +9,36 @@ import { TopAppBar } from '../components/navigation/TopAppBar';
 import { Button } from '../components/buttons/Button';
 import { PriceBadge } from '../components/badges/PriceBadge';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getServiceRatingSummary, getServiceReviews, ServiceRatingSummary, ReviewResponse } from '../api/ReviewService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ServiceDetails'>;
 
 export default function ServiceDetailsScreen({ route, navigation }: Props) {
   const { service } = route.params;
   const { addToCart } = useCart();
+
+  const [summary, setSummary] = useState<ServiceRatingSummary | null>(null);
+  const [reviews, setReviews] = useState<ReviewResponse[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadReviewsData = async () => {
+      try {
+        setLoadingReviews(true);
+        const [sumData, revData] = await Promise.all([
+          getServiceRatingSummary(service.id),
+          getServiceReviews(service.id),
+        ]);
+        setSummary(sumData);
+        setReviews(revData);
+      } catch (e) {
+        console.log('Error loading reviews:', e);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    loadReviewsData();
+  }, [service.id]);
 
   const handleAddToCart = () => {
     addToCart(service);
@@ -48,6 +72,14 @@ export default function ServiceDetailsScreen({ route, navigation }: Props) {
             </View>
           </View>
 
+          {summary && summary.reviewCount > 0 && (
+            <View style={styles.ratingBox}>
+              <MaterialIcons name="star" size={20} color="#FFD700" />
+              <Text style={styles.avgRatingText}>{summary.averageRating.toFixed(1)}</Text>
+              <Text style={styles.reviewCountText}>({summary.reviewCount} {summary.reviewCount === 1 ? 'review' : 'reviews'})</Text>
+            </View>
+          )}
+
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.description}>{service.description}</Text>
 
@@ -61,6 +93,32 @@ export default function ServiceDetailsScreen({ route, navigation }: Props) {
                 </View>
               ))}
             </>
+          )}
+
+          <Text style={styles.sectionTitle}>Customer Reviews</Text>
+          {loadingReviews ? (
+            <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginVertical: 10 }} />
+          ) : reviews.length === 0 ? (
+            <Text style={styles.noReviewsText}>No reviews yet for this service.</Text>
+          ) : (
+            reviews.map((rev) => (
+              <View key={rev.id} style={styles.reviewCard}>
+                <View style={styles.reviewHeader}>
+                  <Text style={styles.reviewerName}>{rev.customerName || 'Customer'}</Text>
+                  <View style={styles.starRowInline}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <MaterialIcons
+                        key={s}
+                        name={s <= rev.rating ? 'star' : 'star-border'}
+                        size={14}
+                        color="#FFD700"
+                      />
+                    ))}
+                  </View>
+                </View>
+                {rev.comment ? <Text style={styles.reviewComment}>{rev.comment}</Text> : null}
+              </View>
+            ))
           )}
         </View>
       </ScrollView>
@@ -149,6 +207,57 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
     fontSize: theme.typography.body.fontSize,
     color: theme.colors.text,
+  },
+  ratingBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.sm,
+  },
+  avgRatingText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text,
+    marginLeft: 4,
+  },
+  reviewCountText: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    marginLeft: 6,
+  },
+  noReviewsText: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    fontStyle: 'italic',
+    marginVertical: 6,
+  },
+  reviewCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  reviewerName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  starRowInline: {
+    flexDirection: 'row',
+  },
+  reviewComment: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+    marginTop: 4,
+    lineHeight: 18,
   },
   footer: {
     padding: theme.spacing.lg,

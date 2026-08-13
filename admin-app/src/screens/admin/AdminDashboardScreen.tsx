@@ -10,6 +10,7 @@ import { AdminRootStackParamList } from '../../navigation/admin/AdminTypes';
 import { theme, shadows } from '../../theme';
 import { SkeletonLoader } from '../../components/states/SkeletonLoader';
 import { AnnouncementDialog } from '../../components/overlays/AnnouncementDialog';
+import { AnalyticsService, AdminAnalyticsOverview } from '../../api/AnalyticsService';
 
 type Props = {
   navigation: NativeStackNavigationProp<AdminRootStackParamList, 'AdminMainTabs'>;
@@ -23,11 +24,33 @@ export default function AdminDashboardScreen({ navigation }: Props) {
   const [announcementVisible, setAnnouncementVisible] = useState(false);
   const { unreadCount } = useNotifications();
 
-  const initialLoading = appConfigLoading || bookingsLoading;
+  const [analytics, setAnalytics] = useState<AdminAnalyticsOverview | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState(false);
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      setAnalyticsError(false);
+      const data = await AnalyticsService.getOverview();
+      setAnalytics(data);
+    } catch (err) {
+      console.error('Failed to fetch analytics from backend:', err);
+      setAnalyticsError(true);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const initialLoading = appConfigLoading || bookingsLoading || analyticsLoading;
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refreshSettings(), refreshBookings()]);
+    await Promise.all([refreshSettings(), refreshBookings(), fetchAnalytics()]);
     setRefreshing(false);
   };
 
@@ -44,23 +67,18 @@ export default function AdminDashboardScreen({ navigation }: Props) {
 
   const todayStr = getLocalFormattedDate(new Date());
   const todaysBookings = bookings.filter(b => b.date.startsWith(todayStr));
-  const revenueToday = todaysBookings
+  const fallbackRevenueToday = todaysBookings
     .filter(b => b.status === 'completed' || b.status === 'confirmed')
     .reduce((sum, b) => sum + b.totalPrice, 0);
-  const pendingRequests = bookings.filter(b => b.status === 'pending').length;
-  const completedToday = todaysBookings.filter(b => b.status === 'completed').length;
 
-  const currentMonthStr = todayStr.substring(0, 7); // e.g., '2023-10'
-  const monthlyBookings = bookings.filter(b => b.date.startsWith(currentMonthStr));
-  const monthlyRevenue = monthlyBookings
-    .filter(b => b.status === 'completed' || b.status === 'confirmed')
-    .reduce((sum, b) => sum + b.totalPrice, 0);
-  
-  const monthlyTotalCount = monthlyBookings.length;
-  const monthlyCancelledCount = monthlyBookings.filter(b => b.status === 'cancelled').length;
-  const cancellationRate = monthlyTotalCount === 0 ? 0 : Math.round((monthlyCancelledCount / monthlyTotalCount) * 100);
-  
-  const activeWorkload = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length;
+  const displayTodayRevenue = analytics ? analytics.todayRevenue : fallbackRevenueToday;
+  const displayPendingRequests = analytics ? analytics.pendingBookings : bookings.filter(b => b.status === 'pending').length;
+  const displayCompletedToday = analytics ? analytics.completedBookings : todaysBookings.filter(b => b.status === 'completed').length;
+  const displayMonthlyRevenue = analytics ? analytics.currentMonthRevenue : bookings.filter(b => b.status === 'completed' || b.status === 'confirmed').reduce((sum, b) => sum + b.totalPrice, 0);
+  const displayTotalBookings = analytics ? analytics.totalBookings : bookings.length;
+  const displayCancellationRate = analytics ? analytics.cancellationRate : (bookings.length === 0 ? 0 : Math.round((bookings.filter(b => b.status === 'cancelled').length / bookings.length) * 100));
+  const displayCompletionRate = analytics ? analytics.completionRate : (bookings.length === 0 ? 0 : Math.round((bookings.filter(b => b.status === 'completed').length / bookings.length) * 100));
+  const activeWorkload = analytics ? (analytics.pendingBookings + analytics.confirmedBookings) : bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length;
 
   const last7Days = Array.from({length: 7}, (_, i) => {
     const d = new Date();
@@ -68,17 +86,21 @@ export default function AdminDashboardScreen({ navigation }: Props) {
     return getLocalFormattedDate(d);
   });
 
-  const revenueData = last7Days.map(dateStr => {
-    const dayBookings = bookings.filter(b => b.date.startsWith(dateStr) && (b.status === 'completed' || b.status === 'confirmed'));
-    return dayBookings.reduce((sum, b) => sum + b.totalPrice, 0);
-  });
+  const revenueData = analytics && analytics.revenueTrend && analytics.revenueTrend.length === 7
+    ? analytics.revenueTrend.map(t => t.revenue)
+    : last7Days.map(dateStr => {
+        const dayBookings = bookings.filter(b => b.date.startsWith(dateStr) && (b.status === 'completed' || b.status === 'confirmed'));
+        return dayBookings.reduce((sum, b) => sum + b.totalPrice, 0);
+      });
 
   const maxRevenue = Math.max(...revenueData, 1);
   const chartHeights = revenueData.map(r => (r / maxRevenue) * 100);
-  const dayLabels = last7Days.map(d => {
-    const date = new Date(d);
-    return ['S','M','T','W','T','F','S'][date.getDay()];
-  });
+  const dayLabels = analytics && analytics.revenueTrend && analytics.revenueTrend.length === 7
+    ? analytics.revenueTrend.map(t => t.dayLabel)
+    : last7Days.map(d => {
+        const date = new Date(d);
+        return ['S','M','T','W','T','F','S'][date.getDay()];
+      });
 
   const StatCard = ({ title, value, icon, color, delay = 0, onPress }: any) => (
     <MotiView 
@@ -174,35 +196,35 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           <View style={styles.statsGrid}>
             <StatCard 
               title="Today's Revenue" 
-              value={`₹${revenueToday.toFixed(2)}`} 
+              value={`₹${Number(displayTodayRevenue).toFixed(2)}`} 
               icon="attach-money" 
               color={theme.colors.success} 
               delay={0}
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: todayStr, initialToDate: todayStr })}
             />
             <StatCard 
-              title="Today's Bookings" 
-              value={todaysBookings.length.toString()} 
-              icon="event" 
+              title="Completion Rate" 
+              value={`${displayCompletionRate}%`} 
+              icon="check-circle-outline" 
               color={theme.colors.primary} 
               delay={100}
-              onPress={() => navigation.navigate('BookingHistory', { initialFromDate: todayStr, initialToDate: todayStr })}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
             />
             <StatCard 
               title="Pending Requests" 
-              value={pendingRequests.toString()} 
+              value={displayPendingRequests.toString()} 
               icon="pending-actions" 
               color="#FF9800" 
               delay={200}
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'pending' })}
             />
             <StatCard 
-              title="Completed Today" 
-              value={completedToday.toString()} 
+              title="Completed Bookings" 
+              value={displayCompletedToday.toString()} 
               icon="check-circle" 
               color={theme.colors.success} 
               delay={300}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: todayStr, initialToDate: todayStr })}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
             />
           </View>
         )}
@@ -224,27 +246,27 @@ export default function AdminDashboardScreen({ navigation }: Props) {
           <View style={styles.statsGrid}>
             <StatCard 
               title="Monthly Revenue" 
-              value={`₹${monthlyRevenue.toFixed(2)}`} 
+              value={`₹${Number(displayMonthlyRevenue).toFixed(2)}`} 
               icon="account-balance-wallet" 
               color={theme.colors.success} 
               delay={0}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: `${currentMonthStr}-01` })}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
             />
             <StatCard 
               title="Total Bookings" 
-              value={monthlyTotalCount.toString()} 
+              value={displayTotalBookings.toString()} 
               icon="library-books" 
               color={theme.colors.primary} 
               delay={100}
-              onPress={() => navigation.navigate('BookingHistory', { initialFromDate: `${currentMonthStr}-01` })}
+              onPress={() => navigation.navigate('BookingHistory')}
             />
             <StatCard 
               title="Cancellation Rate" 
-              value={`${cancellationRate}%`} 
+              value={`${displayCancellationRate}%`} 
               icon="cancel" 
               color={theme.colors.error} 
               delay={200}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'cancelled', initialFromDate: `${currentMonthStr}-01` })}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'cancelled' })}
             />
             <StatCard 
               title="Active Workload" 
@@ -255,6 +277,50 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'active' })}
             />
           </View>
+        )}
+
+        {/* Customer Metrics Section */}
+        {analytics && (
+          <>
+            <Text style={styles.sectionTitle}>Customer Insights</Text>
+            <View style={styles.statsGrid}>
+              <StatCard 
+                title="Total Customers" 
+                value={analytics.totalCustomers.toString()} 
+                icon="people" 
+                color={theme.colors.primary} 
+                delay={0}
+              />
+              <StatCard 
+                title="Repeat Customers" 
+                value={analytics.repeatCustomers.toString()} 
+                icon="repeat" 
+                color={theme.colors.success} 
+                delay={100}
+              />
+            </View>
+          </>
+        )}
+
+        {/* Popular Services Section */}
+        {analytics && analytics.popularServices && analytics.popularServices.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Top Popular Services</Text>
+            <View style={styles.popularServicesContainer}>
+              {analytics.popularServices.map((service, index) => (
+                <View key={service.serviceId || index} style={styles.popularServiceRow}>
+                  <View style={styles.popularServiceRank}>
+                    <Text style={styles.popularServiceRankText}>#{index + 1}</Text>
+                  </View>
+                  <View style={styles.popularServiceInfo}>
+                    <Text style={styles.popularServiceName} numberOfLines={1}>{service.serviceName}</Text>
+                    <Text style={styles.popularServiceSubtext}>{service.bookingCount} bookings</Text>
+                  </View>
+                  <Text style={styles.popularServiceRevenue}>₹{Number(service.revenueGenerated).toFixed(2)}</Text>
+                </View>
+              ))}
+            </View>
+          </>
         )}
 
         <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -296,7 +362,7 @@ export default function AdminDashboardScreen({ navigation }: Props) {
         </MotiView>
 
         <View style={styles.headerRow}>
-          <Text style={styles.sectionTitle}>Revenue Chart</Text>
+          <Text style={styles.sectionTitle}>Revenue Chart (Last 7 Days)</Text>
           <TouchableOpacity onPress={() => navigation.navigate('BookingHistory')}>
             <Text style={styles.linkText}>View History</Text>
           </TouchableOpacity>
@@ -516,6 +582,52 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: theme.colors.textSecondary,
     marginTop: 8,
-  }
+  },
+  popularServicesContainer: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
+    ...shadows.medium,
+  },
+  popularServiceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: `${theme.colors.border}50`,
+  },
+  popularServiceRank: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: `${theme.colors.primary}15`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: theme.spacing.sm,
+  },
+  popularServiceRankText: {
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '700',
+    color: theme.colors.primary,
+  },
+  popularServiceInfo: {
+    flex: 1,
+    marginRight: theme.spacing.sm,
+  },
+  popularServiceName: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  popularServiceSubtext: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.textSecondary,
+  },
+  popularServiceRevenue: {
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: '700',
+    color: theme.colors.success,
+  },
 });
 
