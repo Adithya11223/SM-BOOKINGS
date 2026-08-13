@@ -49,12 +49,11 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 
         List<Map<String, Object>> messages = new ArrayList<>();
         for (FcmToken fcmToken : tokens) {
-            String token = fcmToken.getToken();
-            if (token == null || token.isBlank()) {
+            if (fcmToken == null || fcmToken.getToken() == null || fcmToken.getToken().isBlank()) {
                 continue;
             }
             // Support ExponentPushToken[...], ExpoPushToken[...], or any Expo format
-            String trimmedToken = token.trim();
+            String trimmedToken = fcmToken.getToken().trim();
             if (!trimmedToken.startsWith("ExponentPushToken[") && !trimmedToken.startsWith("ExpoPushToken[") && !trimmedToken.contains("PushToken[")) {
                 log.warn("Skipping non-Expo push token format: {}", trimmedToken);
                 continue;
