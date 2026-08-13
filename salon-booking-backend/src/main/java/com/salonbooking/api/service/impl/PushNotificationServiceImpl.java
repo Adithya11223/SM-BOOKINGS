@@ -30,63 +30,79 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         List<FcmToken> tokens;
 
         if ("ADMIN".equalsIgnoreCase(notification.getReceiverType())) {
-            tokens = fcmTokenRepository.findByAdminIdIsNotNull();
+            tokens = fcmTokenRepository.findAdminTokens();
+            log.info("Found {} admin push token(s)", tokens.size());
         } else {
             if (notification.getReceiverId() != null) {
                 tokens = fcmTokenRepository.findByCustomerId(notification.getReceiverId());
+                if (tokens.isEmpty()) {
+                    log.info("No tokens found for customerId {}, falling back to all customer tokens", notification.getReceiverId());
+                    tokens = fcmTokenRepository.findCustomerTokens();
+                }
             } else {
-                tokens = fcmTokenRepository.findByAdminIdIsNull();
+                tokens = fcmTokenRepository.findCustomerTokens();
             }
+            log.info("Found {} customer push token(s)", tokens.size());
         }
 
         if (tokens.isEmpty()) {
-            log.info("No FCM tokens found for receiver. Skipping push notification.");
+            log.info("No push tokens found for receiverType={} receiverId={}. Skipping push notification.", 
+                    notification.getReceiverType(), notification.getReceiverId());
             return;
         }
 
         List<Map<String, Object>> messages = new ArrayList<>();
         for (FcmToken fcmToken : tokens) {
             String token = fcmToken.getToken();
-            if (token == null || !token.startsWith("ExponentPushToken[")) {
-                log.warn("Invalid Expo push token format: {}", token);
+            if (token == null || token.isBlank()) {
+                continue;
+            }
+            // Support ExponentPushToken[...], ExpoPushToken[...], or any Expo format
+            String trimmedToken = token.trim();
+            if (!trimmedToken.startsWith("ExponentPushToken[") && !trimmedToken.startsWith("ExpoPushToken[") && !trimmedToken.contains("PushToken[")) {
+                log.warn("Skipping non-Expo push token format: {}", trimmedToken);
                 continue;
             }
 
             Map<String, Object> message = new HashMap<>();
-            message.put("to", token);
+            message.put("to", trimmedToken);
             message.put("sound", "default");
             message.put("title", notification.getTitle());
             message.put("body", notification.getMessage());
+            message.put("channelId", "default");
+            message.put("priority", "high");
+            message.put("_displayInForeground", true);
 
             Map<String, String> data = new HashMap<>();
-            data.put("notificationType", notification.getType().name());
+            data.put("notificationType", notification.getType() != null ? notification.getType().name() : "GENERAL");
             data.put("bookingId", notification.getBooking() != null ? notification.getBooking().getId().toString() : "");
-            data.put("screen", notification.getBooking() != null ? (notification.getReceiverType().equals("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications");
+            data.put("screen", notification.getBooking() != null ? (notification.getReceiverType().equalsIgnoreCase("ADMIN") ? "AdminBookingDetails" : "BookingDetails") : "Notifications");
             message.put("data", data);
 
             messages.add(message);
         }
 
         if (messages.isEmpty()) {
+            log.warn("No valid Expo push tokens found after filtering");
             return;
         }
 
         try {
-            // Read optional FCM server key from environment (used by some back‑ends). Not required by Expo Push but kept for future use.
-            String fcmServerKey = System.getenv("FCM_SERVER_KEY");
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "application/json");
-            if (fcmServerKey != null && !fcmServerKey.isBlank()) {
-                headers.set("Authorization", "key=" + fcmServerKey);
+
+            // Optional Expo Access Token if configured
+            String expoAccessToken = System.getenv("EXPO_ACCESS_TOKEN");
+            if (expoAccessToken != null && !expoAccessToken.isBlank()) {
+                headers.set("Authorization", "Bearer " + expoAccessToken.trim());
             }
 
             HttpEntity<List<Map<String, Object>>> request = new HttpEntity<>(messages, headers);
             String response = restTemplate.postForObject("https://exp.host/--/api/v2/push/send", request, String.class);
-            log.info("Sent Expo Push notifications. Response: {}", response);
+            log.info("Successfully pushed {} notification(s) via Expo. Response: {}", messages.size(), response);
         } catch (Exception e) {
-            log.error("Failed to send Expo push notifications", e);
-            // If the exception contains a response body, log it for debugging
+            log.error("Failed to send Expo push notifications: {}", e.getMessage(), e);
             if (e.getCause() != null) {
                 log.error("Underlying cause: {}", e.getCause().getMessage());
             }

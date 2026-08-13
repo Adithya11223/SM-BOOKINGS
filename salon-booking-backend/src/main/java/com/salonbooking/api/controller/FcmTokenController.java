@@ -62,16 +62,19 @@ public class FcmTokenController {
             fcmToken.setToken(request.getToken());
             fcmToken.setCustomerId(request.getCustomerId());
             fcmToken.setAdminId(request.getAdminId());
+            fcmToken.setReceiverType(request.getReceiverType() != null ? request.getReceiverType().toUpperCase() : "CUSTOMER");
         } else {
             fcmToken = FcmToken.builder()
                     .token(request.getToken())
                     .deviceId(request.getDeviceId())
                     .customerId(request.getCustomerId())
                     .adminId(request.getAdminId())
+                    .receiverType(request.getReceiverType() != null ? request.getReceiverType().toUpperCase() : "CUSTOMER")
                     .build();
         }
 
         fcmTokenRepository.save(fcmToken);
+        log.info("Saved FCM token for device {} (type: {})", request.getDeviceId(), fcmToken.getReceiverType());
         return ResponseEntity.ok(ApiResponse.success(null, "Token registered successfully"));
     }
 }

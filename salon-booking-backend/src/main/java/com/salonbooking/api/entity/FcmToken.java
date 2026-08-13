@@ -31,4 +31,7 @@ public class FcmToken extends BaseEntity {
 
     @Column(name = "customer_id")
     private UUID customerId;
+
+    @Column(name = "receiver_type")
+    private String receiverType;
 }
