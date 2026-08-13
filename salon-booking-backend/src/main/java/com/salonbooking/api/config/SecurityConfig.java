@@ -66,7 +66,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public APIs
-                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/forgot-password", "/api/v1/auth/customer/login", "/api/v1/auth/customer/register").permitAll()
+                .requestMatchers("/error", "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/forgot-password", "/api/v1/auth/customer/login", "/api/v1/auth/customer/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/business").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/services/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/bookings").permitAll()
