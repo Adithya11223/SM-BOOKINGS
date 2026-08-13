@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api/axios';
 import { webSocketService } from '../api/WebSocketService';
@@ -138,6 +138,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchNotifications();
 
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        // App came to foreground -> sync with server as source of truth
+        fetchNotifications();
+      }
+    };
+    const appStateSub = AppState.addEventListener('change', handleAppStateChange);
+
     webSocketService.connect();
     
     const handleWsNotification = (parsed: any) => {
@@ -154,29 +162,42 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       setNotifications(prev => {
         const exists = prev.find(n => n.id === item.id);
         if (exists) {
-          return prev.map(n => n.id === item.id ? item : n);
+          return prev.map(n => n.id === item.id ? { ...n, ...item } : n);
         }
         return [item, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       });
 
-      // Trigger local push notification banner in foreground
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: item.title,
-          body: item.message,
-          data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
-          sound: true,
-        },
-        trigger: null,
-      }).catch(() => {});
+      // Only trigger local push notification banner in foreground if unread
+      if (!item.isRead) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: item.title,
+            body: item.message,
+            data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
+            sound: true,
+          },
+          trigger: null,
+        }).catch(() => {});
+      }
     };
 
     const adminTopic = `/topic/admin/notifications`;
     webSocketService.subscribe(adminTopic, handleWsNotification);
 
     return () => {
+      appStateSub.remove();
       webSocketService.unsubscribe(adminTopic, handleWsNotification);
     };
+  }, [user?.id, deviceId]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setNotifications([]);
+      Notifications.setBadgeCountAsync(0).catch(() => {});
+      if (deviceId) {
+        api.post('/fcm/token/unregister', { deviceId }).catch(() => {});
+      }
+    }
   }, [user?.id, deviceId]);
 
   const registerForPushNotificationsAsync = async () => {

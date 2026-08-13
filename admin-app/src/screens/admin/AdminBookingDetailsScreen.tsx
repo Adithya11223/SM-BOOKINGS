@@ -11,6 +11,7 @@ import { TopAppBar } from '../../components/navigation/TopAppBar';
 import { StatusBadge } from '../../components/badges/StatusBadge';
 import { SectionHeader } from '../../components/typography/SectionHeader';
 import { Button } from '../../components/buttons/Button';
+import { EmptyState } from '../../components/states/EmptyState';
 import { MotiView } from 'moti';
 
 import { useBookings, useNotifications } from '../../hooks/';
@@ -64,9 +65,13 @@ export default function AdminBookingDetailsScreen({ route, navigation }: Props) 
     return (
       <SafeAreaView style={styles.container}>
         <TopAppBar title="Details" onBackPress={() => navigation.goBack()} />
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Booking not found.</Text>
-        </View>
+        <EmptyState 
+          icon="event-busy"
+          title="Booking No Longer Active"
+          description="This booking has been cancelled, completed, or is no longer available."
+          actionTitle="Back to Bookings"
+          onAction={() => navigation.goBack()}
+        />
       </SafeAreaView>
     );
   }

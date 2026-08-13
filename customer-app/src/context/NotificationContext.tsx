@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api/axios';
 import { webSocketService } from '../api/WebSocketService';
@@ -138,6 +138,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchNotifications();
 
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        // App came to foreground -> sync with server as source of truth
+        fetchNotifications();
+      }
+    };
+    const appStateSub = AppState.addEventListener('change', handleAppStateChange);
+
     const receiverId = user?.id || deviceId;
     
     // Always connect to WebSockets so that Bookings, Services, and Business Config get real-time updates
@@ -157,21 +165,23 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       setNotifications(prev => {
         const exists = prev.find(n => n.id === item.id);
         if (exists) {
-          return prev.map(n => n.id === item.id ? item : n);
+          return prev.map(n => n.id === item.id ? { ...n, ...item } : n);
         }
         return [item, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       });
 
-      // Trigger local push notification banner in foreground
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: item.title,
-          body: item.message,
-          data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
-          sound: true,
-        },
-        trigger: null,
-      }).catch(() => {});
+      // Only trigger local push notification banner if the notification is unread (not a read receipt sync)
+      if (!item.isRead) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: item.title,
+            body: item.message,
+            data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
+            sound: true,
+          },
+          trigger: null,
+        }).catch(() => {});
+      }
     };
 
     const broadcastTopic = `/topic/customer/all/notifications`;
@@ -184,12 +194,23 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return () => {
+      appStateSub.remove();
       webSocketService.unsubscribe(broadcastTopic, handleWsNotification);
       if (privateTopic) {
         webSocketService.unsubscribe(privateTopic, handleWsNotification);
       }
     };
   }, [isSignedIn, deviceId, user?.id]);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setNotifications([]);
+      Notifications.setBadgeCountAsync(0).catch(() => {});
+      if (deviceId) {
+        api.post('/fcm/token/unregister', { deviceId }).catch(() => {});
+      }
+    }
+  }, [isSignedIn, deviceId]);
 
   const registerForPushNotificationsAsync = async () => {
     let token;

@@ -77,4 +77,18 @@ public class FcmTokenController {
         log.info("Saved FCM token for device {} (type: {})", request.getDeviceId(), fcmToken.getReceiverType());
         return ResponseEntity.ok(ApiResponse.success(null, "Token registered successfully"));
     }
+
+    @PostMapping("/token/unregister")
+    @Operation(summary = "Unregister FCM Token", description = "Detaches or removes a device FCM token on logout")
+    public ResponseEntity<ApiResponse<Void>> unregisterToken(@RequestBody FcmTokenRequest request) {
+        log.info("Received FCM token unregistration for device: {}", request.getDeviceId());
+        if (request.getDeviceId() != null) {
+            fcmTokenRepository.findByDeviceId(request.getDeviceId()).ifPresent(fcmToken -> {
+                fcmToken.setCustomerId(null);
+                fcmToken.setAdminId(null);
+                fcmTokenRepository.save(fcmToken);
+            });
+        }
+        return ResponseEntity.ok(ApiResponse.success(null, "Token unregistered successfully"));
+    }
 }
