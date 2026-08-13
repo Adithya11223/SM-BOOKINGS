@@ -22,12 +22,25 @@ export const formatDate = (dateString: string): string => {
 /**
  * Formats an ISO date string into a localized time string
  */
-export const formatTime = (dateString: string): string => {
-  return new Date(dateString).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+export const formatTime = (timeInput: string): string => {
+  if (!timeInput) return '';
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(timeInput)) {
+    const parts = timeInput.split(':');
+    let hour = parseInt(parts[0], 10);
+    const minute = parts[1];
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${ampm}`;
+  }
+  try {
+    return new Date(timeInput).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    return timeInput;
+  }
 };
 
 /**

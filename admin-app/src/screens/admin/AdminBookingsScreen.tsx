@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { AdminTabParamList } from '../../navigation/admin/AdminTypes';
 import { theme, shadows } from '../../theme';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatTime } from '../../utils/formatters';
 import { TopAppBar } from '../../components/navigation/TopAppBar';
 import { EmptyState } from '../../components/states/EmptyState';
 import { StatusBadge } from '../../components/badges/StatusBadge';
@@ -74,23 +74,32 @@ export default function AdminBookingsScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <View style={styles.detailsRow}>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Type</Text>
-          <Text style={styles.detailValue}>{booking.type === 'salon' ? 'Visiting Shop' : 'Home Service'}</Text>
+      <View style={styles.metaRow}>
+        <View style={styles.typeBadge}>
+          <MaterialIcons 
+            name={booking.type === 'salon' ? 'storefront' : 'home'} 
+            size={15} 
+            color={theme.colors.primary} 
+          />
+          <Text style={styles.typeBadgeText}>
+            {booking.type === 'salon' ? 'Visiting Shop' : 'Home Service'}
+          </Text>
         </View>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Date</Text>
-          <Text style={styles.detailValue}>{formatDate(booking.date)}</Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Time</Text>
-          <Text style={styles.detailValue}>{booking.time}</Text>
+        
+        <View style={styles.dateTimeGroup}>
+          <View style={styles.dateTimeBadge}>
+            <MaterialIcons name="event" size={15} color={theme.colors.textSecondary} />
+            <Text style={styles.dateTimeText}>{formatDate(booking.date)}</Text>
+          </View>
+          <View style={styles.dateTimeBadge}>
+            <MaterialIcons name="schedule" size={15} color={theme.colors.textSecondary} />
+            <Text style={styles.dateTimeText}>{formatTime(booking.time)}</Text>
+          </View>
         </View>
       </View>
       
       <View style={styles.servicesContainer}>
-        <Text style={styles.detailLabel}>Services ({booking.items.length})</Text>
+        <Text style={styles.servicesLabel}>Services ({booking.items.length})</Text>
         <Text style={styles.servicesText} numberOfLines={2}>
           {booking.items.map((i: any) => i.service.name).join(', ')}
         </Text>
@@ -330,29 +339,53 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
   },
-  detailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  metaRow: {
     marginBottom: theme.spacing.md,
+    gap: theme.spacing.xs + 2,
     paddingBottom: theme.spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  detailItem: {
-    flex: 1,
+  typeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: `${theme.colors.primary}12`,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 4,
+    borderRadius: theme.borderRadius.sm,
+    gap: 6,
+    marginBottom: 4,
   },
-  detailLabel: {
+  typeBadgeText: {
     fontSize: theme.typography.caption.fontSize,
-    color: theme.colors.textSecondary,
-    marginBottom: 2,
+    fontWeight: '600',
+    color: theme.colors.primary,
   },
-  detailValue: {
+  dateTimeGroup: {
+    flexDirection: 'row',
+    gap: theme.spacing.lg,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  dateTimeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  dateTimeText: {
     fontSize: theme.typography.bodySmall.fontSize,
-    fontWeight: '500',
     color: theme.colors.text,
+    fontWeight: '500',
   },
   servicesContainer: {
     marginBottom: theme.spacing.md,
+  },
+  servicesLabel: {
+    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.textSecondary,
+    marginBottom: 2,
+    fontWeight: '500',
   },
   servicesText: {
     fontSize: theme.typography.bodySmall.fontSize,
