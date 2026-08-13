@@ -99,11 +99,27 @@ export default function AdminBookingsScreen({ navigation }: Props) {
       </View>
       
       <View style={styles.servicesContainer}>
-        <Text style={styles.servicesLabel}>Services ({booking.items.length})</Text>
+        <Text style={styles.servicesLabel}>Services ({booking.items?.length || 0})</Text>
         <Text style={styles.servicesText} numberOfLines={2}>
-          {booking.items.map((i: any) => i.service.name).join(', ')}
+          {booking.items && booking.items.length > 0
+            ? booking.items.map((i: any) => i.serviceNameSnapshot || i.service?.name).filter(Boolean).join(', ')
+            : 'No service details'}
         </Text>
       </View>
+
+      {booking.reviews && booking.reviews.length > 0 && (
+        <View style={styles.reviewCardBadge}>
+          <MaterialIcons name="star" size={15} color="#FFB800" />
+          <Text style={styles.reviewCardRatingText}>
+            {booking.reviews[0].rating}.0 Rating
+          </Text>
+          {booking.reviews[0].comment ? (
+            <Text style={styles.reviewCardCommentText} numberOfLines={1}>
+              "{booking.reviews[0].comment}"
+            </Text>
+          ) : null}
+        </View>
+      )}
 
       <View style={styles.footerRow}>
         <Text style={styles.amountText}>₹{booking.totalPrice.toFixed(2)}</Text>
@@ -390,6 +406,29 @@ const styles = StyleSheet.create({
   servicesText: {
     fontSize: theme.typography.bodySmall.fontSize,
     color: theme.colors.text,
+  },
+  reviewCardBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginBottom: theme.spacing.md,
+    alignSelf: 'flex-start',
+  },
+  reviewCardRatingText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#D97706',
+    marginLeft: 4,
+  },
+  reviewCardCommentText: {
+    fontSize: 11,
+    fontStyle: 'italic',
+    color: theme.colors.textSecondary,
+    marginLeft: 6,
+    flexShrink: 1,
   },
   footerRow: {
     flexDirection: 'row',

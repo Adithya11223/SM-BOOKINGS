@@ -16,6 +16,8 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Query("SELECT r FROM Review r JOIN FETCH r.customer c JOIN r.service s WHERE s.id = :serviceId ORDER BY r.createdAt DESC")
     List<Review> findByServiceId(@Param("serviceId") UUID serviceId);
 
+    List<Review> findByBookingId(UUID bookingId);
+
     Optional<Review> findByBookingIdAndServiceId(UUID bookingId, UUID serviceId);
 
     boolean existsByBookingIdAndServiceId(UUID bookingId, UUID serviceId);

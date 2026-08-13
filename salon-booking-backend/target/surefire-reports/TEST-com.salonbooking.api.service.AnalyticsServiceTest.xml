@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.salonbooking.api.service.NotificationIsolationTest" time="0.767" tests="11" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.salonbooking.api.service.AnalyticsServiceTest" time="0.013" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -61,39 +61,12 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="broadcastAnnouncementDeliversToAllCustomers" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.721">
-    <system-out><![CDATA[03:35:57.879 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Broadcast announcement: Promo Ad
-]]></system-out>
-    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/adithya/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.12/byte-buddy-agent-1.14.12.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-]]></system-err>
-  </testcase>
-  <testcase name="markAllAsReadScopesToAuthenticatedCustomer" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.004">
-    <system-out><![CDATA[03:35:57.889 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Marked all notifications as read for receiverType=CUSTOMER, receiverId=8c6899a9-5c84-4aba-a9fd-e16802cf0dc1
+  <testcase name="emptyDatabaseReturnsZeroesSafely" classname="com.salonbooking.api.service.AnalyticsServiceTest" time="0.009">
+    <system-out><![CDATA[03:35:57.928 [main] INFO com.salonbooking.api.service.impl.AnalyticsServiceImpl -- Fetched admin analytics: Total Bookings=0, Today Revenue=0, Popular Services Count=0
 ]]></system-out>
   </testcase>
-  <testcase name="repeatedSchedulerExecutionDoesNotDuplicateReminder" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.003"/>
-  <testcase name="confirmedBookingReceivesAppointmentReminder" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.004">
-    <system-out><![CDATA[03:35:57.897 [main] INFO com.salonbooking.api.service.impl.BookingServiceImpl -- Sent appointment reminder notification for booking B-100
-]]></system-out>
-  </testcase>
-  <testcase name="customerCannotAccessAdminNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.003"/>
-  <testcase name="customerCannotAccessOtherCustomerNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.002"/>
-  <testcase name="deleteAllNotificationsScopesToAuthenticatedCustomer" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.002">
-    <system-out><![CDATA[03:35:57.907 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Deleted all notifications for receiverType=CUSTOMER, receiverId=74311826-9f95-4729-b550-55c50bcb5064
-]]></system-out>
-  </testcase>
-  <testcase name="pushNotificationForSpecificCustomerDoesNotFallbackToAllCustomers" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.002">
-    <system-out><![CDATA[03:35:57.910 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- Found 0 customer push token(s)
-03:35:57.910 [main] INFO com.salonbooking.api.service.impl.PushNotificationServiceImpl -- No push tokens found for receiverType=CUSTOMER receiverId=243cce3b-21bc-4e06-aaf2-853086dda893. Skipping push notification.
-]]></system-out>
-  </testcase>
-  <testcase name="adminCannotAccessCustomerPrivateNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.001"/>
-  <testcase name="customerGetNotificationsReturnsOnlyOwnNotifications" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.002"/>
-  <testcase name="customerCanAccessOwnNotification" classname="com.salonbooking.api.service.NotificationIsolationTest" time="0.002">
-    <system-out><![CDATA[03:35:57.917 [main] INFO com.salonbooking.api.service.impl.NotificationServiceImpl -- Marked notification as read: de03588e-715a-4123-9fd0-d2f6d77acf92
+  <testcase name="revenueOverviewAndBookingCountsCalculatedCorrectly" classname="com.salonbooking.api.service.AnalyticsServiceTest" time="0.004">
+    <system-out><![CDATA[03:35:57.932 [main] INFO com.salonbooking.api.service.impl.AnalyticsServiceImpl -- Fetched admin analytics: Total Bookings=10, Today Revenue=1500.00, Popular Services Count=1
 ]]></system-out>
   </testcase>
 </testsuite>

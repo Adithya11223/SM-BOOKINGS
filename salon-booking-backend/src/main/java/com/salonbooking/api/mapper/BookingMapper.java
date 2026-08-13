@@ -8,7 +8,7 @@ import com.salonbooking.api.entity.BookingItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, ReviewMapper.class})
 public interface BookingMapper {
 
     @Mapping(target = "customerName", source = "customer.name")

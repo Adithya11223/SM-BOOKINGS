@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-08-12T21:21:51-0700",
+    date = "2026-08-13T03:35:55-0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (JetBrains s.r.o.)"
 )
 @Component
@@ -31,21 +31,22 @@ public class BookingMapperImpl implements BookingMapper {
             return null;
         }
 
-        BookingResponse bookingResponse = new BookingResponse();
+        BookingResponse.BookingResponseBuilder<?, ?> bookingResponse = BookingResponse.builder();
 
-        bookingResponse.setCustomerName( entityCustomerName( entity ) );
-        bookingResponse.setId( entity.getId() );
-        bookingResponse.setBookingNumber( entity.getBookingNumber() );
-        bookingResponse.setBookingType( entity.getBookingType() );
-        bookingResponse.setBookingStatus( entity.getBookingStatus() );
-        bookingResponse.setBookingDate( entity.getBookingDate() );
-        bookingResponse.setBookingTime( entity.getBookingTime() );
-        bookingResponse.setTotalAmount( entity.getTotalAmount() );
-        bookingResponse.setTotalDuration( entity.getTotalDuration() );
-        bookingResponse.setHasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
-        bookingResponse.setHasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
+        bookingResponse.customerName( entityCustomerName( entity ) );
+        bookingResponse.id( entity.getId() );
+        bookingResponse.bookingNumber( entity.getBookingNumber() );
+        bookingResponse.bookingType( entity.getBookingType() );
+        bookingResponse.bookingStatus( entity.getBookingStatus() );
+        bookingResponse.bookingDate( entity.getBookingDate() );
+        bookingResponse.bookingTime( entity.getBookingTime() );
+        bookingResponse.totalAmount( entity.getTotalAmount() );
+        bookingResponse.totalDuration( entity.getTotalDuration() );
+        bookingResponse.hasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
+        bookingResponse.hasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
+        bookingResponse.items( bookingItemListToBookingItemResponseList( entity.getItems() ) );
 
-        return bookingResponse;
+        return bookingResponse.build();
     }
 
     @Override
@@ -54,28 +55,28 @@ public class BookingMapperImpl implements BookingMapper {
             return null;
         }
 
-        BookingDetailResponse bookingDetailResponse = new BookingDetailResponse();
+        BookingDetailResponse.BookingDetailResponseBuilder<?, ?> bookingDetailResponse = BookingDetailResponse.builder();
 
-        bookingDetailResponse.setCustomerName( entityCustomerName( entity ) );
-        bookingDetailResponse.setId( entity.getId() );
-        bookingDetailResponse.setBookingNumber( entity.getBookingNumber() );
-        bookingDetailResponse.setBookingType( entity.getBookingType() );
-        bookingDetailResponse.setBookingStatus( entity.getBookingStatus() );
-        bookingDetailResponse.setBookingDate( entity.getBookingDate() );
-        bookingDetailResponse.setBookingTime( entity.getBookingTime() );
-        bookingDetailResponse.setTotalAmount( entity.getTotalAmount() );
-        bookingDetailResponse.setTotalDuration( entity.getTotalDuration() );
-        bookingDetailResponse.setHasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
-        bookingDetailResponse.setHasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
-        bookingDetailResponse.setNotes( entity.getNotes() );
-        bookingDetailResponse.setAddress( entity.getAddress() );
-        bookingDetailResponse.setGoogleMapsLink( entity.getGoogleMapsLink() );
-        bookingDetailResponse.setEventType( entity.getEventType() );
-        bookingDetailResponse.setPeopleCount( entity.getPeopleCount() );
-        bookingDetailResponse.setCustomer( customerMapper.toResponse( entity.getCustomer() ) );
-        bookingDetailResponse.setItems( bookingItemListToBookingItemResponseList( entity.getItems() ) );
+        bookingDetailResponse.customerName( entityCustomerName( entity ) );
+        bookingDetailResponse.id( entity.getId() );
+        bookingDetailResponse.bookingNumber( entity.getBookingNumber() );
+        bookingDetailResponse.bookingType( entity.getBookingType() );
+        bookingDetailResponse.bookingStatus( entity.getBookingStatus() );
+        bookingDetailResponse.bookingDate( entity.getBookingDate() );
+        bookingDetailResponse.bookingTime( entity.getBookingTime() );
+        bookingDetailResponse.totalAmount( entity.getTotalAmount() );
+        bookingDetailResponse.totalDuration( entity.getTotalDuration() );
+        bookingDetailResponse.hasUnreadAdminUpdates( entity.getHasUnreadAdminUpdates() );
+        bookingDetailResponse.hasUnreadCustomerUpdates( entity.getHasUnreadCustomerUpdates() );
+        bookingDetailResponse.notes( entity.getNotes() );
+        bookingDetailResponse.address( entity.getAddress() );
+        bookingDetailResponse.googleMapsLink( entity.getGoogleMapsLink() );
+        bookingDetailResponse.eventType( entity.getEventType() );
+        bookingDetailResponse.peopleCount( entity.getPeopleCount() );
+        bookingDetailResponse.customer( customerMapper.toResponse( entity.getCustomer() ) );
+        bookingDetailResponse.items( bookingItemListToBookingItemResponseList( entity.getItems() ) );
 
-        return bookingDetailResponse;
+        return bookingDetailResponse.build();
     }
 
     @Override

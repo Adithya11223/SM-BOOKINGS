@@ -156,16 +156,30 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
               <View style={styles.serviceInfo}>
                 <Text style={styles.serviceName}>{item.service.name}</Text>
                 <Text style={styles.serviceQty}>Qty: {item.quantity}</Text>
-                {booking.status === 'completed' && (
-                  <TouchableOpacity
-                    style={styles.reviewBtn}
-                    onPress={() => setSelectedReviewService({ id: item.service.id, name: item.service.name })}
-                    activeOpacity={0.7}
-                  >
-                    <MaterialIcons name="star-rate" size={16} color="#FFD700" />
-                    <Text style={styles.reviewBtnText}>Leave Review</Text>
-                  </TouchableOpacity>
-                )}
+                {booking.status === 'completed' && (() => {
+                  const existingReview = (booking as any)?.reviews?.find((r: any) => r.serviceId === item.service.id);
+                  if (existingReview) {
+                    return (
+                      <View style={styles.reviewedBadge}>
+                        <MaterialIcons name="star" size={14} color="#FFB800" />
+                        <Text style={styles.reviewedText}>Rated {existingReview.rating}.0/5</Text>
+                        {existingReview.comment ? (
+                          <Text style={styles.reviewedCommentText} numberOfLines={1}>"{existingReview.comment}"</Text>
+                        ) : null}
+                      </View>
+                    );
+                  }
+                  return (
+                    <TouchableOpacity
+                      style={styles.reviewBtn}
+                      onPress={() => setSelectedReviewService({ id: item.service.id, name: item.service.name })}
+                      activeOpacity={0.7}
+                    >
+                      <MaterialIcons name="star-rate" size={16} color="#FFD700" />
+                      <Text style={styles.reviewBtnText}>Leave Review</Text>
+                    </TouchableOpacity>
+                  );
+                })()}
               </View>
               <Text style={styles.servicePrice}>₹{(item.service.price * item.quantity).toFixed(2)}</Text>
             </View>
@@ -183,7 +197,19 @@ export default function BookingDetailsScreen({ route, navigation }: Props) {
             serviceId={selectedReviewService.id}
             serviceName={selectedReviewService.name}
             onClose={() => setSelectedReviewService(null)}
-            onSuccess={() => setSelectedReviewService(null)}
+            onSuccess={() => {
+              setSelectedReviewService(null);
+              // Refetch booking details to show submitted review star rating immediately
+              const refetch = async () => {
+                try {
+                  const fullBooking = await BookingService.getBookingById(bookingId);
+                  setBooking(fullBooking);
+                } catch (e) {
+                  console.error(e);
+                }
+              };
+              refetch();
+            }}
           />
         )}
       </ScrollView>
@@ -351,6 +377,28 @@ const styles = StyleSheet.create({
   serviceQty: {
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
+  },
+  reviewedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  reviewedText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#D97706',
+    marginLeft: 4,
+  },
+  reviewedCommentText: {
+    fontSize: 11,
+    fontStyle: 'italic',
+    color: theme.colors.textSecondary,
+    marginLeft: 6,
   },
   servicePrice: {
     fontSize: theme.typography.body.fontSize,

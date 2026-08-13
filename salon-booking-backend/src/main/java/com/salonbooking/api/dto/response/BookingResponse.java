@@ -28,4 +28,6 @@ public class BookingResponse {
     private String customerName; // Flattened for easy summary display
     private Boolean hasUnreadAdminUpdates;
     private Boolean hasUnreadCustomerUpdates;
+    private java.util.List<BookingItemResponse> items;
+    private java.util.List<ReviewResponse> reviews;
 }

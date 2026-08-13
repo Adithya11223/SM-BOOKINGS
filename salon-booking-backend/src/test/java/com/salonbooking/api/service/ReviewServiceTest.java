@@ -45,6 +45,18 @@ public class ReviewServiceTest {
     @Mock
     private ReviewMapper reviewMapper;
 
+    @Mock
+    private com.salonbooking.api.mapper.BookingMapper bookingMapper;
+
+    @Mock
+    private com.salonbooking.api.repository.NotificationRepository notificationRepository;
+
+    @Mock
+    private PushNotificationService pushNotificationService;
+
+    @Mock
+    private WebSocketEventPublisher webSocketEventPublisher;
+
     @InjectMocks
     private ReviewServiceImpl reviewService;
 

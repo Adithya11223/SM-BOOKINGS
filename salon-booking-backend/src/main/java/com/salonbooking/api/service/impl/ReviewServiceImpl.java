@@ -32,15 +32,27 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookingRepository bookingRepository;
     private final ServiceRepository serviceRepository;
     private final ReviewMapper reviewMapper;
+    private final com.salonbooking.api.mapper.BookingMapper bookingMapper;
+    private final com.salonbooking.api.repository.NotificationRepository notificationRepository;
+    private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
+    private final com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher;
 
     public ReviewServiceImpl(ReviewRepository reviewRepository,
                              BookingRepository bookingRepository,
                              ServiceRepository serviceRepository,
-                             ReviewMapper reviewMapper) {
+                             ReviewMapper reviewMapper,
+                             com.salonbooking.api.mapper.BookingMapper bookingMapper,
+                             com.salonbooking.api.repository.NotificationRepository notificationRepository,
+                             com.salonbooking.api.service.PushNotificationService pushNotificationService,
+                             com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher) {
         this.reviewRepository = reviewRepository;
         this.bookingRepository = bookingRepository;
         this.serviceRepository = serviceRepository;
         this.reviewMapper = reviewMapper;
+        this.bookingMapper = bookingMapper;
+        this.notificationRepository = notificationRepository;
+        this.pushNotificationService = pushNotificationService;
+        this.webSocketEventPublisher = webSocketEventPublisher;
     }
 
     @Override
@@ -91,6 +103,40 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review saved = reviewRepository.save(review);
         log.info("Saved review {} for booking {} by customer {}", saved.getId(), booking.getId(), targetCustomerId);
+
+        // Notify Admin of new review
+        try {
+            String customerName = (booking.getCustomer() != null && booking.getCustomer().getName() != null)
+                    ? booking.getCustomer().getName() : "Customer";
+            String title = "⭐ New Service Rating";
+            String stars = "★".repeat(Math.max(1, Math.min(5, saved.getRating())));
+            String message = customerName + " rated " + service.getName() + " " + stars +
+                    (saved.getComment() != null && !saved.getComment().isBlank() ? ": \"" + saved.getComment() + "\"" : "");
+
+            com.salonbooking.api.entity.Notification notif = com.salonbooking.api.entity.Notification.builder()
+                    .booking(booking)
+                    .receiverType("ADMIN")
+                    .receiverId(null)
+                    .title(title)
+                    .message(message)
+                    .type(com.salonbooking.api.enums.NotificationType.BOOKING_UPDATED)
+                    .serviceId(service.getId())
+                    .isRead(false)
+                    .build();
+
+            notif = notificationRepository.save(notif);
+            webSocketEventPublisher.publishNotificationUpdate(notif);
+            pushNotificationService.sendPushNotification(notif);
+
+            // Publish updated booking event so admin dashboard cards update immediately
+            ReviewResponse reviewResp = reviewMapper.toResponse(saved);
+            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
+
+            return reviewResp;
+        } catch (Exception e) {
+            log.error("Error pushing review notification to admin: {}", e.getMessage());
+        }
+
         return reviewMapper.toResponse(saved);
     }
 

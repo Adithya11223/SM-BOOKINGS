@@ -46,6 +46,8 @@ public class BookingServiceImpl implements BookingService {
     private final com.salonbooking.api.repository.BookingUpdateRepository bookingUpdateRepository;
     private final NotificationRepository notificationRepository;
     private final com.salonbooking.api.repository.FcmTokenRepository fcmTokenRepository;
+    private final com.salonbooking.api.repository.ReviewRepository reviewRepository;
+    private final com.salonbooking.api.mapper.ReviewMapper reviewMapper;
     
     private final BookingMapper bookingMapper;
     
@@ -59,11 +61,34 @@ public class BookingServiceImpl implements BookingService {
     private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
     private final com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher;
 
+    private BookingResponse enrichBookingResponse(Booking b) {
+        BookingResponse resp = bookingMapper.toResponse(b);
+        if (b.getItems() != null) {
+            resp.setItems(b.getItems().stream().map(bookingMapper::toItemResponse).collect(Collectors.toList()));
+        }
+        if (reviewRepository != null && b.getId() != null) {
+            resp.setReviews(reviewRepository.findByBookingId(b.getId()).stream()
+                    .map(reviewMapper::toResponse)
+                    .collect(Collectors.toList()));
+        }
+        return resp;
+    }
+
+    private BookingDetailResponse enrichBookingDetailResponse(Booking b) {
+        BookingDetailResponse detail = bookingMapper.toDetailResponse(b);
+        if (reviewRepository != null && b.getId() != null) {
+            detail.setReviews(reviewRepository.findByBookingId(b.getId()).stream()
+                    .map(reviewMapper::toResponse)
+                    .collect(Collectors.toList()));
+        }
+        return detail;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookings() {
         return bookingRepository.findAllBookings().stream()
-                .map(bookingMapper::toResponse)
+                .map(this::enrichBookingResponse)
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDetailResponse getBookingById(UUID id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
-        return bookingMapper.toDetailResponse(booking);
+        return enrichBookingDetailResponse(booking);
     }
 
     @Override
@@ -80,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDetailResponse getBookingByNumber(String bookingNumber) {
         Booking booking = bookingRepository.findByBookingNumber(bookingNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
-        return bookingMapper.toDetailResponse(booking);
+        return enrichBookingDetailResponse(booking);
     }
 
     @Override
@@ -90,7 +115,7 @@ public class BookingServiceImpl implements BookingService {
             return List.of();
         }
         return bookingRepository.findByBookingNumberIn(references).stream()
-                .map(bookingMapper::toResponse)
+                .map(this::enrichBookingResponse)
                 .collect(Collectors.toList());
     }
 

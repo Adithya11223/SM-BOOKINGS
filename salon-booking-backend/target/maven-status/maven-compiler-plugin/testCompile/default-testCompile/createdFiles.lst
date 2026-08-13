@@ -1,2 +1,4 @@
+com/salonbooking/api/service/AnalyticsServiceTest.class
 com/salonbooking/api/integration/BaseIntegrationTest.class
 com/salonbooking/api/service/NotificationIsolationTest.class
+com/salonbooking/api/service/ReviewServiceTest.class

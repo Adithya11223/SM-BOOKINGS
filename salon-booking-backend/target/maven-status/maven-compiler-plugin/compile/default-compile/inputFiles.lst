@@ -11,6 +11,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/config/StartupLogger.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/config/WebMvcConfig.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/config/WebSocketConfig.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/AnalyticsController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/AuthController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/BookingController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/BusinessSettingsController.java
@@ -20,6 +21,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/FileUploadController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/HealthController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/NotificationController.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/ReviewController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/controller/ServiceController.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/ApiResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/CustomerLoginRequest.java
@@ -29,6 +31,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/AnnouncementRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/BookingItemRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CreateBookingRequest.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CreateReviewRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CreateServiceRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/CustomerRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/LoginRequest.java
@@ -36,6 +39,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/UpdateBusinessSettingsRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/UpdateCredentialsRequest.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/request/UpdateServiceRequest.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/AdminAnalyticsOverviewResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/ApiResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/AuthResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/BookingDetailResponse.java
@@ -43,8 +47,12 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/BookingResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/BusinessSettingsResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/CustomerResponse.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/DailyRevenueDto.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/NotificationResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/PageResponse.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/PopularServiceDto.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/ReviewResponse.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/ServiceRatingSummaryDto.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/dto/response/ServiceResponse.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Admin.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/BaseEntity.java
@@ -55,6 +63,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Customer.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/FcmToken.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Notification.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Review.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/Service.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/enums/TargetRole.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/entity/enums/UpdateType.java
@@ -70,6 +79,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/mapper/BusinessSettingsMapper.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/mapper/CustomerMapper.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/mapper/NotificationMapper.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/mapper/ReviewMapper.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/mapper/ServiceMapper.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/AdminRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/BookingItemRepository.java
@@ -79,12 +89,14 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/CustomerRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/FcmTokenRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/NotificationRepository.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/ReviewRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/repository/ServiceRepository.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/security/AuthEntryPointJwt.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/security/AuthTokenFilter.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/security/JwtUtils.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/security/UserDetailsImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/security/UserDetailsServiceImpl.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/AnalyticsService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/BookingService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/BusinessSettingsService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/CustomerAuthService.java
@@ -92,8 +104,10 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/FileStorageService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/NotificationService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/PushNotificationService.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/ReviewService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/ServiceService.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/WebSocketEventPublisher.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/AnalyticsServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/BookingServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/BusinessSettingsServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/CloudinaryStorageServiceImpl.java
@@ -101,6 +115,7 @@
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/CustomerServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/NotificationServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/PushNotificationServiceImpl.java
+/Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/ReviewServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/service/impl/ServiceServiceImpl.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/util/BookingReferenceGenerator.java
 /Users/adithya/Developer/SM_SALOON/salon-booking-backend/src/main/java/com/salonbooking/api/util/DateValidator.java
