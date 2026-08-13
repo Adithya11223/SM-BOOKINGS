@@ -97,9 +97,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           >
             <MaterialIcons name="notifications-none" size={26} color={theme.colors.text} />
             {unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-              </View>
+              <View style={styles.unreadDot} />
             )}
           </TouchableOpacity>
         </MotiView>
@@ -249,24 +247,16 @@ const styles = StyleSheet.create({
     padding: 6,
     position: 'relative',
   },
-  badge: {
+  unreadDot: {
     position: 'absolute',
-    top: 4,
+    top: 6,
     right: 8,
-    backgroundColor: theme.colors.error,
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: '#FF3B30',
     borderWidth: 1.5,
     borderColor: theme.colors.background,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
   },
   operatingHoursCard: {
     flexDirection: 'row',
