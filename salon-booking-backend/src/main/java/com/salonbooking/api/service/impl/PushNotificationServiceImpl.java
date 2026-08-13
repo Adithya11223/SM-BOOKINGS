@@ -54,8 +54,8 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             }
             // Support ExponentPushToken[...], ExpoPushToken[...], or any Expo format
             String trimmedToken = fcmToken.getToken().trim();
-            if (!trimmedToken.startsWith("ExponentPushToken[") && !trimmedToken.startsWith("ExpoPushToken[") && !trimmedToken.contains("PushToken[")) {
-                log.warn("Skipping non-Expo push token format: {}", trimmedToken);
+            if (trimmedToken.isEmpty()) {
+                log.warn("Skipping empty push token");
                 continue;
             }
 
