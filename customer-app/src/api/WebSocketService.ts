@@ -44,13 +44,7 @@ class WebSocketService {
 
     this.isConnecting = true;
 
-    // Determine correct local IP fallback based on platform if using emulator
-    let finalUrl = url;
-    if (url.includes('10.0.2.2') && Platform.OS === 'ios') {
-      finalUrl = url.replace('10.0.2.2', 'localhost');
-    }
-
-    const wsUrl = finalUrl.replace(/^http/, 'ws');
+    const wsUrl = url.replace(/^http/, 'ws');
 
     try {
       this.client = new Client({
@@ -63,7 +57,7 @@ class WebSocketService {
           } catch (e) {
             console.warn('[WebSocket] Native WS failed, falling back to SockJS:', e);
           }
-          return new SockJS(finalUrl);
+          return new SockJS(url);
         },
         reconnectDelay: 3000,
         heartbeatIncoming: 10000,
