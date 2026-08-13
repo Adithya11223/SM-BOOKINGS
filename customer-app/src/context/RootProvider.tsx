@@ -8,6 +8,10 @@ import { NotificationProvider } from './NotificationContext';
 import { webSocketService } from '../api/WebSocketService';
 
 export const RootProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  useEffect(() => {
+    webSocketService.connect();
+  }, []);
+
   return (
     <AppConfigProvider>
       <AuthProvider>
