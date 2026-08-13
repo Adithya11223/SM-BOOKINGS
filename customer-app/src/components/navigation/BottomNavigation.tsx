@@ -42,13 +42,20 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 translateY: isActive ? -4 : 0,
               }}
               transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-              style={[styles.iconContainer, isActive && styles.iconContainerActive]}
+              style={[styles.iconContainer, isActive && styles.iconContainerActive, { position: 'relative' }]}
             >
               <MaterialIcons
                 name={tab.icon}
                 size={24}
                 color={isActive ? theme.colors.primary : theme.colors.textSecondary}
               />
+              {Boolean(tab.badgeCount && tab.badgeCount > 0) && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>
+                    {tab.badgeCount! > 99 ? '99+' : tab.badgeCount}
+                  </Text>
+                </View>
+              )}
             </MotiView>
             <MotiText 
               animate={{
@@ -74,7 +81,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
-    ...shadows.medium, // More pronounced shadow for premium feel
+    ...shadows.medium,
   },
   tab: {
     flex: 1,
@@ -89,6 +96,25 @@ const styles = StyleSheet.create({
   iconContainerActive: {
     backgroundColor: `${theme.colors.primary}15`,
   },
+  tabBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -6,
+    backgroundColor: '#FF3B30',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: theme.colors.background,
+  },
+  tabBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '700',
+  },
   label: {
     fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textSecondary,
@@ -98,16 +124,4 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontWeight: '700',
   },
-  badge: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    backgroundColor: theme.colors.error,
-    borderRadius: 6,
-    width: 12,
-    height: 12,
-    borderWidth: 2,
-    borderColor: theme.colors.background,
-  },
 });
-
