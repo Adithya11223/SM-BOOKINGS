@@ -124,11 +124,19 @@ public class BookingServiceImpl implements BookingService {
     public BookingDetailResponse createBooking(CreateBookingRequest request) {
         dateValidator.validateBookingDate(request.getBookingDate());
 
-        Customer customer = customerService.getOrCreateCustomer(
-                request.getCustomerName(),
-                request.getCustomerPhoneNumber(),
-                request.getCustomerEmail()
-        );
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Customer customer = null;
+        if (auth != null && auth.getPrincipal() instanceof com.salonbooking.api.security.UserDetailsImpl) {
+            com.salonbooking.api.security.UserDetailsImpl userDetails = (com.salonbooking.api.security.UserDetailsImpl) auth.getPrincipal();
+            customer = customerRepository.findById(userDetails.getId()).orElse(null);
+        }
+        if (customer == null) {
+            customer = customerService.getOrCreateCustomer(
+                    request.getCustomerName(),
+                    request.getCustomerPhoneNumber(),
+                    request.getCustomerEmail()
+            );
+        }
 
         Booking booking = Booking.builder()
                 .bookingNumber(referenceGenerator.generateBookingNumber(request.getBookingType()))
