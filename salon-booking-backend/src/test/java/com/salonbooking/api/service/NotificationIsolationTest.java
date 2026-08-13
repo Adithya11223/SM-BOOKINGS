@@ -5,6 +5,7 @@ import com.salonbooking.api.repository.NotificationRepository;
 import com.salonbooking.api.repository.FcmTokenRepository;
 import com.salonbooking.api.security.UserDetailsImpl;
 import com.salonbooking.api.service.impl.NotificationServiceImpl;
+import com.salonbooking.api.service.impl.PushNotificationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,8 @@ public class NotificationIsolationTest {
     @InjectMocks
     private NotificationServiceImpl notificationService;
 
+    private PushNotificationServiceImpl pushNotificationServiceImpl;
+
     private UUID customerAId;
     private UUID customerBId;
     private UserDetailsImpl customerAUser;
@@ -67,6 +70,8 @@ public class NotificationIsolationTest {
     void setUp() {
         customerAId = UUID.randomUUID();
         customerBId = UUID.randomUUID();
+
+        pushNotificationServiceImpl = new PushNotificationServiceImpl(fcmTokenRepository);
 
         customerAUser = new UserDetailsImpl(
                 customerAId,
@@ -173,5 +178,22 @@ public class NotificationIsolationTest {
     void customerGetNotificationsReturnsOnlyOwnNotifications() {
         notificationService.getCustomerNotifications(customerAId);
         verify(notificationRepository).findForCustomer("CUSTOMER", customerAId);
+    }
+
+    @Test
+    void pushNotificationForSpecificCustomerDoesNotFallbackToAllCustomers() {
+        Notification customerANotif = Notification.builder()
+                .receiverType("CUSTOMER")
+                .receiverId(customerAId)
+                .title("Private Alert")
+                .message("Only for A")
+                .build();
+
+        when(fcmTokenRepository.findByCustomerId(customerAId)).thenReturn(Collections.emptyList());
+
+        pushNotificationServiceImpl.sendPushNotification(customerANotif);
+
+        verify(fcmTokenRepository, times(1)).findByCustomerId(customerAId);
+        verify(fcmTokenRepository, never()).findCustomerTokens();
     }
 }

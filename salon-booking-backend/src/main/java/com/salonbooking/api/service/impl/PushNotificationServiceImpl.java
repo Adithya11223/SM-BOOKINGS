@@ -35,10 +35,6 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         } else {
             if (notification.getReceiverId() != null) {
                 tokens = fcmTokenRepository.findByCustomerId(notification.getReceiverId());
-                if (tokens.isEmpty()) {
-                    log.info("No tokens found for customerId {}, falling back to all customer tokens", notification.getReceiverId());
-                    tokens = fcmTokenRepository.findCustomerTokens();
-                }
             } else {
                 tokens = fcmTokenRepository.findCustomerTokens();
             }
