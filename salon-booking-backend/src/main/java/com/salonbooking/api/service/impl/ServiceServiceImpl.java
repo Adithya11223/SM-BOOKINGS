@@ -31,6 +31,7 @@ public class ServiceServiceImpl implements ServiceService {
     private final BusinessSettingsService businessSettingsService;
     private final com.salonbooking.api.repository.NotificationRepository notificationRepository;
     private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
+    private final com.salonbooking.api.service.WebSocketEventPublisher webSocketEventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -80,10 +81,11 @@ public class ServiceServiceImpl implements ServiceService {
                     .receiverType("CUSTOMER")
                     .serviceId(saved.getId())
                     .build();
-            notificationRepository.save(notification);
+            notification = notificationRepository.save(notification);
+            webSocketEventPublisher.publishNotificationUpdate(notification);
             pushNotificationService.sendPushNotification(notification);
         } catch (Exception e) {
-            log.error("Failed to send push notification for new service", e);
+            log.error("Failed to send notification for new service", e);
         }
 
         return mapper.toResponse(saved);
