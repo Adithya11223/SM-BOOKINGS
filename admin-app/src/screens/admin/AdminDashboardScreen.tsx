@@ -197,27 +197,11 @@ export default function AdminDashboardScreen({ navigation }: Props) {
         ) : (
           <View style={styles.statsGrid}>
             <StatCard 
-              title="Today's Revenue" 
-              value={`₹${Number(displayTodayRevenue).toFixed(2)}`} 
-              icon="attach-money" 
-              color={theme.colors.success} 
-              delay={0}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: todayStr, initialToDate: todayStr })}
-            />
-            <StatCard 
-              title="Completion Rate" 
-              value={`${displayCompletionRate}%`} 
-              icon="check-circle-outline" 
-              color={theme.colors.primary} 
-              delay={100}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
-            />
-            <StatCard 
               title="Pending Requests" 
               value={displayPendingRequests.toString()} 
               icon="pending-actions" 
               color="#FF9800" 
-              delay={200}
+              delay={0}
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'pending' })}
             />
             <StatCard 
@@ -225,16 +209,47 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               value={displayCompletedToday.toString()} 
               icon="check-circle" 
               color={theme.colors.success} 
-              delay={300}
+              delay={100}
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
+            />
+            <StatCard 
+              title="Completion Rate" 
+              value={`${displayCompletionRate}%`} 
+              icon="check-circle-outline" 
+              color={theme.colors.primary} 
+              delay={200}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
+            />
+            <StatCard 
+              title="Active Workload" 
+              value={activeWorkload.toString()} 
+              icon="work" 
+              color="#FF9800" 
+              delay={300}
+              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'active' })}
             />
           </View>
         )}
 
-        <Text style={styles.sectionTitle}>This Month's Performance</Text>
+        <View style={styles.headerRow}>
+          <Text style={[styles.sectionTitle, { flex: 1, marginBottom: 0 }]} numberOfLines={1}>
+            Performance & Insights
+          </Text>
+          <TouchableOpacity 
+            style={styles.historyBtn}
+            onPress={() => navigation.navigate('BookingHistory')}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="history" size={16} color={theme.colors.primary} style={{ marginRight: 4 }} />
+            <Text style={styles.linkText}>View History</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ height: 12 }} />
+
         {initialLoading ? (
           <View style={styles.statsGrid}>
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3].map(i => (
               <View key={i} style={styles.statCard}>
                 <SkeletonLoader width={40} height={40} radius={20} />
                 <View style={{height: 10}} />
@@ -247,19 +262,11 @@ export default function AdminDashboardScreen({ navigation }: Props) {
         ) : (
           <View style={styles.statsGrid}>
             <StatCard 
-              title="Monthly Revenue" 
-              value={`₹${Number(displayMonthlyRevenue).toFixed(2)}`} 
-              icon="account-balance-wallet" 
-              color={theme.colors.success} 
-              delay={0}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed' })}
-            />
-            <StatCard 
               title="Total Bookings" 
               value={displayTotalBookings.toString()} 
               icon="library-books" 
               color={theme.colors.primary} 
-              delay={100}
+              delay={0}
               onPress={() => navigation.navigate('BookingHistory')}
             />
             <StatCard 
@@ -267,16 +274,8 @@ export default function AdminDashboardScreen({ navigation }: Props) {
               value={`${displayCancellationRate}%`} 
               icon="cancel" 
               color={theme.colors.error} 
-              delay={200}
+              delay={100}
               onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'cancelled' })}
-            />
-            <StatCard 
-              title="Active Workload" 
-              value={activeWorkload.toString()} 
-              icon="work" 
-              color="#FF9800" 
-              delay={300}
-              onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'active' })}
             />
           </View>
         )}
@@ -318,7 +317,6 @@ export default function AdminDashboardScreen({ navigation }: Props) {
                     <Text style={styles.popularServiceName} numberOfLines={1}>{service.serviceName}</Text>
                     <Text style={styles.popularServiceSubtext}>{service.bookingCount} bookings</Text>
                   </View>
-                  <Text style={styles.popularServiceRevenue}>₹{Number(service.revenueGenerated).toFixed(2)}</Text>
                 </View>
               ))}
             </View>
@@ -362,45 +360,6 @@ export default function AdminDashboardScreen({ navigation }: Props) {
             <Text style={styles.actionText}>Settings</Text>
           </TouchableOpacity>
         </MotiView>
-
-        <View style={styles.headerRow}>
-          <Text style={styles.sectionTitle}>Revenue Chart (Last 7 Days)</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('BookingHistory')}>
-            <Text style={styles.linkText}>View History</Text>
-          </TouchableOpacity>
-        </View>
-        
-        {initialLoading ? (
-          <SkeletonLoader width="100%" height={200} radius={20} />
-        ) : (
-          <MotiView 
-            from={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 500, type: 'spring' }}
-            style={styles.chartCard}
-          >
-            <View style={styles.dummyChart}>
-              {chartHeights.map((h, i) => (
-                <TouchableOpacity 
-                  key={i} 
-                  style={styles.barContainer}
-                  activeOpacity={0.6}
-                  onPress={() => navigation.navigate('BookingHistory', { initialStatus: 'completed', initialFromDate: last7Days[i], initialToDate: last7Days[i] })}
-                >
-                  {h > 0 && (
-                    <MotiView 
-                      from={{ height: 0 }}
-                      animate={{ height: `${h}%` as any }}
-                      transition={{ type: 'spring', delay: 500 + (i * 50) }}
-                      style={styles.bar} 
-                    />
-                  )}
-                  <Text style={styles.barLabel}>{dayLabels[i]}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </MotiView>
-        )}
 
       </ScrollView>
     </SafeAreaView>
@@ -556,6 +515,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  historyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${theme.colors.primary}15`,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.md,
+    marginLeft: theme.spacing.sm,
   },
   linkText: {
     fontSize: theme.typography.bodySmall.fontSize,
