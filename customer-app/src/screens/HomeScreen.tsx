@@ -82,16 +82,20 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                 />
               )}
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.shopName} numberOfLines={2}>SHREE MATHA BEAUTY PARLOR</Text>
-              <Text style={styles.greeting} numberOfLines={1}>{getGreeting()} <Text style={styles.userName}>{user?.name || 'Guest'}</Text></Text>
+            <View style={styles.headerInfo}>
+              <Text style={styles.shopName}>
+                {businessSettings?.businessName || 'SHREE MATHA BEAUTY PARLOR'}
+              </Text>
+              <Text style={styles.greeting} numberOfLines={2}>
+                {getGreeting()} <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+              </Text>
             </View>
           </View>
           <TouchableOpacity 
             style={styles.notificationButton} 
             onPress={() => navigation.navigate('Notifications' as any)}
           >
-            <MaterialIcons name="notifications-none" size={28} color={theme.colors.text} />
+            <MaterialIcons name="notifications-none" size={26} color={theme.colors.text} />
             {unreadCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
@@ -201,12 +205,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: theme.spacing.sm,
+    marginRight: theme.spacing.xs,
   },
   logoCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: `${theme.colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
@@ -217,33 +221,37 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  headerInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   shopName: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
     color: theme.colors.primary,
-    lineHeight: 18,
-    marginBottom: 2,
+    lineHeight: 17,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   greeting: {
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: 12,
     color: theme.colors.textSecondary,
-    marginBottom: 2,
+    marginTop: 2,
     fontWeight: '500',
+    lineHeight: 16,
   },
   userName: {
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: 12,
     fontWeight: '700',
     color: theme.colors.text,
   },
   notificationButton: {
-    padding: 8,
+    padding: 6,
     position: 'relative',
   },
   badge: {
     position: 'absolute',
-    top: 6,
+    top: 4,
     right: 8,
     backgroundColor: theme.colors.error,
     borderRadius: 10,
