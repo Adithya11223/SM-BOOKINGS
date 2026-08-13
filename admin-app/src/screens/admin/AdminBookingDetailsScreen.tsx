@@ -1,5 +1,4 @@
 import React from 'react';
-import { useBookings } from '../../hooks/';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookingService } from '../../api/BookingService';
@@ -14,16 +13,23 @@ import { SectionHeader } from '../../components/typography/SectionHeader';
 import { Button } from '../../components/buttons/Button';
 import { MotiView } from 'moti';
 
+import { useBookings, useNotifications } from '../../hooks/';
+
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'AdminBookingDetails'>;
 
 export default function AdminBookingDetailsScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
   const { updateBookingStatus, partialAcceptBooking, markAdminViewed } = useBookings();
+  const { markBookingNotificationsAsRead } = useNotifications();
   const [booking, setBooking] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [selectedServiceIds, setSelectedServiceIds] = React.useState<string[]>([]);
 
   React.useEffect(() => {
+    // Mark booking updates and notifications as read immediately on visit
+    markAdminViewed(bookingId);
+    markBookingNotificationsAsRead(bookingId);
+
     const fetchDetails = async () => {
       try {
         const fullBooking = await BookingService.getBookingById(bookingId);
@@ -31,7 +37,6 @@ export default function AdminBookingDetailsScreen({ route, navigation }: Props) 
         if (fullBooking.status === 'pending') {
           setSelectedServiceIds(fullBooking.items.map((i: any) => i.service.id));
         }
-        // Mark as read if there are unread admin updates
         if (fullBooking.hasUnreadAdminUpdates) {
           markAdminViewed(bookingId);
         }

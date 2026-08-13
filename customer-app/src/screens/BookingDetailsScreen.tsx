@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useBookings } from '../hooks/';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -13,23 +12,29 @@ import { StatusBadge } from '../components/badges/StatusBadge';
 import { SectionHeader } from '../components/typography/SectionHeader';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import { useBookings, useNotifications } from '../hooks/';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'BookingDetails'>;
 
 export default function BookingDetailsScreen({ route, navigation }: Props) {
   const { bookingId } = route.params;
   const { bookings, markCustomerViewed } = useBookings();
+  const { markBookingNotificationsAsRead } = useNotifications();
   
   const initialBooking = bookings.find(b => b.id === bookingId);
   const [booking, setBooking] = useState<Booking | undefined>(initialBooking);
   const [isLoading, setIsLoading] = useState(!initialBooking);
 
   useEffect(() => {
+    // Mark booking updates and notifications as read immediately on visit
+    markCustomerViewed(bookingId);
+    markBookingNotificationsAsRead(bookingId);
+
     const fetchDetails = async () => {
       try {
         setIsLoading(true);
         const fullBooking = await BookingService.getBookingById(bookingId);
         setBooking(fullBooking);
-        // Mark as read if there are unread customer updates
         if (fullBooking.hasUnreadCustomerUpdates) {
           markCustomerViewed(bookingId);
         }

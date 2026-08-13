@@ -29,6 +29,7 @@ interface NotificationContextProps {
   deviceId: string | null;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
+  markBookingNotificationsAsRead: (bookingId: string) => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
   clearAllNotifications: () => Promise<void>;
   fetchNotifications: () => Promise<void>;
@@ -41,6 +42,7 @@ export const NotificationContext = createContext<NotificationContextProps>({
   deviceId: null,
   markAsRead: async () => {},
   markAllAsRead: async () => {},
+  markBookingNotificationsAsRead: async () => {},
   deleteNotification: async () => {},
   clearAllNotifications: async () => {},
   fetchNotifications: async () => {},
@@ -314,9 +316,23 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const markBookingNotificationsAsRead = async (bookingId: string) => {
+    try {
+      const matching = notifications.filter(n => n.bookingId === bookingId && !n.isRead);
+      if (matching.length > 0) {
+        setNotifications(prev => prev.map(n => n.bookingId === bookingId ? { ...n, isRead: true } : n));
+        for (const notif of matching) {
+          api.patch(`/notifications/${notif.id}/read`).catch(() => {});
+        }
+      }
+    } catch (error) {
+      console.error('Failed to mark booking notifications as read:', error);
+    }
+  };
+
   return (
     <NotificationContext.Provider value={{
-      notifications, unreadCount, expoPushToken, deviceId, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications, fetchNotifications
+      notifications, unreadCount, expoPushToken, deviceId, markAsRead, markAllAsRead, markBookingNotificationsAsRead, deleteNotification, clearAllNotifications, fetchNotifications
     }}>
       {children}
     </NotificationContext.Provider>

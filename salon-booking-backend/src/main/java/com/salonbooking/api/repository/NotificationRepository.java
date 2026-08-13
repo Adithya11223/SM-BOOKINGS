@@ -20,5 +20,7 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Query("SELECT n FROM Notification n WHERE n.receiverType = :receiverType AND (:receiverId IS NULL OR n.receiverId = :receiverId OR n.receiverId IS NULL) ORDER BY n.createdAt DESC")
     List<Notification> findForCustomer(@Param("receiverType") String receiverType, @Param("receiverId") UUID receiverId);
 
+    List<Notification> findByBookingIdAndReceiverTypeAndIsReadFalse(UUID bookingId, String receiverType);
+
     void deleteByCreatedAtBefore(java.time.Instant cutoffDate);
 }

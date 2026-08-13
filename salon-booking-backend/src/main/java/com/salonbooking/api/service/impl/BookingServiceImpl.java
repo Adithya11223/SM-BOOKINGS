@@ -359,10 +359,22 @@ public class BookingServiceImpl implements BookingService {
         if (!updates.isEmpty()) {
             updates.forEach(u -> u.setRead(true));
             bookingUpdateRepository.saveAll(updates);
-            
-            Booking booking = bookingRepository.findById(id).orElseThrow();
-            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
         }
+
+        // Also mark all admin notifications for this booking as read
+        List<Notification> notifs = notificationRepository.findByBookingIdAndReceiverTypeAndIsReadFalse(id, "ADMIN");
+        if (!notifs.isEmpty()) {
+            notifs.forEach(n -> {
+                n.setIsRead(true);
+                n.setReadAt(java.time.Instant.now());
+            });
+            notificationRepository.saveAll(notifs);
+            notifs.forEach(webSocketEventPublisher::publishNotificationUpdate);
+        }
+
+        bookingRepository.findById(id).ifPresent(booking -> {
+            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
+        });
     }
 
     @Override
@@ -372,10 +384,22 @@ public class BookingServiceImpl implements BookingService {
         if (!updates.isEmpty()) {
             updates.forEach(u -> u.setRead(true));
             bookingUpdateRepository.saveAll(updates);
-            
-            Booking booking = bookingRepository.findById(id).orElseThrow();
-            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
         }
+
+        // Also mark all customer notifications for this booking as read
+        List<Notification> notifs = notificationRepository.findByBookingIdAndReceiverTypeAndIsReadFalse(id, "CUSTOMER");
+        if (!notifs.isEmpty()) {
+            notifs.forEach(n -> {
+                n.setIsRead(true);
+                n.setReadAt(java.time.Instant.now());
+            });
+            notificationRepository.saveAll(notifs);
+            notifs.forEach(webSocketEventPublisher::publishNotificationUpdate);
+        }
+
+        bookingRepository.findById(id).ifPresent(booking -> {
+            webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(booking));
+        });
     }
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ?")
