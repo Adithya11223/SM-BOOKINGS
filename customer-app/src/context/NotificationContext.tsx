@@ -152,8 +152,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        // App came to foreground -> sync with server as source of truth
+        // App came to foreground -> sync with server as source of truth and force update OS badge
         fetchNotifications();
+        const currentUnread = notifications.filter(n => !n.isRead).length;
+        Notifications.setBadgeCountAsync(currentUnread).catch(() => {});
+        if (currentUnread === 0) {
+          Notifications.dismissAllNotificationsAsync().catch(() => {});
+        }
         if (expoPushToken && deviceId && user?.id) {
           sendTokenToBackend(expoPushToken, deviceId, user.id);
         }
@@ -307,7 +312,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       if (!isSignedIn) return;
       const response = await api.get('/notifications');
       if (response.data.success) {
-        setNotifications(response.data.data);
+        const items = response.data.data || [];
+        setNotifications(items);
+        const count = items.filter((n: any) => !n.isRead).length;
+        Notifications.setBadgeCountAsync(count).catch(() => {});
+        if (count === 0) {
+          Notifications.dismissAllNotificationsAsync().catch(() => {});
+        }
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
