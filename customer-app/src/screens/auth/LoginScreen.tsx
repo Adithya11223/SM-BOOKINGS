@@ -37,8 +37,9 @@ export default function LoginScreen() {
         setError('Invalid response from server.');
       }
     } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Invalid phone number or password.');
+      console.error('Customer Login Error:', err);
+      const detail = err.response?.data?.message || err.message || 'Invalid phone number or password.';
+      setError(detail);
     } finally {
       setLoading(false);
     }

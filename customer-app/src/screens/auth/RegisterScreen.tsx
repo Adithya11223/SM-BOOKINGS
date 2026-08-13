@@ -47,8 +47,9 @@ export default function RegisterScreen() {
         setError('Invalid response from server.');
       }
     } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || 'An error occurred during registration.');
+      console.error('Customer Register Error:', err);
+      const detail = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
+      setError(detail);
     } finally {
       setLoading(false);
     }
