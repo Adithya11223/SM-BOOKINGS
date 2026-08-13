@@ -24,7 +24,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + username));
             return UserDetailsImpl.build(admin);
         } else {
+            String cleanPhone = username.replaceAll("[^0-9]", "");
+            String suffix = cleanPhone.length() >= 10 ? cleanPhone.substring(cleanPhone.length() - 10) : cleanPhone;
             Customer customer = customerRepository.findByPhoneNumber(username)
+                    .or(() -> customerRepository.findByPhoneNumber("+91" + suffix))
+                    .or(() -> customerRepository.findByPhoneNumber(suffix))
+                    .or(() -> customerRepository.findAll().stream()
+                            .filter(c -> c.getPhoneNumber() != null && c.getPhoneNumber().replaceAll("[^0-9]", "").endsWith(suffix))
+                            .findFirst())
                     .orElseThrow(() -> new UsernameNotFoundException("User Not Found with phone number: " + username));
             return UserDetailsImpl.build(customer);
         }

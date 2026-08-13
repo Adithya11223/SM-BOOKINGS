@@ -61,7 +61,14 @@ public class CustomerAuthServiceImpl implements CustomerAuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
+        String cleanPhone = request.getPhoneNumber().replaceAll("[^0-9]", "");
+        String suffix = cleanPhone.length() >= 10 ? cleanPhone.substring(cleanPhone.length() - 10) : cleanPhone;
         Customer customer = customerRepository.findByPhoneNumber(request.getPhoneNumber())
+                .or(() -> customerRepository.findByPhoneNumber("+91" + suffix))
+                .or(() -> customerRepository.findByPhoneNumber(suffix))
+                .or(() -> customerRepository.findAll().stream()
+                        .filter(c -> c.getPhoneNumber() != null && c.getPhoneNumber().replaceAll("[^0-9]", "").endsWith(suffix))
+                        .findFirst())
                 .orElseThrow(() -> new BusinessException("Customer not found"));
 
         return AuthResponse.builder()
