@@ -92,12 +92,38 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
       fetchNotifications();
     });
     
-    const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content.data;
+    const handleNotificationResponse = (response: Notifications.NotificationResponse) => {
+      const data: any = response?.notification?.request?.content?.data || {};
+      
+      // When user clicks the FCM notification to enter the app, mark that specific notification as read immediately
+      if (data?.id) {
+        markAsRead(data.id);
+      } else if (data?.bookingId) {
+        setNotifications(prev => {
+          const match = prev.find(n => n.bookingId === data.bookingId);
+          if (match) {
+            markAsRead(match.id);
+          }
+          return prev;
+        });
+      }
+
       if (data?.screen) {
         const { navigate } = require('../navigation/navigationRef');
         navigate(data.screen as any, data.bookingId ? { bookingId: data.bookingId } : undefined);
       }
+    };
+
+    // Cold-start response listener (when app was closed and opened via notification tap)
+    Notifications.getLastNotificationResponseAsync().then(response => {
+      if (response) {
+        handleNotificationResponse(response);
+      }
+    });
+
+    // Background/Foreground response listener
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      handleNotificationResponse(response);
     });
 
     return () => {

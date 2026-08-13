@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useBookings, useNotifications } from '../../hooks/';
+import React from 'react';
+import { useNotifications } from '../../hooks/';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,25 +12,17 @@ import { MotiView } from 'moti';
 
 type Props = NativeStackScreenProps<AdminRootStackParamList, 'Notifications'>;
 
-export default function NotificationsScreen({ navigation }: Props) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications } = useNotifications();
-
-  useEffect(() => {
-    if (unreadCount > 0) {
-      markAllAsRead();
-    }
-  }, [unreadCount]);
-
-  const handlePress = (item: any) => {
-    if (!item.isRead) {
-      markAsRead(item.id);
-    }
-    if (item.bookingId) {
-      navigation.navigate('AdminBookingDetails', { bookingId: item.bookingId });
-    }
-  };
-
-const NotifCard = ({ item, index, handlePress, deleteNotification }: { item: any, index: number, handlePress: (item: any) => void, deleteNotification: (id: string) => void }) => {
+const NotifCard = ({ 
+  item, 
+  index, 
+  handlePress, 
+  deleteNotification 
+}: { 
+  item: any; 
+  index: number; 
+  handlePress: (item: any) => void; 
+  deleteNotification: (id: string) => void; 
+}) => {
   let icon = 'notifications';
   let color = theme.colors.primary;
   if (item.type?.includes('BOOKING')) {
@@ -41,7 +33,7 @@ const NotifCard = ({ item, index, handlePress, deleteNotification }: { item: any
   }
 
   return (
-    <TouchableOpacity onPress={() => handlePress(item)}>
+    <TouchableOpacity onPress={() => handlePress(item)} activeOpacity={0.8}>
       <MotiView 
         from={{ opacity: 0, translateX: -20 }}
         animate={{ opacity: 1, translateX: 0 }}
@@ -67,13 +59,40 @@ const NotifCard = ({ item, index, handlePress, deleteNotification }: { item: any
   );
 };
 
+export default function NotificationsScreen({ navigation }: Props) {
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, clearAllNotifications } = useNotifications();
+
+  const handlePress = (item: any) => {
+    if (!item.isRead) {
+      markAsRead(item.id);
+    }
+    if (item.bookingId) {
+      navigation.navigate('AdminBookingDetails', { bookingId: item.bookingId });
+    }
+  };
+
+  const rightActions = [];
+  if (unreadCount > 0) {
+    rightActions.push({
+      icon: 'done-all' as const,
+      onPress: markAllAsRead,
+      color: theme.colors.primary,
+    });
+  }
+  if (notifications.length > 0) {
+    rightActions.push({
+      icon: 'delete-sweep' as const,
+      onPress: clearAllNotifications,
+      color: theme.colors.textSecondary,
+    });
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <TopAppBar 
         title="Notifications" 
         onBackPress={() => navigation.goBack()} 
-        rightActionIcon={notifications.length > 0 ? "delete-sweep" : undefined}
-        onRightActionPress={notifications.length > 0 ? clearAllNotifications : undefined}
+        rightActions={rightActions.length > 0 ? rightActions : undefined}
       />
       <FlatList
         data={notifications}
@@ -86,7 +105,14 @@ const NotifCard = ({ item, index, handlePress, deleteNotification }: { item: any
             description="You're all caught up! No new notifications at the moment."
           />
         }
-        renderItem={({ item, index }) => <NotifCard item={item} index={index} handlePress={handlePress} deleteNotification={deleteNotification} />}
+        renderItem={({ item, index }) => (
+          <NotifCard 
+            item={item} 
+            index={index} 
+            handlePress={handlePress} 
+            deleteNotification={deleteNotification} 
+          />
+        )}
       />
     </SafeAreaView>
   );
@@ -105,16 +131,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: theme.spacing.md,
     backgroundColor: theme.colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
   },
   cardUnread: {
     backgroundColor: `${theme.colors.primary}08`,
+    borderColor: `${theme.colors.primary}30`,
   },
   iconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: theme.spacing.md,
@@ -126,33 +156,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 4,
   },
   title: {
-    fontSize: theme.typography.body.fontSize,
+    fontSize: 15,
+    fontWeight: '600',
     color: theme.colors.text,
+    flex: 1,
   },
   titleUnread: {
     fontWeight: '700',
+    color: theme.colors.primary,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: theme.colors.error,
+    backgroundColor: theme.colors.primary,
+    marginLeft: 6,
   },
   message: {
-    fontSize: theme.typography.bodySmall.fontSize,
+    fontSize: 13,
     color: theme.colors.textSecondary,
-    marginTop: 2,
+    marginBottom: 6,
+    lineHeight: 18,
   },
   time: {
-    fontSize: theme.typography.caption.fontSize,
+    fontSize: 11,
     color: theme.colors.textSecondary,
-    marginTop: theme.spacing.sm,
   },
   deleteBtn: {
-    padding: theme.spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
+    padding: theme.spacing.xs,
+    marginLeft: theme.spacing.sm,
+  },
 });
