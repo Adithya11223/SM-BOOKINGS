@@ -75,7 +75,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/notifications").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/notifications/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/notifications/**").permitAll()
-                .requestMatchers("/api/v1/reviews", "/api/v1/reviews/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/reviews").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/services/*/reviews").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/services/*/rating-summary").permitAll()
                 
                 // Swagger / Actuator / WebSocket
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/api/health/**", "/ws/**").permitAll()
