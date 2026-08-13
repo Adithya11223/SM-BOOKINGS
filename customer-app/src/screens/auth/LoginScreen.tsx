@@ -102,6 +102,13 @@ export default function LoginScreen() {
         >
           <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.linkButton, { marginTop: 12 }]} 
+          onPress={() => signIn('guest-token', 'guest-id', 'Guest', '')}
+        >
+          <Text style={[styles.linkText, { color: theme.colors.textSecondary }]}>Continue as Guest →</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

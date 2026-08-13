@@ -127,6 +127,13 @@ export default function RegisterScreen() {
           >
             <Text style={styles.linkText}>Already have an account? Login</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.linkButton, { marginTop: 12 }]} 
+            onPress={() => signIn('guest-token', 'guest-id', 'Guest', '')}
+          >
+            <Text style={[styles.linkText, { color: theme.colors.textSecondary }]}>Continue as Guest →</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
