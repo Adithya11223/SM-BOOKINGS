@@ -30,6 +30,10 @@ public class NotificationServiceImpl implements NotificationService {
     private final com.salonbooking.api.service.PushNotificationService pushNotificationService;
     private final com.salonbooking.api.repository.CustomerRepository customerRepository;
 
+    private final com.salonbooking.api.repository.BookingUpdateRepository bookingUpdateRepository;
+    private final com.salonbooking.api.repository.BookingRepository bookingRepository;
+    private final com.salonbooking.api.mapper.BookingMapper bookingMapper;
+
     @Override
     @Transactional(readOnly = true)
     public List<NotificationResponse> getBookingNotifications(UUID bookingId) {
@@ -62,6 +66,26 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setIsRead(true);
         notification.setReadAt(java.time.Instant.now());
         notification = repository.save(notification);
+
+        // If this notification is tied to a booking, also mark that booking's unread indicator as read
+        if (notification.getBooking() != null) {
+            UUID bookingId = notification.getBooking().getId();
+            com.salonbooking.api.enums.TargetRole targetRole = "ADMIN".equalsIgnoreCase(notification.getReceiverType()) 
+                    ? com.salonbooking.api.enums.TargetRole.ADMIN 
+                    : com.salonbooking.api.enums.TargetRole.CUSTOMER;
+            
+            List<com.salonbooking.api.entity.BookingUpdate> updates = 
+                    bookingUpdateRepository.findByBookingIdAndTargetRoleAndIsReadFalse(bookingId, targetRole);
+            if (!updates.isEmpty()) {
+                updates.forEach(u -> u.setRead(true));
+                bookingUpdateRepository.saveAll(updates);
+            }
+            bookingRepository.findById(bookingId).ifPresent(b -> {
+                webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(b));
+            });
+        }
+
+        webSocketEventPublisher.publishNotificationUpdate(notification);
         log.info("Marked notification as read: {}", id);
         return mapper.toResponse(notification);
     }
@@ -76,13 +100,35 @@ public class NotificationServiceImpl implements NotificationService {
             notifications = repository.findForCustomer("CUSTOMER", receiverId);
         }
         
+        com.salonbooking.api.enums.TargetRole targetRole = "ADMIN".equalsIgnoreCase(receiverType) 
+                ? com.salonbooking.api.enums.TargetRole.ADMIN 
+                : com.salonbooking.api.enums.TargetRole.CUSTOMER;
+
+        java.util.Set<UUID> touchedBookingIds = new java.util.HashSet<>();
+
         for (Notification notification : notifications) {
             if (!notification.getIsRead()) {
                 notification.setIsRead(true);
                 notification.setReadAt(java.time.Instant.now());
+                if (notification.getBooking() != null) {
+                    touchedBookingIds.add(notification.getBooking().getId());
+                }
             }
         }
         repository.saveAll(notifications);
+
+        for (UUID bId : touchedBookingIds) {
+            List<com.salonbooking.api.entity.BookingUpdate> updates = 
+                    bookingUpdateRepository.findByBookingIdAndTargetRoleAndIsReadFalse(bId, targetRole);
+            if (!updates.isEmpty()) {
+                updates.forEach(u -> u.setRead(true));
+                bookingUpdateRepository.saveAll(updates);
+            }
+            bookingRepository.findById(bId).ifPresent(b -> {
+                webSocketEventPublisher.publishBookingUpdate("UPDATED", bookingMapper.toDetailResponse(b));
+            });
+        }
+
         log.info("Marked all notifications as read for receiverType={}, receiverId={}", receiverType, receiverId);
     }
 

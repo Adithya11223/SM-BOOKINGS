@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api/axios';
 import { webSocketService } from '../api/WebSocketService';
 import { useAuth } from '../hooks/useAuth';
+import { BookingService } from '../api/BookingService';
 
 export interface NotificationItem {
   id: string;
@@ -248,8 +249,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const markAsRead = async (id: string) => {
     try {
+      const targetNotif = notifications.find(n => n.id === id);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
       await api.patch(`/notifications/${id}/read`);
+      if (targetNotif?.bookingId) {
+        BookingService.markAdminViewed(targetNotif.bookingId).catch(() => {});
+      }
     } catch (error) {
       console.error('Failed to mark as read:', error);
       fetchNotifications();
@@ -259,8 +264,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const markAllAsRead = async () => {
     try {
       if (!user?.id) return;
+      const unreadWithBookings = notifications.filter(n => !n.isRead && n.bookingId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       await api.patch(`/notifications/read-all?receiverType=ADMIN`);
+      unreadWithBookings.forEach(n => {
+        if (n.bookingId) {
+          BookingService.markAdminViewed(n.bookingId).catch(() => {});
+        }
+      });
     } catch (error) {
       console.error('Failed to mark all as read:', error);
       fetchNotifications();

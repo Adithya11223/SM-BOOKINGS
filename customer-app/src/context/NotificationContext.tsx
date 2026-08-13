@@ -8,6 +8,7 @@ import api from '../api/axios';
 import { webSocketService } from '../api/WebSocketService';
 import { useAuth } from '../hooks/useAuth';
 import { navigate } from '../navigation/navigationRef';
+import { BookingService } from '../api/BookingService';
 
 export interface NotificationItem {
   id: string;
@@ -264,9 +265,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const markAsRead = async (id: string) => {
     try {
+      const targetNotif = notifications.find(n => n.id === id);
       // Optimistic update
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
       await api.patch(`/notifications/${id}/read`);
+      if (targetNotif?.bookingId) {
+        BookingService.markCustomerViewed(targetNotif.bookingId).catch(() => {});
+      }
     } catch (error) {
       console.error('Failed to mark as read:', error);
       fetchNotifications(); // Revert on fail
@@ -277,8 +282,14 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     try {
       const receiverId = user?.id || deviceId;
       if (!receiverId) return;
+      const unreadWithBookings = notifications.filter(n => !n.isRead && n.bookingId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       await api.patch(`/notifications/read-all?receiverType=CUSTOMER&receiverId=${receiverId}`);
+      unreadWithBookings.forEach(n => {
+        if (n.bookingId) {
+          BookingService.markCustomerViewed(n.bookingId).catch(() => {});
+        }
+      });
     } catch (error) {
       console.error('Failed to mark all as read:', error);
       fetchNotifications(); // Revert on fail
