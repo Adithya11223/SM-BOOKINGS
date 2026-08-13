@@ -45,7 +45,7 @@ public class ReviewController {
         return null;
     }
 
-    @PostMapping("/reviews")
+    @PostMapping(value = {"/reviews", "/reviews/"})
     @Operation(summary = "Submit Review", description = "Submit a 1-5 star review for a completed booking service")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@Valid @RequestBody CreateReviewRequest request) {
         UserDetailsImpl user = getAuthenticatedUser();
@@ -55,14 +55,14 @@ public class ReviewController {
                 .body(ApiResponse.success("Review submitted successfully", response));
     }
 
-    @GetMapping("/services/{serviceId}/reviews")
+    @GetMapping(value = {"/services/{serviceId}/reviews", "/services/{serviceId}/reviews/"})
     @Operation(summary = "Get Service Reviews", description = "Retrieve all customer reviews for a given service")
     public ResponseEntity<ApiResponse<List<ReviewResponse>>> getServiceReviews(@PathVariable UUID serviceId) {
         List<ReviewResponse> response = reviewService.getReviewsForService(serviceId);
         return ResponseEntity.ok(ApiResponse.success("Service reviews retrieved successfully", response));
     }
 
-    @GetMapping("/services/{serviceId}/rating-summary")
+    @GetMapping(value = {"/services/{serviceId}/rating-summary", "/services/{serviceId}/rating-summary/"})
     @Operation(summary = "Get Service Rating Summary", description = "Retrieve average rating and review count for a service")
     public ResponseEntity<ApiResponse<ServiceRatingSummaryDto>> getServiceRatingSummary(@PathVariable UUID serviceId) {
         ServiceRatingSummaryDto response = reviewService.getRatingSummaryForService(serviceId);
