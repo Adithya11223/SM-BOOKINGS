@@ -17,12 +17,13 @@ export class BookingService {
       time: b.bookingTime || '00:00',
       status: b.bookingStatus?.toLowerCase() || 'pending',
       items: (b.items || []).map((i: any) => ({
+        id: i.id,
         quantity: i.quantity || 1,
         service: {
-          id: i.serviceId,
-          name: i.serviceNameSnapshot || 'Service',
-          price: i.priceSnapshot || 0,
-          duration: i.durationSnapshot || 0,
+          id: i.serviceId || i.service?.id || i.id,
+          name: i.serviceNameSnapshot || i.service?.name || 'Service',
+          price: i.priceSnapshot || i.service?.price || 0,
+          duration: i.durationSnapshot || i.service?.duration || 0,
         }
       })),
       hasUnreadAdminUpdates: b.hasUnreadAdminUpdates,

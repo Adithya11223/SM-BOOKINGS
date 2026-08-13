@@ -239,7 +239,10 @@ public class BookingServiceImpl implements BookingService {
         List<BookingItem> rejectedItems = new ArrayList<>();
 
         for (BookingItem item : allItems) {
-            if (acceptedServiceIds.contains(item.getService().getId())) {
+            UUID sId = item.getService() != null ? item.getService().getId() : null;
+            boolean isAccepted = acceptedServiceIds.contains(item.getId()) 
+                    || (sId != null && acceptedServiceIds.contains(sId));
+            if (isAccepted) {
                 acceptedItems.add(item);
             } else {
                 rejectedItems.add(item);
