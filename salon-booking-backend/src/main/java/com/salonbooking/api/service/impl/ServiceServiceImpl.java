@@ -7,6 +7,7 @@ import com.salonbooking.api.entity.BusinessSettings;
 import com.salonbooking.api.entity.Service;
 import com.salonbooking.api.exception.ResourceNotFoundException;
 import com.salonbooking.api.mapper.ServiceMapper;
+import com.salonbooking.api.repository.BookingItemRepository;
 import com.salonbooking.api.repository.ServiceRepository;
 import com.salonbooking.api.service.BusinessSettingsService;
 import com.salonbooking.api.service.ServiceService;
@@ -25,6 +26,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository repository;
+    private final BookingItemRepository bookingItemRepository;
     private final ServiceMapper mapper;
     private final BusinessSettingsService businessSettingsService;
     private final com.salonbooking.api.repository.NotificationRepository notificationRepository;
@@ -104,14 +106,17 @@ public class ServiceServiceImpl implements ServiceService {
     @com.salonbooking.api.annotation.AuditLog(action = "Delete Service")
     public void deleteService(UUID id) {
         Service service = getServiceEntityById(id);
-        try {
-            repository.delete(service);
-            repository.flush();
-            log.info("Deleted service: {}", id);
-        } catch (DataIntegrityViolationException e) {
-            log.warn("Service {} is referenced by bookings. Soft deleting instead.", id);
-            service.setIsVisible(false);
-            repository.save(service);
+
+        // 1. Detach service from existing booking items (snapshots preserve details)
+        bookingItemRepository.nullifyServiceReference(id);
+
+        // 2. Detach from BusinessSettings collection
+        if (service.getBusinessSettings() != null && service.getBusinessSettings().getServices() != null) {
+            service.getBusinessSettings().getServices().remove(service);
         }
+
+        // 3. Delete service cleanly
+        repository.delete(service);
+        log.info("Deleted service: {}", id);
     }
 }
