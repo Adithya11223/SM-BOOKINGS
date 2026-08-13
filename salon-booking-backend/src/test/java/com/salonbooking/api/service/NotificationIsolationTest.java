@@ -259,11 +259,12 @@ public class NotificationIsolationTest {
     @Test
     void confirmedBookingReceivesAppointmentReminder() {
         Customer cA = new Customer(); cA.setId(customerAId); cA.setName("Customer A");
+        java.time.LocalDateTime targetTime = java.time.LocalDateTime.now().plusMinutes(30);
         com.salonbooking.api.entity.Booking confirmedBooking = com.salonbooking.api.entity.Booking.builder()
                 .bookingNumber("B-100")
                 .bookingStatus(com.salonbooking.api.enums.BookingStatus.CONFIRMED)
-                .bookingDate(java.time.LocalDate.now())
-                .bookingTime(java.time.LocalTime.now().plusHours(1))
+                .bookingDate(targetTime.toLocalDate())
+                .bookingTime(targetTime.toLocalTime())
                 .customer(cA)
                 .reminderSent(false)
                 .build();
