@@ -37,12 +37,23 @@ public class NotificationController {
             @RequestParam(required = false) String receiverType,
             @RequestParam(required = false) UUID receiverId) {
         log.info("REST Request to get notifications for receiverType: {}, receiverId: {}", receiverType, receiverId);
-        List<NotificationResponse> responses;
-        if ("ADMIN".equalsIgnoreCase(receiverType)) {
-            responses = notificationService.getAdminNotifications();
-        } else {
-            responses = notificationService.getCustomerNotifications(receiverId);
+        
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.salonbooking.api.security.UserDetailsImpl) {
+            com.salonbooking.api.security.UserDetailsImpl userDetails = (com.salonbooking.api.security.UserDetailsImpl) auth.getPrincipal();
+            boolean isAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin) {
+                return ResponseEntity.ok(ApiResponse.success(notificationService.getAdminNotifications(), "Notifications retrieved successfully"));
+            } else {
+                return ResponseEntity.ok(ApiResponse.success(notificationService.getCustomerNotifications(userDetails.getId()), "Notifications retrieved successfully"));
+            }
         }
+
+        if ("ADMIN".equalsIgnoreCase(receiverType)) {
+            return ResponseEntity.status(403).body(ApiResponse.error(403, "Access denied for unauthenticated admin notifications request"));
+        }
+
+        List<NotificationResponse> responses = notificationService.getCustomerNotifications(receiverId);
         return ResponseEntity.ok(ApiResponse.success(responses, "Notifications retrieved successfully"));
     }
 
@@ -54,13 +65,30 @@ public class NotificationController {
         webSocketEventPublisher.publishNotificationUpdate(readNotification);
         return ResponseEntity.ok(ApiResponse.success(null, "Notification marked as read"));
     }
+
     @PatchMapping("/read-all")
     @Operation(summary = "Mark All Notifications as Read", description = "Marks all notifications for a receiver as read")
     public ResponseEntity<ApiResponse<Void>> markAllAsRead(
-            @RequestParam String receiverType,
+            @RequestParam(required = false) String receiverType,
             @RequestParam(required = false) UUID receiverId) {
         log.info("REST Request to mark all notifications as read for receiverType: {}, receiverId: {}", receiverType, receiverId);
-        notificationService.markAllAsRead(receiverType, receiverId);
+        
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.salonbooking.api.security.UserDetailsImpl) {
+            com.salonbooking.api.security.UserDetailsImpl userDetails = (com.salonbooking.api.security.UserDetailsImpl) auth.getPrincipal();
+            boolean isAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin) {
+                receiverType = "ADMIN";
+                receiverId = null;
+            } else {
+                receiverType = "CUSTOMER";
+                receiverId = userDetails.getId();
+            }
+        } else if ("ADMIN".equalsIgnoreCase(receiverType)) {
+            return ResponseEntity.status(403).body(ApiResponse.error(403, "Access denied for unauthenticated admin mark-all-read request"));
+        }
+
+        notificationService.markAllAsRead(receiverType != null ? receiverType : "CUSTOMER", receiverId);
         return ResponseEntity.ok(ApiResponse.success(null, "All notifications marked as read"));
     }
 
@@ -75,10 +103,26 @@ public class NotificationController {
     @DeleteMapping("/clear-all")
     @Operation(summary = "Delete All Notifications", description = "Deletes all notifications for a receiver")
     public ResponseEntity<ApiResponse<Void>> deleteAllNotifications(
-            @RequestParam String receiverType,
+            @RequestParam(required = false) String receiverType,
             @RequestParam(required = false) UUID receiverId) {
         log.info("REST Request to delete all notifications for receiverType: {}, receiverId: {}", receiverType, receiverId);
-        notificationService.deleteAllNotifications(receiverType, receiverId);
+        
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.salonbooking.api.security.UserDetailsImpl) {
+            com.salonbooking.api.security.UserDetailsImpl userDetails = (com.salonbooking.api.security.UserDetailsImpl) auth.getPrincipal();
+            boolean isAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin) {
+                receiverType = "ADMIN";
+                receiverId = null;
+            } else {
+                receiverType = "CUSTOMER";
+                receiverId = userDetails.getId();
+            }
+        } else if ("ADMIN".equalsIgnoreCase(receiverType)) {
+            return ResponseEntity.status(403).body(ApiResponse.error(403, "Access denied for unauthenticated admin clear-all request"));
+        }
+
+        notificationService.deleteAllNotifications(receiverType != null ? receiverType : "CUSTOMER", receiverId);
         return ResponseEntity.ok(ApiResponse.success(null, "All notifications deleted successfully"));
     }
 
