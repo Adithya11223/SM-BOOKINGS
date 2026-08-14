@@ -1,7 +1,7 @@
--- V22: Clean database to keep only admin & services, delete all test users and bookings, and enforce data isolation indexes
+-- V23: Clean database to keep only admin & services, delete all test users and bookings, and enforce data isolation indexes
 
 DELETE FROM reviews;
-DELETE FROM booking_update;
+DELETE FROM booking_updates;
 DELETE FROM booking_item;
 DELETE FROM notification;
 DELETE FROM booking;
