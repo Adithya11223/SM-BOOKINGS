@@ -13,6 +13,8 @@ import { BookingCard } from '../components/cards/BookingCard';
 import { EmptyState } from '../components/states/EmptyState';
 import { SortModal, SortOption } from '../components/overlays/SortModal';
 
+import { useFocusEffect } from '@react-navigation/native';
+
 type TabType = 'upcoming' | 'completed' | 'cancelled';
 
 export default function MyBookingsScreen({ navigation }: any) {
@@ -21,12 +23,30 @@ export default function MyBookingsScreen({ navigation }: any) {
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
+  // Automatically mark unread customer updates as viewed when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      bookings.forEach(booking => {
+        if (booking.hasUnreadCustomerUpdates && booking.id) {
+          markCustomerViewed(booking.id);
+        }
+      });
+    }, [bookings, markCustomerViewed])
+  );
+
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
+      const rawStatus = (booking.status || (booking as any).bookingStatus || 'pending').toString().toLowerCase();
       if (activeTab === 'upcoming') {
-        return booking.status === 'pending' || booking.status === 'confirmed';
+        return rawStatus.includes('pend') || rawStatus.includes('confirm') || rawStatus.includes('upcom');
       }
-      return booking.status === activeTab;
+      if (activeTab === 'completed') {
+        return rawStatus.includes('complet');
+      }
+      if (activeTab === 'cancelled') {
+        return rawStatus.includes('cancel');
+      }
+      return false;
     }).sort((a, b) => {
       if (sortBy === 'date-desc') {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
