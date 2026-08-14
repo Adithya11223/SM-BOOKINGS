@@ -80,7 +80,8 @@ public class FcmTokenController {
         log.info("Received FCM token registration for device: {} (user: {}, role: {})", 
                 request.getDeviceId(), user.getId(), receiverType);
 
-        Optional<FcmToken> existingToken = fcmTokenRepository.findByDeviceId(request.getDeviceId());
+        Optional<FcmToken> existingToken = fcmTokenRepository.findByDeviceIdAndReceiverTypeIgnoreCase(request.getDeviceId(), receiverType)
+                .or(() -> fcmTokenRepository.findByToken(request.getToken()));
 
         FcmToken fcmToken;
         if (existingToken.isPresent()) {

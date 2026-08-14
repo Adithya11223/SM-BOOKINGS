@@ -15,6 +15,8 @@ import java.util.UUID;
 public interface FcmTokenRepository extends JpaRepository<FcmToken, UUID> {
     Optional<FcmToken> findByToken(String token);
     Optional<FcmToken> findByDeviceId(String deviceId);
+    Optional<FcmToken> findByDeviceIdAndReceiverType(String deviceId, String receiverType);
+    Optional<FcmToken> findByDeviceIdAndReceiverTypeIgnoreCase(String deviceId, String receiverType);
     
     @Query("SELECT f FROM FcmToken f WHERE f.adminId IS NOT NULL OR UPPER(f.receiverType) = 'ADMIN'")
     List<FcmToken> findAdminTokens();
