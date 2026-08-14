@@ -77,6 +77,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
             message.put("body", notification.getMessage());
             message.put("channelId", "default");
             message.put("priority", "high");
+            message.put("badge", 1);
             message.put("_displayInForeground", true);
 
             Map<String, String> data = new HashMap<>();

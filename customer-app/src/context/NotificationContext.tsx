@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
@@ -335,13 +335,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = useMemo(() => {
+    return notifications.filter(n => !n.isRead).length;
+  }, [notifications]);
 
   useEffect(() => {
     Notifications.setBadgeCountAsync(unreadCount).catch(() => {});
     if (unreadCount === 0) {
       Notifications.setBadgeCountAsync(0).catch(() => {});
       Notifications.dismissAllNotificationsAsync().catch(() => {});
+      setTimeout(() => {
+        Notifications.setBadgeCountAsync(0).catch(() => {});
+      }, 150);
     }
   }, [unreadCount]);
 
