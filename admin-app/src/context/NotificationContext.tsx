@@ -52,7 +52,7 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldSetBadge: false,
+    shouldSetBadge: true,
   }),
 });
 
@@ -136,13 +136,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        // App came to foreground -> sync with server as source of truth and force update OS badge
+        // App came to foreground -> sync with server as source of truth
         fetchNotifications();
-        const currentUnread = notifications.filter(n => !n.isRead).length;
-        Notifications.setBadgeCountAsync(currentUnread).catch(() => {});
-        if (currentUnread === 0) {
-          Notifications.dismissAllNotificationsAsync().catch(() => {});
-        }
         if (expoPushToken && deviceId && user?.id) {
           sendTokenToBackend(expoPushToken, deviceId, user.id);
         }
@@ -184,19 +179,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         }
         return [item, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       });
-
-      // Only trigger local push notification banner in foreground if unread
-      if (!item.isRead) {
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: item.title,
-            body: item.message,
-            data: { screen: 'Notifications', bookingId: item.bookingId, id: item.id },
-            sound: true,
-          },
-          trigger: null,
-        }).catch(() => {});
-      }
     };
 
     const adminTopic = `/topic/admin/notifications`;

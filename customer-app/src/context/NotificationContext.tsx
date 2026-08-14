@@ -53,7 +53,7 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
     shouldPlaySound: true,
-    shouldSetBadge: false,
+    shouldSetBadge: true,
   }),
 });
 
@@ -152,13 +152,8 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        // App came to foreground -> sync with server as source of truth and force update OS badge
+        // App came to foreground -> sync with server as source of truth
         fetchNotifications();
-        const currentUnread = notifications.filter(n => !n.isRead).length;
-        Notifications.setBadgeCountAsync(currentUnread).catch(() => {});
-        if (currentUnread === 0) {
-          Notifications.dismissAllNotificationsAsync().catch(() => {});
-        }
         if (expoPushToken && deviceId && user?.id) {
           sendTokenToBackend(expoPushToken, deviceId, user.id);
         }
@@ -166,10 +161,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
     const appStateSub = AppState.addEventListener('change', handleAppStateChange);
 
-    const receiverId = user?.id || deviceId;
-    
-    // Always connect to WebSockets so that Bookings, Services, and Business Config get real-time updates
     webSocketService.connect();
+    
+    let topic = '/topic/customer/notifications';
+    if (user?.id) {
+      topic = `/topic/customer/${user.id}/notifications`;
+    }
     
     const handleWsNotification = (parsed: any) => {
       if (parsed?.action === 'READ_ALL') {
@@ -192,7 +189,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         message: parsed.message || '',
         type: parsed.type || 'GENERAL',
         bookingId: parsed.booking ? parsed.booking.id : parsed.bookingId,
-        serviceId: parsed.service ? parsed.service.id : parsed.serviceId,
+        serviceId: parsed.serviceId,
         isRead: parsed.isRead || false,
         createdAt: parsed.createdAt || new Date().toISOString(),
       };
@@ -204,28 +201,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         }
         return [item, ...prev].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       });
-
-      // Only trigger local push notification banner if the notification is unread (not a read receipt sync)
-      if (!item.isRead) {
-        const targetScreen = item.serviceId ? 'ServiceDetails' : (item.bookingId ? 'BookingDetails' : 'Notifications');
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: item.title,
-            body: item.message,
-            data: { screen: targetScreen, bookingId: item.bookingId, serviceId: item.serviceId, id: item.id },
-            sound: true,
-          },
-          trigger: null,
-        }).catch(() => {});
-      }
     };
 
     const broadcastTopic = `/topic/customer/all/notifications`;
     webSocketService.subscribe(broadcastTopic, handleWsNotification);
 
+    const targetId = user?.id || deviceId;
     let privateTopic: string | null = null;
-    if (receiverId) {
-      privateTopic = `/topic/customer/${receiverId}/notifications`;
+    if (targetId) {
+      privateTopic = `/topic/customer/${targetId}/notifications`;
       webSocketService.subscribe(privateTopic, handleWsNotification);
     }
 
