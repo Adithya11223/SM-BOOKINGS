@@ -34,6 +34,21 @@ export default function MyBookingsScreen({ navigation }: any) {
     }, [bookings, markCustomerViewed])
   );
 
+  const tabCounts = useMemo(() => {
+    const counts: Record<TabType, number> = { upcoming: 0, completed: 0, cancelled: 0 };
+    bookings.forEach(b => {
+      const rawStatus = (b.status || (b as any).bookingStatus || 'pending').toString().toLowerCase();
+      if (rawStatus.includes('pend') || rawStatus.includes('confirm') || rawStatus.includes('upcom')) {
+        counts.upcoming++;
+      } else if (rawStatus.includes('complet')) {
+        counts.completed++;
+      } else if (rawStatus.includes('cancel')) {
+        counts.cancelled++;
+      }
+    });
+    return counts;
+  }, [bookings]);
+
   const filteredBookings = useMemo(() => {
     return bookings.filter(booking => {
       const rawStatus = (booking.status || (booking as any).bookingStatus || 'pending').toString().toLowerCase();
@@ -63,13 +78,14 @@ export default function MyBookingsScreen({ navigation }: any) {
 
   const renderTab = (title: string, tabValue: TabType) => {
     const isActive = activeTab === tabValue;
+    const count = tabCounts[tabValue] || 0;
     return (
       <TouchableOpacity 
         style={[styles.tab, isActive && styles.tabActive]}
         onPress={() => setActiveTab(tabValue)}
       >
         <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
-          {title}
+          {title} ({count})
         </Text>
       </TouchableOpacity>
     );
